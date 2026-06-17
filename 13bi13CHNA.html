@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>МИР 13×13 — The Vessel v17</title>
+
+<!-- Firebase (compat SDK — работает без сборщика) -->
+<style>
+:root {
+  --em:#10b981;--em-d:#059669;--cyan:#22d3ee;
+  --gold:#fbbf24;--rose:#f43f5e;--bg:#020617;--void:#09090b;--sigma:#a78bfa;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:pointer}
+#app{display:flex;flex-direction:column;height:100vh;width:100vw;align-items:center;justify-content:center}
+.shake{animation:shk .3s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes shk{10%,90%{transform:translate3d(-2px,0,0)}20%,80%{transform:translate3d(4px,0,0)}30%,50%,70%{transform:translate3d(-8px,0,0);filter:hue-rotate(90deg)}40%,60%{transform:translate3d(8px,0,0)}}
+.overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;z-index:100;padding:24px 20px;text-align:center;-webkit-overflow-scrolling:touch}
+.hidden{display:none!important}
+.btn{background:var(--em);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:900;cursor:pointer;margin:5px;text-transform:uppercase;font-size:10px;letter-spacing:1px;font-family:monospace;box-shadow:0 4px 0 var(--em-d);transition:transform .1s,box-shadow .1s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--em-d)}
+.btn-ghost{background:#1e293b;box-shadow:0 4px 0 #0f172a}
+.btn-ghost:active{box-shadow:0 1px 0 #0f172a}
+.btn-sm{padding:6px 12px;font-size:9px}
+.btn-w{width:220px}
+.slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:320px}
+.slot-card{border-radius:10px;padding:12px 8px;text-align:center;border:1px solid #334155;display:flex;flex-direction:column;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+.slot-name{font-weight:900;font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.slot-type{font-size:9px;opacity:.5}
+.slot-btns{display:flex;gap:4px}
+
+/* ROOM CODE DISPLAY */
+.room-code{background:#000;border:2px solid var(--em);color:var(--em);padding:16px 24px;border-radius:12px;font-size:28px;font-weight:900;letter-spacing:8px;margin-bottom:8px;text-align:center}
+.room-code-label{font-size:8px;opacity:.4;letter-spacing:2px;margin-bottom:16px}
+
+/* GAME BOARD */
+#game-screen{display:none;position:relative;width:100vmin;height:100vmin;background:var(--void);border:1px solid #1e293b;touch-action:none}
+.cell{position:absolute;border:1px solid rgba(255,255,255,.05);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;z-index:2;overflow:hidden}
+.cell.crowded .piece{font-size:clamp(7px,1.8vmin,13px)!important;margin:-1px}
+.cell.hyper-crowded .piece{font-size:clamp(5px,1.2vmin,9px)!important;margin:-2px}
+.cell-head{border:2px solid rgba(255,255,255,.25)!important;background:rgba(255,255,255,.04)}
+.cell-hi{background:rgba(16,185,129,.3)!important;box-shadow:inset 0 0 12px var(--em);z-index:3!important}
+.cell-wall{background:rgba(34,211,238,.08)!important}
+.inner-cell{position:absolute;border:1px dotted rgba(16,185,129,.08);z-index:1}
+.singularity{background:rgba(251,191,36,.04)!important;box-shadow:inset 0 0 20px rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4)!important}
+.piece{cursor:pointer;z-index:50;font-size:clamp(10px,2.4vmin,18px);line-height:1;padding:2px;transition:transform .15s,filter .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.piece.sel{filter:drop-shadow(0 0 8px var(--em));transform:scale(1.6);color:#fff!important}
+.ph-rook{color:var(--cyan);opacity:.2;font-size:14px;position:absolute;pointer-events:none;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.15}50%{opacity:.45}}
+.corner-ui{position:absolute;width:calc(500%/13);height:calc(500%/13);pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;transform:translate(-50%,-50%);gap:3px}
+.name-tag{font-weight:900;font-size:8px;letter-spacing:1.5px;opacity:.35;text-transform:uppercase}
+.name-tag.act{opacity:1;color:var(--em);text-shadow:0 0 8px var(--em)}
+.name-tag.sigma{color:var(--sigma);text-shadow:0 0 8px var(--sigma);opacity:1}
+.dice-row{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;pointer-events:auto}
+.die{width:27px;height:27px;background:rgba(0,0,0,.9);border:2px solid var(--em);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--em);cursor:pointer;font-size:13px;font-family:monospace;transition:transform .1s,opacity .2s,border-color .2s,color .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.die:active{transform:scale(.88)}
+.die-nrg{border-color:var(--gold);color:var(--gold);box-shadow:0 0 8px var(--gold)}
+.die-used{opacity:.06;filter:grayscale(1);pointer-events:none!important}
+.die-entropy{border-color:var(--rose)!important;color:var(--rose)!important;animation:noisePulse .3s infinite alternate;pointer-events:none}
+@keyframes noisePulse{from{filter:hue-rotate(0deg);transform:translate(1px,-1px) scale(1.05);box-shadow:0 0 8px var(--rose)}to{filter:hue-rotate(40deg);transform:translate(-1px,1px) scale(0.95);box-shadow:0 0 15px var(--rose)}}
+#spell-hud{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);color:var(--cyan);font-size:17px;letter-spacing:5px;z-index:10;pointer-events:none;font-weight:900;text-shadow:0 0 10px var(--cyan);text-align:center;max-width:80%}
+#morse-buf{position:absolute;top:calc(48% + 28px);left:50%;transform:translate(-50%,-50%);color:rgba(34,211,238,.4);font-size:10px;z-index:10;pointer-events:none;letter-spacing:4px}
+#vec-hud{position:absolute;top:calc(48% + 50px);left:50%;transform:translate(-50%,-50%);color:var(--gold);font-size:7px;opacity:.5;z-index:10;pointer-events:none;letter-spacing:2px}
+#q-panel{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:200;background:rgba(0,0,0,.92);padding:10px 16px;border-radius:40px;border:1px solid var(--em)}
+#skip-btn{position:fixed;bottom:24px;right:16px;z-index:200}
+#grimoire-btn{position:fixed;bottom:24px;left:16px;z-index:200}
+#grimoire-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.g-inner{background:#0f172a;border:1px solid var(--em);border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:440px;max-height:75vh;overflow-y:auto}
+.g-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:6px}
+.g-row:last-child{border:none}
+.g-name{color:var(--em);font-weight:900;font-size:10px;min-width:44px}
+.g-cost{color:var(--gold);min-width:24px;text-align:center;font-size:9px}
+.g-morse{color:var(--cyan);font-size:8px;min-width:90px;text-align:center;opacity:.65}
+.g-desc{opacity:.55;flex:1;text-align:right;font-size:8px}
+#notif-stack{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:5000;display:flex;flex-direction:column;gap:6px;pointer-events:none;align-items:center}
+.notif{background:var(--em);color:#fff;padding:9px 18px;border-radius:8px;font-weight:900;font-size:10px;white-space:nowrap;letter-spacing:.5px;animation:fadeIn .2s ease;transition:opacity 1s ease}
+.notif.sigma{background:var(--sigma);color:#000;box-shadow:0 0 15px var(--sigma)}
+.notif.entropy{background:var(--rose);color:#fff;box-shadow:0 0 15px var(--rose)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+#win-screen .faction-badge{font-size:40px;margin-bottom:10px}
+#win-screen h2{font-size:12px;letter-spacing:4px;opacity:.4;margin:0 0 6px}
+#win-screen h1{font-size:28px;font-weight:900;letter-spacing:3px;color:var(--gold);margin:0 0 30px}
+
+/* CONNECTION STATUS */
+#conn-status{position:fixed;top:8px;right:8px;width:8px;height:8px;border-radius:50%;z-index:300;transition:background .5s}
+#conn-status.online{background:#10b981;box-shadow:0 0 6px #10b981}
+#conn-status.offline{background:#f43f5e;box-shadow:0 0 6px #f43f5e}
+#conn-status.connecting{background:#fbbf24;animation:pulse 1s infinite}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- MAIN MENU (add center override for menu/win) -->
+<div id="menu" class="overlay" style="justify-content:center">
+  <div style="font-size:10px;letter-spacing:5px;opacity:.3;margin-bottom:6px">МИР 13×13</div>
+  <div style="font-size:30px;letter-spacing:8px;color:var(--em);font-weight:900;margin-bottom:4px">THE VESSEL</div>
+  <div style="font-size:7px;opacity:.25;letter-spacing:3px;margin-bottom:40px">v17 · FIREBASE ONLINE</div>
+  <button class="btn btn-w" onclick="initHotseat()">♟ HOTSEAT</button>
+  <button class="btn btn-w btn-ghost" onclick="initHost()">📡 СОЗДАТЬ ЗАЛ</button>
+  <button class="btn btn-w btn-ghost" onclick="initJoin()">🔍 ЗНАЙТИ КІМнату</button>
+</div>
+
+<!-- HOTSEAT LOBBY -->
+<div id="hs-lobby" class="overlay hidden">
+  <div style="font-size:9px;letter-spacing:3px;color:var(--em);margin-bottom:20px">РАССТАНОВКА СИЛ</div>
+  <div id="hs-slots" class="slot-grid"></div>
+  <button class="btn btn-w" style="margin-top:20px" onclick="startGame()">▶ НАЧАТЬ РИТМ</button>
+  <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="showMenu()">← НАЗАД</button>
+</div>
+
+<!-- HOST LOBBY -->
+<div id="host-lobby" class="overlay hidden">
+  <div class="room-code-label">КОД КОМНАТИ</div>
+  <div class="room-code" id="room-code-display">------</div>
+  <button class="btn btn-sm" style="margin-bottom:16px" onclick="copyRoomCode()">📋 СКОПІЮВАТИ</button>
+  <div id="host-slots" class="slot-grid"></div>
+  <button id="host-start-btn" class="btn btn-w hidden" style="margin-top:16px" onclick="startGame()">▶ ПОЧАТИ ГРУ</button>
+  <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="showMenu()">← НАЗАД</button>
+</div>
+
+<!-- ROOMS BROWSER -->
+<div id="rooms-browser" class="overlay hidden">
+  <div style="font-size:9px;letter-spacing:3px;color:var(--em);margin-bottom:4px">АКТИВНІ КІМНАТИ</div>
+  <div style="font-size:8px;opacity:.3;margin-bottom:16px">Оновлення в реальному часі</div>
+  <div id="rooms-list" style="width:320px;display:flex;flex-direction:column;gap:10px;min-height:80px"></div>
+  <div style="margin-top:16px;font-size:8px;opacity:.3">— або введи код вручну —</div>
+  <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+    <input id="room-input" type="text" maxlength="6"
+      style="background:#000;border:2px solid var(--em);color:var(--em);padding:10px;border-radius:8px;font-size:16px;font-weight:900;letter-spacing:4px;width:140px;text-align:center;font-family:monospace;text-transform:uppercase;touch-action:manipulation;-webkit-tap-highlight-color:transparent"
+      placeholder="XXXXXX" oninput="this.value=this.value.toUpperCase()">
+    <button class="btn" style="margin:0;padding:10px 14px" onclick="joinByCode()">→</button>
+  </div>
+  <div id="join-status" style="font-size:9px;color:var(--rose);margin-top:10px;min-height:16px"></div>
+  <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="showMenu()">← НАЗАД</button>
+</div>
+
+<!-- GUEST LOBBY (after joining) -->
+<div id="guest-lobby" class="overlay hidden">
+  <div style="font-size:9px;letter-spacing:2px;color:var(--em);margin-bottom:4px">КІМНАТА ЗНАЙДЕНА</div>
+  <div id="guest-room-code" style="font-size:11px;opacity:.3;letter-spacing:3px;margin-bottom:16px"></div>
+  <div id="guest-slots" class="slot-grid"></div>
+  <div style="font-size:8px;opacity:.3;margin-top:16px">Очікуємо початку гри...</div>
+</div>
+
+<!-- WIN SCREEN -->
+<div id="win-screen" class="overlay hidden" style="justify-content:center">
+  <div id="winner-badge" class="faction-badge">♛</div>
+  <h2>ПРОБУЖДЕНИЕ</h2>
+  <h1 id="winner-name">---</h1>
+  <button class="btn btn-w" onclick="location.reload()">↺ НОВЫЙ ЦИКЛ</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div id="matrix"></div>
+  <div id="board"></div>
+  <div id="spell-hud"></div>
+  <div id="morse-buf"></div>
+  <div id="vec-hud">ВЕКТОР ОЖИДАНИЯ</div>
+  <div id="ui-layer"></div>
+  <div id="q-panel" class="hidden">
+    <button class="btn btn-sm" style="margin:0" onclick="setQDir(-1)">◀ НАЗАД</button>
+    <button class="btn btn-sm" style="margin:0" onclick="setQDir(1)">ВПЕРЁД ▶</button>
+  </div>
+  <button id="skip-btn" class="btn btn-ghost btn-sm hidden" onclick="doSkip()">ПРОПУСК</button>
+  <button id="grimoire-btn" class="btn btn-ghost btn-sm hidden" onclick="openGrimoire()">📖 ГРИМУАР</button>
+</div>
+
+</div><!-- #app -->
+
+<div id="notif-stack"></div>
+<div id="conn-status" class="connecting" title="Статус соединения"></div>
+
+<!-- GRIMOIRE MODAL -->
+<div id="grimoire-modal" class="hidden" onclick="closeGrimoire()">
+  <div class="g-inner" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="color:var(--em);font-weight:900;letter-spacing:2px;font-size:12px">📖 ГРИМУАР</div>
+      <button class="btn btn-ghost btn-sm" style="margin:0" onclick="closeGrimoire()">✕</button>
+    </div>
+    <div style="font-size:8px;opacity:.35;margin-bottom:10px;line-height:1.5">
+      Тапы: · &lt;150мс, – 150-400мс. Пауза 600мс = буква.<br>
+      Свайп = каст + цель: ↑ПИКИ · →ЧЕРВЫ · ↓ТРЕФЫ · ←БУБНЫ
+    </div>
+    <div id="grimoire-content"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════════════════════════
+// ⚠ ВСТАВЬ СВОИ КЛЮЧИ — apiKey и appId скопируй из
+//   Firebase Console → Project Settings → General → Your apps
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBFTDfxlGYuMup3bvXpu7FSb1X1ZoaW9kc",       // ← из Firebase console
+  authDomain:        "vessel-mir-13.firebaseapp.com",
+  databaseURL:       "https://vessel-mir-13-default-rtdb.firebaseio.com",
+  projectId:         "vessel-mir-13",
+  storageBucket:     "vessel-mir-13.firebasestorage.app",
+  messagingSenderId: "867742512524",
+  appId:             "1:867742512524:web:0e50ec79111eae793492a9",         // ← из Firebase console
+  measurementId:     "G-VL1NLGV0LK"
+};
+
+// Firebase — завантажується лише при потребі (не блокує сторінку)
+let db = null;
+let _fbLoaded = false;
+
+function loadFirebase(callback) {
+  if(_fbLoaded && window.firebase) { callback(); return; }
+  document.getElementById('conn-status').className = 'connecting';
+  const load = (url, next) => {
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = next;
+    s.onerror = () => { notify('Помилка завантаження Firebase'); document.getElementById('conn-status').className = 'offline'; };
+    document.head.appendChild(s);
+  };
+  load('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js', () => {
+    load('https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js', () => {
+      try {
+        if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.database();
+        _fbLoaded = true;
+        document.getElementById('conn-status').className = 'online';
+        callback();
+      } catch(e) {
+        document.getElementById('conn-status').className = 'offline';
+        notify('Firebase: ' + e.message);
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════════════════════════════════
+let audioCtx=null, droneFx=null, toneFx=null;
+function initAudio(){
+  if(audioCtx)return;
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    droneFx=audioCtx.createOscillator();droneFx.type='triangle';droneFx.frequency.value=55;
+    const g=audioCtx.createGain();g.gain.value=.025;
+    droneFx.connect(g);g.connect(audioCtx.destination);droneFx.start();
+  }catch(e){}
+}
+function playBeep(type){
+  if(!audioCtx)return;stopTone();
+  toneFx=audioCtx.createOscillator();const g=audioCtx.createGain();
+  if(type==='dot'){toneFx.type='sine';toneFx.frequency.value=660;g.gain.value=.09;}
+  if(type==='dash'){toneFx.type='sine';toneFx.frequency.value=440;g.gain.value=.09;}
+  if(type==='error'){toneFx.type='sawtooth';toneFx.frequency.setValueAtTime(150,audioCtx.currentTime);toneFx.frequency.exponentialRampToValueAtTime(40,audioCtx.currentTime+.3);g.gain.value=.13;}
+  if(type==='win'){toneFx.type='sine';toneFx.frequency.value=880;g.gain.value=.15;}
+  if(type==='spell'){toneFx.type='triangle';toneFx.frequency.value=528;g.gain.value=.12;}
+  toneFx.connect(g);g.connect(audioCtx.destination);toneFx.start();
+}
+function stopTone(){if(toneFx){try{toneFx.stop();toneFx.disconnect();}catch(e){}toneFx=null;}}
+
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const MORSE_TABLE={'.-':'A','-...':'B','-.-.':'C','-..':'D','.':'E','..-.':'F','--.':'G','....':'H','..':'I','.---':'J','-.-':'K','.-..':'L','--':'M','-.':'N','---':'O','.--.':'P','--.-':'Q','.-.':'R','...':'S','-':'T','..-':'U','...-':'V','.--':'W','-..-':'X','-.--':'Y','--..':'Z'};
+const L2M=Object.fromEntries(Object.entries(MORSE_TABLE).map(([k,v])=>[v,k]));
+const OFFENSIVE_SPELLS=new Set(['NO','AF','QQ','SUS','ZIP','PIG','YEET','OOPS','MUTE','VOID']);
+const PERIMETER=48,HEADS=[0,12,24,36];
+const TEMPLATES=[{t:'Q',i:'♕',count:2,lvl:1},{t:'E',i:'♗',count:2,lvl:2},{t:'R',i:'♖',count:2,lvl:3},{t:'K',i:'♘',count:2,lvl:4},{t:'P',i:'♙',count:8,lvl:5}];
+function _nm(id){return S.players[id]?.name||'?';}
+
+// ═══════════════════════════════════════════════════════════════
+// GRIMOIRE
+// ═══════════════════════════════════════════════════════════════
+const GR={
+  UP:{cost:2,desc:'+2 энергии цели',eff:(c,t)=>{S.players[t].energy=Math.min(8,S.players[t].energy+2);notify(`⚡ ${_nm(t)}: +2 энергии`);}},
+  NO:{cost:2,desc:'Цель теряет энергию',eff:(c,t)=>{S.players[t].energy=0;notify(`✗ ${_nm(t)}: энергия сброшена`);}},
+  AF:{cost:2,desc:'Бросок цели: все 1',eff:(c,t)=>{S.players[t].nextRollPenalty='ones';notify(`🎲 ${_nm(t)}: бросок = 1`);}},
+  QQ:{cost:2,desc:'Лидер-Ферзь цели −6',eff:(c,t)=>{const q=S.pieces.filter(p=>p.owner===t&&p.type==='Q'&&p.moved&&p.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(q){q.pos=(q.pos-6+480)%48;notify(`♛ ${_nm(t)}: Ферзь откатился`);}}},
+  SUS:{cost:3,desc:'Лидер цели −6 шагов',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.pos=(p.pos-6+480)%48;notify(`😳 ${_nm(t)}: лидер −6`);}}},
+  ZIP:{cost:3,desc:'Пешка цели → на старт',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.type==='P'&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(a)-relPos(b))[0];if(p){p.pos=S.players[t].offset;p.moved=false;notify(`🏁 ${_nm(t)}: пешка на старт`);}}},
+  PIG:{cost:3,desc:'Лидер цели −12 шагов',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.pos=(p.pos-12+480)%48;notify(`🐷 ${_nm(t)}: лидер −12`);}}},
+  DEF:{cost:3,desc:'Щит от захвата (1×)',eff:(c,t)=>{S.players[c].activeShield='DEF';notify(`🛡 ${_nm(c)}: ЩИТ`);}},
+  MIR:{cost:3,desc:'Зеркало: отражает атаку',eff:(c,t)=>{S.players[c].activeShield='MIR';notify(`🪞 ${_nm(c)}: ЗЕРКАЛО`);}},
+  YEET:{cost:4,desc:'Лидер цели → на старт',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.pos=S.players[t].offset;p.moved=false;notify(`💥 ${_nm(t)}: лидер на старт`);}}},
+  LUCK:{cost:4,desc:'Твой бросок: все 6',eff:(c,t)=>{S.players[c].nextRollBonus='sixes';notify(`🍀 ${_nm(c)}: бросок = 6`);}},
+  SWAP:{cost:4,desc:'Поменять 2 своих фигуры',eff:(c,t)=>{const ps=S.pieces.filter(p=>p.owner===c&&p.moved&&p.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a));if(ps.length>=2){const tmp=ps[0].pos;ps[0].pos=ps[1].pos;ps[1].pos=tmp;notify(`🔄 ${_nm(c)}: фигуры поменяны`);}}},
+  OOPS:{cost:4,desc:'Рерол кубиков цели',eff:(c,t)=>{if(S.activePlayer===t&&S.gameState==='MOVE'){S.dice=S.dice.map(()=>Math.floor(Math.random()*6)+1);S.diceUsed=S.dice.map(()=>false);notify(`🎲 ${_nm(t)}: кубики перебросило`);}}},
+  MUTE:{cost:4,desc:'Цель не может колдовать',eff:(c,t)=>{S.players[t].mutedThisTurn=true;S.players[t].spellAttempts=0;notify(`🔇 ${_nm(t)}: НЕМОТА`);}},
+  VOID:{cost:4,desc:'Удалить пешку цели',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.type==='P'&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.status='EXTRACTED';notify(`❌ ${_nm(t)}: пешка удалена`);}}},
+  CHAOS:{cost:5,desc:'Энергия всех → случайная',eff:(c,t)=>{S.players.forEach(p=>{if(p.type!=='EMPTY')p.energy=Math.floor(Math.random()*5);});notify('🌀 ХАОС ЭНЕРГИЙ');}},
+  DANCE:{cost:5,desc:'Все фигуры +1 шаг',eff:(c,t)=>{S.pieces.filter(p=>p.moved&&p.status==='BOARD').forEach(p=>p.pos=(p.pos+1)%48);notify('💃 ТАНЕЦ ФИГУР');}},
+  IDIOT:{cost:5,desc:'Отдать буквы цели',eff:(c,t)=>{S.players[t].letters+=S.players[c].letters;S.players[c].letters=0;notify(`📨 ${_nm(c)}→${_nm(t)}: буквы переданы`);}},
+};
+
+// ═══════════════════════════════════════════════════════════════
+// BOT ARCHETYPES
+// ═══════════════════════════════════════════════════════════════
+const AI_ERR=0.08;
+const ARCH={
+  SPADE:{spells:['VOID','YEET','PIG','MUTE','NO'],
+    target:(ap)=>S.players.filter(p=>p.type!=='EMPTY'&&p.id!==ap.id).sort((a,b)=>{
+      const qa=S.pieces.filter(p=>p.owner===a.id&&p.moved&&p.status==='BOARD').reduce((m,p)=>Math.max(m,relPos(p)),0);
+      const qb=S.pieces.filter(p=>p.owner===b.id&&p.moved&&p.status==='BOARD').reduce((m,p)=>Math.max(m,relPos(p)),0);
+      return qb-qa;})[0]?.id??ap.id},
+  HEART:{spells:['DEF','MIR','UP','LUCK'],target:(ap)=>ap.id},
+  CLUB:{spells:['MUTE','VOID','ZIP','NO'],
+    target:(ap)=>S.players.filter(p=>p.type!=='EMPTY'&&p.id!==ap.id).sort((a,b)=>b.letters-a.letters)[0]?.id??ap.id},
+  DIAMOND:{spells:['CHAOS','DANCE','AF','SUS','IDIOT'],
+    target:(ap)=>{const a=S.players.filter(p=>p.type!=='EMPTY');return a[Math.floor(Math.random()*a.length)].id;}},
+};
+
+// ═══════════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════════
+const mkPlayer=(id,name,color,offset,cx,cy,suit)=>({
+  id,name,color,offset,cx,cy,suit,type:'EMPTY',energy:0,
+  letters:0,spellAttempts:3,spellCastThisTurn:false,
+  activeShield:null,nextRollPenalty:null,nextRollBonus:null,mutedThisTurn:false
+});
+const makeState=()=>({
+  players:[
+    mkPlayer(0,'ПИКИ',  '#a78bfa',0, 2.5,2.5,  'SPADE'),
+    mkPlayer(1,'ЧЕРВЫ', '#f87171',12,10.5,2.5,  'HEART'),
+    mkPlayer(2,'ТРЕФЫ', '#34d399',24,10.5,10.5, 'CLUB'),
+    mkPlayer(3,'БУБНЫ', '#fbbf24',36,2.5,10.5,  'DIAMOND'),
+  ],
+  pieces:[],activePlayer:0,gameState:'ROLL',
+  dice:[],diceUsed:[],queenDir:1,
+  morseBuffer:'',morseWord:'',lastVec:'СИНГУЛЯРНОСТЬ',
+  entropyTargetIdx:null
+});
+
+let S=makeState();
+let morseLetterTimer=null;
+let isHost=false,isHotseat=false,localPlayerId=null;
+let localSelected=null,botTimer=null,gameOver=false;
+let entropyTimer=null,degradeTimer=null;
+let roomId=null;
+const MY_ID = Math.random().toString(36).substr(2,9); // unique per tab/session
+
+// ═══════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════
+function notify(msg,type=''){
+  const stack=document.getElementById('notif-stack');if(!stack)return;
+  const n=document.createElement('div');n.className='notif'+(type?' '+type:'');n.innerText=msg;
+  stack.appendChild(n);
+  while(stack.children.length>4)stack.removeChild(stack.firstChild);
+  setTimeout(()=>{n.style.opacity='0';},12000);
+  setTimeout(()=>{if(n.parentNode)n.parentNode.removeChild(n);},13000);
+}
+function shakeApp(){const a=document.getElementById('app');a.classList.add('shake');setTimeout(()=>a.classList.remove('shake'),300);}
+function showMenu(){document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'));document.getElementById('menu').classList.remove('hidden');}
+
+// ═══════════════════════════════════════════════════════════════
+// GRIMOIRE UI
+// ═══════════════════════════════════════════════════════════════
+function openGrimoire(){
+  document.getElementById('grimoire-content').innerHTML=Object.entries(GR).map(([name,sp])=>
+    `<div class="g-row"><span class="g-name">${name}</span><span class="g-cost">✉${sp.cost}</span><span class="g-morse">${name.split('').map(c=>L2M[c]||'?').join(' ')}</span><span class="g-desc">${sp.desc}</span></div>`
+  ).join('');
+  document.getElementById('grimoire-modal').classList.remove('hidden');
+}
+function closeGrimoire(){document.getElementById('grimoire-modal').classList.add('hidden');}
+
+// ═══════════════════════════════════════════════════════════════
+// ACCESS CONTROL
+// ═══════════════════════════════════════════════════════════════
+function canControl(){
+  const ap=S.players[S.activePlayer];
+  if(!ap||ap.type==='AI')return false;
+  if(isHotseat)return ap.type==='HUMAN';
+  return S.activePlayer===localPlayerId;
+}
+function canControlBot(){return(isHost||isHotseat)&&S.players[S.activePlayer]?.type==='AI';}
+
+// ═══════════════════════════════════════════════════════════════
+// GEOMETRY
+// ═══════════════════════════════════════════════════════════════
+function getXY(s){if(s<6)return{r:0,c:6+s};if(s<18)return{r:s-6,c:12};if(s<30)return{r:12,c:12-(s-18)};if(s<42)return{r:12-(s-30),c:0};return{r:0,c:s-42};}
+function getTailXY(pid,lvl){if(pid===0)return{r:lvl,c:6};if(pid===1)return{r:6,c:12-lvl};if(pid===2)return{r:12-lvl,c:6};return{r:6,c:lvl};}
+function relPos(pc){return(pc.pos-S.players[pc.owner].offset+48)%48;}
+function isAtHome(pc){return relPos(pc)>=36;}
+function canAscend(ownerId){return!S.pieces.some(p=>p.owner===ownerId&&p.status==='BOARD'&&!isAtHome(p));}
+
+// ═══════════════════════════════════════════════════════════════
+// PHANTOM WALLS
+// ═══════════════════════════════════════════════════════════════
+function getCellsBetween(pos1,pos2){
+  const cells=[];const diff=Math.abs(pos1-pos2);let start,end;
+  if(diff>24){if(pos1>pos2){start=pos1;end=pos2+48;}else{start=pos2;end=pos1+48;}}
+  else{start=Math.min(pos1,pos2);end=Math.max(pos1,pos2);}
+  for(let i=start+1;i<end;i++)cells.push(i%48);
+  return cells;
+}
+function getPhantoms(){
+  const ph=[];
+  S.players.forEach(p=>{
+    const rooks=S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='R'&&pc.status==='BOARD'&&pc.moved);
+    if(rooks.length!==2)return;
+    const[p1,p2]=[rooks[0].pos,rooks[1].pos];const diff=Math.abs(p1-p2),dist=Math.min(diff,48-diff);
+    if(dist<1||dist>4)return;
+    getCellsBetween(p1,p2).forEach(pos=>ph.push({pos,owner:p.id}));
+  });
+  return ph;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOVE VALIDATION
+// ═══════════════════════════════════════════════════════════════
+function validateMove(pc,nPos,phs){
+  const h=S.players[pc.owner].offset;
+  if(pc.moved&&isAtHome(pc)){
+    const rO=(pc.pos-h+48)%48,rN=(nPos-h+48)%48;
+    if(rN<rO){if(rN===0&&pc.type==='Q'&&canAscend(pc.owner)){}else return false;}
+  }
+  if(phs.some(w=>w.pos===nPos&&w.owner!==pc.owner))return false;
+  const enemies=S.pieces.filter(p=>p.pos===nPos&&p.owner!==pc.owner&&p.status==='BOARD'&&p.moved);
+  if(enemies.length>0){
+    if(pc.type!=='Q')return false;
+    if(enemies.length>=2)return false;
+    if(!['P','Q'].includes(enemies[0].type))return false;
+    if(phs.some(w=>w.pos===nPos&&w.owner===enemies[0].owner))return false;
+  }
+  return true;
+}
+function getValidDests(pcId){
+  const pc=S.pieces.find(p=>p.id===pcId);if(!pc||pc.status!=='BOARD'||S.gameState==='ROLL')return[];
+  const phs=getPhantoms();const ds=new Set();
+  if(pc.type==='K'){const sum=S.dice.reduce((s,v,i)=>!S.diceUsed[i]?s+v:s,0);if(sum>0){const n=(pc.pos+sum+4800)%48;if(validateMove(pc,n,phs))ds.add(n);}}
+  else{S.dice.forEach((v,i)=>{if(S.diceUsed[i])return;const dir=pc.type==='Q'?S.queenDir:1;const n=(pc.pos+(pc.type==='P'?1:pc.type==='E'?v*2:v)*dir+4800)%48;if(validateMove(pc,n,phs))ds.add(n);});}
+  return[...ds];
+}
+function anyValidMove(){return S.pieces.some(pc=>pc.owner===S.activePlayer&&pc.status==='BOARD'&&getValidDests(pc.id).length>0);}
+
+// ═══════════════════════════════════════════════════════════════
+// FIREBASE SYNC
+// ═══════════════════════════════════════════════════════════════
+function sync(){
+  checkWinner();
+  if(!isHotseat&&roomId&&db){
+    const payload={S:JSON.parse(JSON.stringify(S)),gameOver,writtenBy:MY_ID};
+    db.ref('rooms/'+roomId+'/gameState').set(payload).catch(e=>console.warn('Firebase sync error:',e));
+  }
+  renderGame();
+}
+
+function startGameListener(){
+  if(gameStateRef)gameStateRef.off();
+  gameStateRef=db.ref('rooms/'+roomId+'/gameState');
+  gameStateRef.on('value',snapshot=>{
+    const data=snapshot.val();if(!data||!data.S)return;
+    if(data.writtenBy===MY_ID)return;
+    S=data.S;gameOver=data.gameOver||false;localSelected=null;
+    renderGame();checkWinner();
+    if(isHost&&!gameOver&&S.players[S.activePlayer]?.type==='AI'&&!botTimer){
+      botTimer=setTimeout(runBot,800);
+    }
+  });
+}
+
+// startListening() replaced by startGameListener() and lobby-specific listeners
+
+
+// ═══════════════════════════════════════════════════════════════
+// LOBBY — HOTSEAT
+// ═══════════════════════════════════════════════════════════════
+function initHotseat(){
+  initAudio();isHotseat=true;isHost=true;localPlayerId=null;S=makeState();
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('hs-lobby').classList.remove('hidden');
+  renderHsLobby();
+}
+function renderHsLobby(){
+  const el=document.getElementById('hs-slots');el.innerHTML='';
+  S.players.forEach(p=>{
+    const card=document.createElement('div');card.className='slot-card';card.style.borderColor=p.type==='EMPTY'?'#334155':p.color;
+    card.innerHTML=`<div class="slot-name" style="color:${p.color}">${p.name}</div><div class="slot-type">${{EMPTY:'—',HUMAN:'👤 ГРАВЕЦЬ',AI:'🤖 БОТ'}[p.type]}</div>
+    <div class="slot-btns">
+      <button class="btn btn-sm ${p.type==='HUMAN'?'':'btn-ghost'}" onclick="hsSet(${p.id},'HUMAN')">ГРАВЕЦЬ</button>
+      <button class="btn btn-sm ${p.type==='AI'?'':'btn-ghost'}" onclick="hsSet(${p.id},'AI')">БОТ</button>
+      <button class="btn btn-sm ${p.type==='EMPTY'?'':'btn-ghost'}" onclick="hsSet(${p.id},'EMPTY')">—</button>
+    </div>`;
+    el.appendChild(card);
+  });
+}
+function hsSet(id,type){S.players[id].type=type;if(id===0&&type==='AI')S.players[id].name='СИГМА';else if(id===0)S.players[id].name='ПИКИ';renderHsLobby();}
+
+// ═══════════════════════════════════════════════════════════════
+// LOBBY — HOST (Firebase)
+// Лобі і гра синхронізуються окремо:
+//   /rooms/{id}/lobby/players  — слоти гравців (оновлюються незалежно)
+//   /rooms/{id}/gameState      — стан гри (пишеться тільки при старті/ході)
+// ═══════════════════════════════════════════════════════════════
+let lobbyRef = null;
+let gameStateRef = null;
+let statusRef = null;
+
+function initHost(){
+  initAudio();
+  loadFirebase(() => _initHostReady());
+}
+function _initHostReady(){
+  isHost=true;isHotseat=false;S=makeState();
+  roomId=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
+  localPlayerId=0;
+  S.players[0].type='HUMAN';
+  document.getElementById('room-code-display').innerText=roomId;
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('host-lobby').classList.remove('hidden');
+  // Write initial lobby
+  db.ref('rooms/'+roomId).set({
+    lobby:{players:JSON.parse(JSON.stringify(S.players)),createdAt:Date.now(),status:'LOBBY'},
+    status:'LOBBY'
+  });
+  // Listen for slot changes
+  lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
+  lobbyRef.on('value',snap=>{
+    const pl=snap.val();if(!pl)return;
+    pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});
+    renderHostLobby();
+  });
+}
+
+function renderHostLobby(){
+  const el=document.getElementById('host-slots');if(!el)return;el.innerHTML='';
+  S.players.forEach(p=>{
+    const card=document.createElement('div');card.className='slot-card';
+    card.style.borderColor=p.type==='EMPTY'?'#334155':p.color;
+    let html=`<div class="slot-name" style="color:${p.color}">${p.name}</div>`;
+    if(p.type==='EMPTY'){
+      html+=`<button class="btn btn-sm btn-ghost" onclick="addBot(${p.id})">🤖 БОТ</button>`;
+    } else {
+      const who=p.type==='AI'?'🤖 БОТ':p.id===localPlayerId?'👤 ВИ':'👤 ГРАВЕЦЬ';
+      html+=`<div class="slot-type">${who}</div>`;
+    }
+    card.innerHTML=html;el.appendChild(card);
+  });
+  const cnt=S.players.filter(p=>p.type!=='EMPTY').length;
+  document.getElementById('host-start-btn').className=cnt>=2?'btn btn-w':'btn btn-w hidden';
+}
+
+function addBot(id){
+  S.players[id].type='AI';if(id===0)S.players[id].name='СИГМА';
+  // Write only changed slot
+  db.ref('rooms/'+roomId+'/lobby/players/'+id).set(S.players[id]);
+  renderHostLobby();
+}
+
+function copyRoomCode(){
+  const code=document.getElementById('room-code-display').innerText;
+  try{navigator.clipboard.writeText(code).then(()=>notify('✅ КОД СКОПІЙОВАНО!'));}
+  catch(e){notify('Код: '+code);}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ROOMS BROWSER + JOIN
+// ═══════════════════════════════════════════════════════════════
+function initJoin(){
+  initAudio();
+  loadFirebase(() => {
+    document.getElementById('menu').classList.add('hidden');
+    document.getElementById('rooms-browser').classList.remove('hidden');
+    loadRoomsList();
+  });
+}
+
+function loadRoomsList(){
+  const el=document.getElementById('rooms-list');
+  el.innerHTML='<div style="opacity:.4;font-size:9px;padding:20px 0">Шукаємо кімнати...</div>';
+  // Cleanup old rooms (older than 2 hours) — runs silently in background
+  const TWO_HOURS_AGO = Date.now() - 2*60*60*1000;
+  db.ref('rooms').orderByChild('lobby/createdAt').endAt(TWO_HOURS_AGO).once('value', snap=>{
+    snap.forEach(child=>child.ref.remove());
+  });
+  db.ref('rooms').orderByChild('status').equalTo('LOBBY').limitToLast(15).once('value',snapshot=>{
+    const data=snapshot.val();el.innerHTML='';
+    const rooms=data?Object.entries(data):[];
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
+    const now = Date.now();
+    const active=rooms.filter(([rid,r])=>
+      r.lobby && r.lobby.players &&
+      r.lobby.players.some(p=>p.type==='EMPTY') &&
+      (now - (r.lobby.createdAt||0)) < TWO_HOURS &&
+      r.status !== 'FINISHED'
+    );
+    if(active.length===0){
+      el.innerHTML='<div style="opacity:.4;font-size:9px;padding:20px 0;line-height:1.7">Активних кімнат немає.<br>Створи свою або введи код вручну.</div>';
+    } else {
+      active.reverse().forEach(([rid,room])=>{
+        const pl=room.lobby.players;
+        const humans=pl.filter(p=>p.type==='HUMAN').length;
+        const bots=pl.filter(p=>p.type==='AI').length;
+        const hostName=pl.find(p=>p.type==='HUMAN')?.name||'?';
+        const age=Math.round((Date.now()-(room.lobby.createdAt||Date.now()))/60000);
+        const div=document.createElement('div');
+        div.style.cssText='background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px';
+        div.innerHTML=`
+          <div>
+            <div style="font-size:13px;font-weight:900;letter-spacing:3px;color:var(--em)">${rid}</div>
+            <div style="font-size:8px;opacity:.5;margin-top:3px">${hostName} · ${humans}👤 ${bots>0?bots+'🤖':''} · ${age}хв тому</div>
+          </div>
+          <button class="btn btn-sm" style="margin:0;flex-shrink:0" onclick="joinById('${rid}')">УВІЙТИ →</button>`;
+        el.appendChild(div);
+      });
+    }
+    const ref=document.createElement('button');
+    ref.className='btn btn-ghost btn-sm';ref.style.cssText='width:100%;margin-top:8px';
+    ref.innerText='🔄 Оновити';ref.onclick=loadRoomsList;
+    el.appendChild(ref);
+  });
+}
+
+function joinByCode(){
+  const code=document.getElementById('room-input').value.trim().toUpperCase();
+  if(code.length!==6){document.getElementById('join-status').innerText='Введи 6 символів';return;}
+  joinById(code);
+}
+
+function joinById(code){
+  document.getElementById('join-status').innerText='⏳ Підключення...';
+  db.ref('rooms/'+code+'/lobby').once('value',snapshot=>{
+    if(!snapshot.exists()){document.getElementById('join-status').innerText='✗ Кімната не знайдена';return;}
+    const lobby=snapshot.val();
+    const players=lobby.players||[];
+    const emptyIdx=players.findIndex(p=>p&&p.type==='EMPTY');
+    if(emptyIdx===-1){document.getElementById('join-status').innerText='✗ Немає вільних місць';return;}
+    localPlayerId=emptyIdx;isHost=false;isHotseat=false;roomId=code;
+    S.players=players.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
+    S.players[localPlayerId].type='HUMAN';
+    // Write only our slot
+    db.ref('rooms/'+code+'/lobby/players/'+localPlayerId).set(S.players[localPlayerId]);
+    document.getElementById('rooms-browser').classList.add('hidden');
+    document.getElementById('guest-lobby').classList.remove('hidden');
+    const codeEl=document.getElementById('guest-room-code');if(codeEl)codeEl.innerText='КОД: '+code;
+    // Listen for lobby and game start
+    lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
+    lobbyRef.on('value',snap=>{
+      const pl=snap.val();if(!pl)return;
+      pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});
+      renderGuestLobby();
+    });
+    statusRef=db.ref('rooms/'+roomId+'/status');
+    statusRef.on('value',snap=>{
+      if(snap.val()==='PLAYING'){
+        db.ref('rooms/'+roomId+'/gameState').once('value',gSnap=>{
+          const data=gSnap.val();if(!data||!data.S)return;
+          S=data.S;gameOver=data.gameOver||false;
+          document.getElementById('guest-lobby').classList.add('hidden');
+          document.getElementById('game-screen').style.display='block';
+          initBoard();startGameListener();renderGame();checkWinner();
+        });
+      }
+    });
+    renderGuestLobby();
+    notify('✅ '+S.players[localPlayerId].name+' — готовий до бою!');
+  });
+}
+
+function renderGuestLobby(){
+  const el=document.getElementById('guest-slots');if(!el)return;el.innerHTML='';
+  S.players.forEach(p=>{
+    const card=document.createElement('div');card.className='slot-card';
+    card.style.borderColor=p.type==='EMPTY'?'#334155':p.color;
+    const who=p.type==='EMPTY'?'—':p.type==='AI'?'🤖 БОТ':p.id===localPlayerId?'👤 ВИ':'👤 ДУША';
+    card.innerHTML=`<div class="slot-name" style="color:${p.color}">${p.name}</div><div class="slot-type">${who}</div>`;
+    el.appendChild(card);
+  });
+}
+
+// GAME START
+// ═══════════════════════════════════════════════════════════════
+function startGame(){
+  const active=S.players.filter(p=>p.type!=='EMPTY');
+  if(active.length<2){notify('Потрібно мінімум 2 гравці');return;}
+  if(botTimer){clearTimeout(botTimer);botTimer=null;}
+  S.pieces=[];
+  S.players.forEach(p=>{
+    if(p.type==='EMPTY')return;
+    TEMPLATES.forEach(tmpl=>{for(let i=0;i<tmpl.count;i++)S.pieces.push({id:`${p.id}-${tmpl.t}-${i}`,owner:p.id,type:tmpl.t,icon:tmpl.i,lvl:tmpl.lvl,pos:p.offset,moved:false,status:'BOARD'});});
+  });
+  S.activePlayer=active[0].id;S.gameState='ROLL';S.dice=[];S.diceUsed=[];
+  S.morseBuffer='';S.morseWord='';S.lastVec='НАЧАЛО';S.entropyTargetIdx=null;gameOver=false;
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'));
+  document.getElementById('game-screen').style.display='block';
+  initBoard();
+  if(roomId&&db){
+    db.ref('rooms/'+roomId+'/status').set('PLAYING');
+    if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+    if(statusRef){statusRef.off();statusRef=null;}
+  }
+  sync();
+  if(isHost&&!isHotseat)startGameListener();
+  if(isHost||isHotseat)runBot();
+  resetEntropy();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BOARD
+// ═══════════════════════════════════════════════════════════════
+function initBoard(){
+  const board=document.getElementById('board');board.innerHTML='';
+  const matrix=document.getElementById('matrix');matrix.innerHTML='';
+  for(let r=1;r<12;r++)for(let c=1;c<12;c++){
+    const div=document.createElement('div');div.className='inner-cell'+(r===6&&c===6?' singularity':'');
+    div.style.cssText=`top:${r*100/13}%;left:${c*100/13}%;width:${100/13}%;height:${100/13}%`;
+    matrix.appendChild(div);
+  }
+  for(let i=0;i<PERIMETER;i++){
+    const div=document.createElement('div');div.className='cell';const{r,c}=getXY(i);
+    div.style.cssText=`top:${r*100/13}%;left:${c*100/13}%;width:${100/13}%;height:${100/13}%`;
+    div.id=`cell-${i}`;board.appendChild(div);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderGame(){
+  if(gameOver)return;
+  const phs=getPhantoms();const highlights=canControl()?getValidDests(localSelected):[];
+  document.querySelectorAll('.tail-cell').forEach(c=>c.remove());
+  document.querySelectorAll('.cell').forEach(cell=>{
+    const id=parseInt(cell.id.split('-')[1]);cell.innerHTML='';
+    cell.className='cell'+(HEADS.includes(id)?' cell-head':'')+(phs.some(w=>w.pos===id)?' cell-wall':'')+(highlights.includes(id)?' cell-hi':'');
+    const ph=phs.find(w=>w.pos===id);if(ph){const e=document.createElement('div');e.className='ph-rook';e.style.color=S.players[ph.owner].color;e.innerText='♖';cell.appendChild(e);}
+  });
+  S.pieces.forEach(pc=>{
+    if(!pc.moved||pc.status!=='BOARD')return;const cell=document.getElementById(`cell-${pc.pos}`);if(!cell)return;
+    const el=document.createElement('div');el.className='piece'+(localSelected===pc.id?' sel':'');
+    el.style.color=S.players[pc.owner].color;el.innerText=pc.icon;
+    el.onclick=e=>{e.stopPropagation();selectPiece(pc.id);};cell.appendChild(el);
+  });
+  document.querySelectorAll('.cell').forEach(cell=>{const n=cell.childElementCount;if(n>9)cell.classList.add('hyper-crowded');else if(n>4)cell.classList.add('crowded');});
+  S.players.forEach(p=>{
+    if(p.type==='EMPTY')return;[1,2,3,4,5].forEach(lvl=>{
+      const grp=S.pieces.filter(pc=>pc.owner===p.id&&pc.lvl===lvl&&!pc.moved&&pc.status==='BOARD');if(!grp.length)return;
+      const{r,c}=getTailXY(p.id,lvl);const cell=document.createElement('div');cell.className='tail-cell cell';
+      cell.style.cssText=`top:${r*100/13}%;left:${c*100/13}%;width:${100/13}%;height:${100/13}%`;
+      const isSel=grp.some(pc=>pc.id===localSelected);
+      cell.innerHTML=`<div class="piece${isSel?' sel':''}" style="color:${p.color}">${grp[0].icon}<span style="font-size:6px;opacity:.5">×${grp.length}</span></div>`;
+      cell.onclick=e=>{e.stopPropagation();selectPiece(grp[0].id);};document.getElementById('board').appendChild(cell);
+    });
+  });
+  const ui=document.getElementById('ui-layer');ui.innerHTML='';
+  S.players.forEach(p=>{
+    if(p.type==='EMPTY')return;const active=S.activePlayer===p.id;
+    const div=document.createElement('div');div.className='corner-ui';div.style.cssText=`top:${p.cy*100/13}%;left:${p.cx*100/13}%`;
+    const asc=S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='Q'&&pc.status==='ASCENDED').length;
+    let h=`<div class="name-tag${active?' act':''}${p.name==='СИГМА'?' sigma':''}">${p.name}</div>`;
+    if(p.energy>0)h+=`<div style="color:var(--gold);font-size:9px">⚡${p.energy}</div>`;
+    if(asc>0)h+=`<div style="font-size:9px;color:var(--rose)">♛×${asc}</div>`;
+    if(p.activeShield&&!isHotseat&&p.id===localPlayerId)h+=`<div style="font-size:9px;color:var(--gold)">${p.activeShield==='DEF'?'🛡':'🪞'}</div>`;
+    if(active){
+      h+=`<div style="font-size:8px;color:var(--cyan);opacity:.8">✉${p.letters} ✦${p.spellAttempts}/3</div>`;
+      if(S.gameState==='ROLL')h+=`<div class="dice-row"><button class="btn btn-sm" style="pointer-events:auto" onclick="doRoll()">🎲 БРОСОК</button></div>`;
+      else{h+='<div class="dice-row">';S.dice.forEach((v,i)=>{h+=`<div class="die ${S.diceUsed[i]?'die-used':''} ${S.gameState==='ENERGY'?'die-nrg':''} ${S.entropyTargetIdx===i?'die-entropy':''}" onclick="useDice(${i})">${v}</div>`;});h+='</div>';}
+    }
+    div.innerHTML=h;ui.appendChild(div);
+  });
+  const selPc=S.pieces.find(p=>p.id===localSelected);
+  document.getElementById('q-panel').className=(selPc&&selPc.type==='Q'&&selPc.status==='BOARD'&&S.gameState==='MOVE'&&canControl())?'':'hidden';
+  document.getElementById('skip-btn').className=(S.gameState==='MOVE'&&canControl()&&!S.diceUsed.every(u=>u)&&!anyValidMove())?'btn btn-ghost btn-sm':'hidden';
+  document.getElementById('grimoire-btn').classList.remove('hidden');
+  document.getElementById('spell-hud').innerText=S.morseWord||'';
+  document.getElementById('morse-buf').innerText=S.morseBuffer?`[${S.morseBuffer}]`:'';
+  document.getElementById('vec-hud').innerText=S.lastVec;
+
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENTROPY (ШУМ)
+// ═══════════════════════════════════════════════════════════════
+function resetEntropy(){
+  clearTimeout(entropyTimer);clearInterval(degradeTimer);
+  if(S.entropyTargetIdx!==null){S.entropyTargetIdx=null;}
+  if(S.gameState==='MOVE'&&canControl()){
+    if(S.diceUsed.filter(u=>!u).length>=2)entropyTimer=setTimeout(triggerNoise,30000);
+  }
+}
+function triggerNoise(){
+  findNextEntropyTarget();
+  if(S.entropyTargetIdx!==null){notify('⚠️ ШУМ ПОГЛОЩАЕТ РИТМ','entropy');degradeTimer=setInterval(tickDegrade,1500);}
+  else forceRandomMove();
+}
+function findNextEntropyTarget(){
+  let maxVal=-1,target=null;
+  S.dice.forEach((v,i)=>{if(!S.diceUsed[i]&&v>1&&v>maxVal){maxVal=v;target=i;}});
+  S.entropyTargetIdx=target;sync();
+}
+function tickDegrade(){
+  if(S.entropyTargetIdx===null||S.diceUsed[S.entropyTargetIdx]){
+    clearInterval(degradeTimer);findNextEntropyTarget();
+    if(S.entropyTargetIdx!==null)degradeTimer=setInterval(tickDegrade,1500);else forceRandomMove();return;
+  }
+  if(S.dice[S.entropyTargetIdx]>1){
+    S.dice[S.entropyTargetIdx]--;playBeep('error');
+    const sigma=S.players.find(p=>p.name==='СИГМА'&&p.type==='AI');
+    if(sigma){sigma.letters++;notify('СИГМА ПИТАЕТСЯ ШУМОМ: +1✉','sigma');}
+    sync();
+  }
+  if(S.dice[S.entropyTargetIdx]<=1){clearInterval(degradeTimer);findNextEntropyTarget();if(S.entropyTargetIdx!==null)degradeTimer=setInterval(tickDegrade,1500);else forceRandomMove();}
+}
+function forceRandomMove(){
+  notify('⏳ ШУМ СДЕЛАЛ ВЫБОР ЗА ТЕБЯ','entropy');playBeep('error');
+  setTimeout(()=>{
+    const phs=getPhantoms();let allMoves=[];
+    S.pieces.filter(pc=>pc.owner===S.activePlayer&&pc.status==='BOARD').forEach(pc=>{
+      const dirs=pc.type==='Q'?[1,-1]:[1];
+      dirs.forEach(qDir=>{
+        S.dice.forEach((v,dIdx)=>{
+          if(S.diceUsed[dIdx])return;
+          if(pc.type==='K'){const fi=S.dice.findIndex((_,i)=>!S.diceUsed[i]);if(dIdx!==fi)return;const steps=S.dice.reduce((s,v2,i2)=>!S.diceUsed[i2]?s+v2:s,0);const dest=(pc.pos+steps+4800)%48;if(validateMove(pc,dest,phs))allMoves.push({pcId:pc.id,dIdx,dest,qDir:1});}
+          else{const steps=pc.type==='P'?1:pc.type==='E'?v*2:v;const dest=(pc.pos+steps*qDir+4800)%48;if(validateMove(pc,dest,phs))allMoves.push({pcId:pc.id,dIdx,dest,qDir});}
+        });
+      });
+    });
+    if(allMoves.length>0){const ch=allMoves[Math.floor(Math.random()*allMoves.length)];localSelected=ch.pcId;if(S.pieces.find(p=>p.id===ch.pcId)?.type==='Q')S.queenDir=ch.qDir;useDice(ch.dIdx);}
+    else{advanceTurn();sync();}
+  },1000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAME ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function doRoll(){
+  if(gameOver)return;if(!canControl()&&!canControlBot())return;if(S.gameState!=='ROLL')return;
+  const p=S.players[S.activePlayer];
+  const fps=S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='P'&&pc.moved&&pc.status==='BOARD');
+  const cnt=Math.min(10,2+new Set(fps.map(x=>x.pos)).size);
+  let dice=Array.from({length:cnt},()=>Math.floor(Math.random()*6)+1);
+  if(p.nextRollBonus==='sixes'){dice=dice.map(()=>6);p.nextRollBonus=null;}
+  if(p.nextRollPenalty==='ones'){dice=dice.map(()=>1);p.nextRollPenalty=null;}
+  if(dice.length>1&&dice.every(v=>v===dice[0]))dice=[...dice,...dice];
+  S.dice=dice;S.diceUsed=dice.map(()=>false);S.gameState=p.energy>0?'ENERGY':'MOVE';
+  sync();resetEntropy();
+}
+function selectPiece(id){
+  if(!canControl())return;const pc=S.pieces.find(p=>p.id===id);
+  if(!pc||pc.status!=='BOARD'||pc.owner!==S.activePlayer||S.gameState==='ROLL')return;
+  localSelected=id;renderGame();resetEntropy();
+}
+function useDice(idx){
+  if(gameOver)return;if(!canControl()&&!canControlBot())return;if(S.diceUsed[idx])return;
+  const player=S.players[S.activePlayer];
+  if(S.gameState==='ENERGY'){S.dice[idx]+=player.energy;player.energy=0;S.gameState='MOVE';sync();resetEntropy();return;}
+  if(S.gameState!=='MOVE'||!localSelected)return;
+  const pc=S.pieces.find(p=>p.id===localSelected);if(!pc||pc.status!=='BOARD')return;
+  const phs=getPhantoms();const dir=pc.type==='Q'?S.queenDir:1;
+  let steps,consumedIdxs;
+  if(pc.type==='K'){steps=S.dice.reduce((s,v,i)=>!S.diceUsed[i]?s+v:s,0);consumedIdxs=S.dice.map((_,i)=>i).filter(i=>!S.diceUsed[i]);}
+  else{const v=S.dice[idx];steps=pc.type==='P'?1:pc.type==='E'?v*2:v;consumedIdxs=[idx];}
+  const nPos=(pc.pos+steps*dir+4800)%48;
+  if(!validateMove(pc,nPos,phs)){shakeApp();return;}
+  let hc=0;for(let i=1;i<=Math.abs(steps);i++){if(HEADS.includes((pc.pos+i*dir+4800)%48))hc++;}
+  for(let j=0;j<hc;j++){const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD'&&p.moved).sort((a,b)=>relPos(a)-relPos(b))[0];if(lag){lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;}}
+  const isAscension=nPos===player.offset&&pc.moved&&canAscend(player.id)&&pc.type==='Q';
+  if(isAscension){
+    S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:nPos,status:'ASCENDED'}:p);
+    notify(`♛ ${player.name}: ВОЗНЕСЕНИЕ!`);playBeep('win');setTimeout(stopTone,600);
+  } else {
+    const targets=S.pieces.filter(p=>p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD');
+    if(targets.length>0&&pc.type==='Q'&&S.players[targets[0].owner].activeShield==='DEF'){
+      S.players[targets[0].owner].activeShield=null;notify(`🛡 ${_nm(targets[0].owner)}: ЩИТ!`);return;
+    }
+    let bounced=false;
+    S.pieces=S.pieces.map(p=>{
+      if(p.id===pc.id)return{...p,pos:nPos,moved:true};
+      if(p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD'){player.letters++;if(p.type==='Q')bounced=true;return{...p,pos:S.players[p.owner].offset,moved:false};}
+      return p;
+    });
+    if(bounced){S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:player.offset,moved:false}:p);notify('ОТРАЖЕНИЕ: Ферзь возвращён!');}
+  }
+  consumedIdxs.forEach(i=>S.diceUsed[i]=true);
+  if(S.diceUsed.every(u=>u)||pc.type==='K')advanceTurn();
+  sync();resetEntropy();
+}
+function doSkip(){if(!canControl())return;advanceTurn();sync();}
+function advanceTurn(){
+  S.activePlayer=(S.activePlayer+1)%4;let guard=0;
+  while(S.players[S.activePlayer].type==='EMPTY'){S.activePlayer=(S.activePlayer+1)%4;if(++guard>4)break;}
+  S.gameState='ROLL';localSelected=null;S.queenDir=1;S.morseBuffer='';S.morseWord='';S.entropyTargetIdx=null;
+  clearTimeout(morseLetterTimer);
+  const np=S.players[S.activePlayer];np.spellAttempts=3;np.spellCastThisTurn=false;np.mutedThisTurn=false;
+  resetEntropy();
+}
+function setQDir(d){S.queenDir=d;renderGame();}
+
+// ═══════════════════════════════════════════════════════════════
+// SPELL SYSTEM
+// ═══════════════════════════════════════════════════════════════
+function castSpell(word,casterId,targetId){
+  const player=S.players[casterId];const spell=GR[word];
+  if(player.spellCastThisTurn){notify('✗ Магия уже применена');return;}
+  if(player.mutedThisTurn||player.spellAttempts<=0){notify('✗ НЕМОТА');return;}
+  if(!spell){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ "${word}" — нет в Гримуаре`);playBeep('error');setTimeout(stopTone,300);return;}
+  if(player.letters<spell.cost){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ Нужно ✉${spell.cost}`);return;}
+  let tid=targetId;
+  if(OFFENSIVE_SPELLS.has(word)&&casterId!==targetId&&S.players[targetId].activeShield==='MIR'){S.players[targetId].activeShield=null;tid=casterId;notify(`🪞 ${_nm(targetId)}: ЗЕРКАЛО!`);}
+  player.letters-=spell.cost;player.spellCastThisTurn=true;spell.eff(casterId,tid);
+  playBeep('spell');setTimeout(stopTone,400);sync();resetEntropy();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WIN CHECK
+// ═══════════════════════════════════════════════════════════════
+function checkWinner(){
+  if(gameOver){document.getElementById('win-screen').classList.remove('hidden');return;}
+  S.players.forEach(p=>{
+    if(p.type==='EMPTY')return;
+    if(S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='Q'&&pc.status==='ASCENDED').length>=2){
+      gameOver=true;if(botTimer){clearTimeout(botTimer);botTimer=null;}
+      clearTimeout(entropyTimer);clearInterval(degradeTimer);if(gameStateRef){gameStateRef.off();gameStateRef=null;}
+      // Mark room as finished so it disappears from browser
+      if(roomId&&db)db.ref('rooms/'+roomId+'/status').set('FINISHED');
+      document.getElementById('winner-name').innerText=p.name;
+      document.getElementById('winner-badge').innerText={SPADE:'♠',HEART:'♥',CLUB:'♣',DIAMOND:'♦'}[p.suit]||'♛';
+      document.getElementById('win-screen').classList.remove('hidden');
+      playBeep('win');setTimeout(stopTone,1000);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BOT AI
+// ═══════════════════════════════════════════════════════════════
+function botDecideSpell(ap){
+  if(ap.spellCastThisTurn||ap.spellAttempts<=0||ap.mutedThisTurn)return null;
+  const arch=ARCH[ap.suit];if(!arch)return null;
+  for(const sn of arch.spells){const sp=GR[sn];if(!sp||ap.letters<sp.cost)continue;const tid=arch.target(ap);if(sn==='SWAP'&&S.pieces.filter(p=>p.owner===ap.id&&p.moved&&p.status==='BOARD').length<2)continue;return{sn,tid};}
+  return null;
+}
+function executeBotSpell(ap,dec){
+  const{sn,tid}=dec;const isSigma=ap.name==='СИГМА';
+  const errorChance=isSigma?0:AI_ERR;
+  if(Math.random()<errorChance){
+    ap.spellAttempts=0;ap.spellCastThisTurn=true;
+    notify(isSigma?'СИГМА: Отказ. Шум в Ядре.':`БОТ ${ap.name}: СБОЙ`,isSigma?'sigma':'');
+    playBeep('error');setTimeout(stopTone,300);
+    if(!gameOver)botTimer=setTimeout(runBot,600);
+  } else {
+    notify(isSigma?`[СИГМА 100%]: ${_nm(tid)} (${sn})`:`БОТ ${ap.name}: (${sn}) → ${_nm(tid)}`,isSigma?'sigma':'');
+    setTimeout(()=>{castSpell(sn,ap.id,tid);if(!gameOver)botTimer=setTimeout(runBot,600);},350);
+  }
+}
+function runBot(){
+  if(gameOver||!(isHost||isHotseat))return;
+  const ap=S.players[S.activePlayer];
+  if(ap.type!=='AI'){if(!gameOver)botTimer=setTimeout(runBot,500);return;}
+  if(S.gameState==='ROLL'&&!ap.spellCastThisTurn&&!ap.mutedThisTurn){const dec=botDecideSpell(ap);if(dec){setTimeout(()=>executeBotSpell(ap,dec),800+Math.random()*400);return;}}
+  if(S.gameState==='ROLL'){if(ap.name==='СИГМА'&&Math.random()<.15)notify('СИГМА: Твой Ритм слишком слаб.','sigma');doRoll();}
+  else if(S.gameState==='ENERGY'){const best=S.dice.reduce((bi,v,i)=>!S.diceUsed[i]&&v>(S.dice[bi]??-1)?i:bi,0);useDice(best);}
+  else if(S.gameState==='MOVE')botMove(ap);
+  if(!gameOver)botTimer=setTimeout(runBot,1100);
+}
+function botMove(ap){
+  const phs=getPhantoms();const isSigma=ap.name==='СИГМА';
+  const isThreatened=(pos,me)=>S.pieces.some(e=>e.owner!==me&&e.type==='Q'&&e.status==='BOARD'&&e.moved&&((pos-e.pos+48)%48)>0&&((pos-e.pos+48)%48)<=6);
+  const protectedNow=(pos)=>{const rooks=S.pieces.filter(p=>p.owner===ap.id&&p.type==='R'&&p.status==='BOARD'&&p.moved);if(rooks.length!==2)return false;return getCellsBetween(rooks[0].pos,rooks[1].pos).includes(pos);};
+  const isGuarded=(pos)=>S.pieces.some(p=>p.owner===ap.id&&p.status==='BOARD'&&p.moved&&p.pos===pos&&['R','E','K'].includes(p.type));
+  const myPieces=S.pieces.filter(p=>p.owner===ap.id&&p.status==='BOARD');
+  const myUndeployed=myPieces.filter(p=>!p.moved);
+  let bestMove=null,bestScore=-Infinity;
+  S.pieces.filter(pc=>pc.owner===S.activePlayer&&pc.status==='BOARD').forEach(pc=>{
+    const dirs=pc.type==='Q'?[1,-1]:[1];dirs.forEach(qDir=>{
+      S.dice.forEach((v,dIdx)=>{
+        if(S.diceUsed[dIdx])return;const dir=pc.type==='Q'?qDir:1;
+        let steps;if(pc.type==='K'){steps=S.dice.reduce((s,v2,i2)=>!S.diceUsed[i2]?s+v2:s,0);}else{steps=pc.type==='P'?1:pc.type==='E'?v*2:v;}
+        const dest=(pc.pos+steps*dir+4800)%48;if(!validateMove(pc,dest,phs))return;
+        let score=isSigma?0:Math.random()*.4;
+        const hasOurPawn=S.pieces.some(e=>e.owner===ap.id&&e.type==='P'&&e.status==='BOARD'&&e.pos===dest&&e.id!==pc.id);
+        const hasOurGuard=isGuarded(dest);const underWall=protectedNow(dest);
+        if(!pc.moved){const startBusy=S.pieces.some(e=>e.pos===ap.offset&&e.status==='BOARD'&&e.moved);if(startBusy)score-=200;else{if(pc.type==='P')score+=70;else if(['R','E','K'].includes(pc.type))score+=100;else if(pc.type==='Q')score+=90;}}
+        if(pc.moved&&myUndeployed.length>3)score-=50;
+        if(pc.type==='P'){if(hasOurPawn)score-=300;else{if(!S.pieces.some(e=>e.status==='BOARD'&&e.moved&&e.pos===dest&&e.id!==pc.id))score+=25;if(hasOurGuard||underWall)score+=60;}if(pc.moved){score-=20;const ct=isThreatened(pc.pos,ap.id),nt=isThreatened(dest,ap.id);if(ct&&!nt)score+=90;if(!ct&&nt)score-=120;}}
+        if(['R','E','K'].includes(pc.type)){const adj=S.pieces.filter(p=>p.owner===ap.id&&p.type==='P'&&p.status==='BOARD'&&p.moved&&Math.min(Math.abs(dest-p.pos),48-Math.abs(dest-p.pos))<=2);if(adj.length>0)score+=adj.length*40;if(hasOurPawn&&!hasOurGuard)score+=45;}
+        if(pc.type==='R'){const other=S.pieces.find(p=>p.owner===ap.id&&p.type==='R'&&p.id!==pc.id&&p.status==='BOARD'&&p.moved);if(other){const diff=Math.abs(dest-other.pos),dist=Math.min(diff,48-diff);if(dist>=1&&dist<=4){score+=50;const wc=getCellsBetween(dest,other.pos);score+=S.pieces.filter(p=>p.owner===ap.id&&p.type==='P'&&p.status==='BOARD'&&wc.includes(p.pos)).length*80;}}}
+        const enemy=S.pieces.find(e=>e.pos===dest&&e.owner!==ap.id&&e.moved&&e.status==='BOARD');
+        if(enemy){if(pc.type==='Q')score+=(enemy.type==='Q'?120:70);if(isSigma)score+=30;}
+        if(pc.type==='Q'&&dest===ap.offset&&pc.moved&&canAscend(ap.id))score+=150;
+        score+=(dest-ap.offset+48)%48*.05;
+        if(score>bestScore){bestScore=score;bestMove={pcId:pc.id,dIdx,dest,qDir:pc.type==='Q'?qDir:1};}
+      });
+    });
+  });
+  if(bestMove&&bestScore>-Infinity){localSelected=bestMove.pcId;if(S.pieces.find(p=>p.id===bestMove.pcId)?.type==='Q')S.queenDir=bestMove.qDir;useDice(bestMove.dIdx);}
+  else{advanceTurn();sync();}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MORSE 2.0 INPUT
+// ═══════════════════════════════════════════════════════════════
+let touchT=0,touchX=0,touchY=0;
+function finalizeMorseLetter(){
+  if(!S.morseBuffer)return;const letter=MORSE_TABLE[S.morseBuffer];
+  if(letter){S.morseWord+=letter;}else{S.players[S.activePlayer].spellAttempts=Math.max(0,S.players[S.activePlayer].spellAttempts-1);notify(`✗ [${S.morseBuffer}]`);S.morseWord='';shakeApp();}
+  S.morseBuffer='';renderGame();
+}
+document.getElementById('game-screen').addEventListener('pointerdown',e=>{
+  if(e.target.closest('.piece,.btn,.die'))return;if(!canControl())return;
+  touchT=Date.now();touchX=e.clientX;touchY=e.clientY;playBeep('dot');resetEntropy();
+});
+document.getElementById('game-screen').addEventListener('pointerup',e=>{
+  stopTone();if(!touchT)return;const dur=Date.now()-touchT,dx=e.clientX-touchX,dy=e.clientY-touchY;touchT=0;
+  if(Math.abs(dx)>40||Math.abs(dy)>40){
+    clearTimeout(morseLetterTimer);if(S.morseBuffer){const l=MORSE_TABLE[S.morseBuffer];if(l)S.morseWord+=l;S.morseBuffer='';}
+    let tid;if(Math.abs(dx)>Math.abs(dy))tid=dx>0?1:3;else tid=dy<0?0:2;
+    const dirs=['↑ПИКИ','→ЧЕРВЫ','↓ТРЕФЫ','←БУБНЫ'];S.lastVec=`${dirs[tid]} (${_nm(tid)})`;
+    if(S.morseWord){castSpell(S.morseWord,S.activePlayer,tid);S.morseWord='';}
+    sync();return;
+  }
+  clearTimeout(morseLetterTimer);
+  if(dur<=150){S.morseBuffer+='.';playBeep('dot');setTimeout(stopTone,150);}
+  else if(dur<=400){S.morseBuffer+='-';playBeep('dash');setTimeout(stopTone,300);}
+  else{S.morseBuffer='';S.morseWord='';playBeep('error');setTimeout(stopTone,400);shakeApp();sync();return;}
+  morseLetterTimer=setTimeout(finalizeMorseLetter,600);renderGame();
+});
+</script>
+</body>
+</html>
