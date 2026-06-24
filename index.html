@@ -100,6 +100,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   <div style="font-size:10px;letter-spacing:5px;opacity:.3;margin-bottom:6px">МИР 13×13</div>
   <div style="font-size:30px;letter-spacing:8px;color:var(--em);font-weight:900;margin-bottom:4px">THE VESSEL</div>
   <div style="font-size:7px;opacity:.25;letter-spacing:3px;margin-bottom:40px">v17 · FIREBASE ONLINE</div>
+  <button id="reconnect-btn" class="btn btn-w hidden" style="background:var(--gold);box-shadow:0 4px 0 #b45309;color:#000;margin-bottom:14px" onclick="reconnect()">↻ ПРОДОВЖИТИ ГРУ</button>
   <button class="btn btn-w" onclick="initHotseat()">♟ HOTSEAT</button>
   <button class="btn btn-w btn-ghost" onclick="initHost()">📡 СОЗДАТЬ ЗАЛ</button>
   <button class="btn btn-w btn-ghost" onclick="initJoin()">🔍 ЗНАЙТИ КІМнату</button>
@@ -227,8 +228,13 @@ function loadFirebase(callback) {
       try {
         if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         db = firebase.database();
+        // Реальний статус сокета: SDK сам перепідключається при розриві
+        // мережі й re-синхронізує всі .on()-слухачі. Тут лише індикатор.
+        db.ref('.info/connected').on('value',s=>{
+          const el=document.getElementById('conn-status');if(!el)return;
+          el.className=s.val()?'online':'offline';
+        });
         _fbLoaded = true;
-        document.getElementById('conn-status').className = 'online';
         callback();
       } catch(e) {
         document.getElementById('conn-status').className = 'offline';
@@ -291,7 +297,7 @@ const GR={
   SWAP:{cost:4,desc:'Поменять 2 своих фигуры',eff:(c,t)=>{const ps=S.pieces.filter(p=>p.owner===c&&p.moved&&p.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a));if(ps.length>=2){const tmp=ps[0].pos;ps[0].pos=ps[1].pos;ps[1].pos=tmp;notify(`🔄 ${_nm(c)}: фигуры поменяны`);}}},
   OOPS:{cost:4,desc:'Рерол кубиков цели',eff:(c,t)=>{if(S.activePlayer===t&&S.gameState==='MOVE'){S.dice=S.dice.map(()=>Math.floor(Math.random()*6)+1);S.diceUsed=S.dice.map(()=>false);notify(`🎲 ${_nm(t)}: кубики перебросило`);}}},
   MUTE:{cost:4,desc:'Цель не может колдовать',eff:(c,t)=>{S.players[t].mutedThisTurn=true;S.players[t].spellAttempts=0;notify(`🔇 ${_nm(t)}: НЕМОТА`);}},
-  VOID:{cost:4,desc:'Удалить пешку цели',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.type==='P'&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.status='EXTRACTED';notify(`❌ ${_nm(t)}: пешка удалена`);}}},
+  VOID:{cost:4,desc:'Всі пішаки цілі → на старт',eff:(c,t)=>{const ps=S.pieces.filter(pc=>pc.owner===t&&pc.type==='P'&&pc.moved&&pc.status==='BOARD');if(ps.length){ps.forEach(p=>{p.pos=S.players[t].offset;p.moved=false;});notify(`❌ ${_nm(t)}: усі пішаки (${ps.length}) скинуто на старт`);logAction(`Магія: VOID повернула всі виведені пішаки ${_nm(t)} (${ps.length} шт) на старт`);}else{notify(`VOID: у ${_nm(t)} немає пішаків на полі`);}}},
   CHAOS:{cost:5,desc:'Энергия всех → случайная',eff:(c,t)=>{S.players.forEach(p=>{if(p.type!=='EMPTY')p.energy=Math.floor(Math.random()*5);});notify('🌀 ХАОС ЭНЕРГИЙ');}},
   DANCE:{cost:5,desc:'Все фигуры +1 шаг',eff:(c,t)=>{S.pieces.filter(p=>p.moved&&p.status==='BOARD').forEach(p=>p.pos=(p.pos+1)%48);notify('💃 ТАНЕЦ ФИГУР');}},
   IDIOT:{cost:5,desc:'Отдать буквы цели',eff:(c,t)=>{S.players[t].letters+=S.players[c].letters;S.players[c].letters=0;notify(`📨 ${_nm(c)}→${_nm(t)}: буквы переданы`);}},
@@ -313,6 +319,36 @@ const ARCH={
   DIAMOND:{spells:['CHAOS','DANCE','AF','SUS','IDIOT'],
     target:(ap)=>{const a=S.players.filter(p=>p.type!=='EMPTY');return a[Math.floor(Math.random()*a.length)].id;}},
 };
+
+// ═══════════════════════════════════════════════════════════════
+// BOT PERSONALITIES (характери руху)
+// Кожна фракція має свій профіль ваг — це задає тактику й «характер».
+// Профіль поєднується з набором заклинань ARCH тієї ж масті.
+//   rand        — рівень хаосу в оцінці (0 = холодний розрахунок)
+//   capQ/capO   — цінність захоплення (Ферзем) ворожого Ферзя / іншої фігури
+//   advance     — жага руху вперед по колу
+//   aggression  — схильність «полювати» (ставати позаду ворога для удару)
+//   safety      — обережність (уникання загрожених клітин); вище = боязкіше
+//   harvest     — цінність перетину Кута (екстракція пішки → ✉ + ⚡)
+//   depElite/depPawn/depQueen — пріоритет виведення фігур із дому
+//   formation   — любов до стін Ладей, охорони, фаланги
+//   ascend      — жага замкнути коло Ферзем (перемога)
+// ═══════════════════════════════════════════════════════════════
+const PERSONALITY = {
+  SPADE:   {label:'АГРЕСОР',   tagline:'полює на лідера, бʼє першим',
+            rand:.30, capQ:140, capO:95,  advance:.12, aggression:1.2, safety:.5,  harvest:30, depElite:100, depPawn:60, depQueen:95, formation:.6,  ascend:160},
+  HEART:   {label:'ЗАХИСНИК',  tagline:'будує стіни, береже стрій',
+            rand:.15, capQ:90,  capO:50,  advance:.06, aggression:.4,  safety:1.4, harvest:35, depElite:110, depPawn:75, depQueen:85, formation:1.4, ascend:150},
+  CLUB:    {label:'ЕКОНОМІСТ',  tagline:'живиться кутами, копить ✉',
+            rand:.20, capQ:85,  capO:55,  advance:.05, aggression:.6,  safety:.9,  harvest:75, depElite:90,  depPawn:80, depQueen:80, formation:.8,  ascend:140},
+  DIAMOND: {label:'ТРИКСТЕР',  tagline:'грає в хаос, ламає шаблон',
+            rand:.95, capQ:110, capO:80,  advance:.08, aggression:.8,  safety:.6,  harvest:40, depElite:85,  depPawn:65, depQueen:90, formation:.5,  ascend:145},
+};
+// СИГМА — бос: холодний розрахунок, нещадні захоплення будь-чого, максимум на Вознесіння
+const SIGMA_PROFILE = {label:'АДМІНІСТРАТОР', tagline:'судить усіх, не помиляється',
+  rand:0, capQ:165, capO:135, advance:.10, aggression:1.4, safety:.8, harvest:45, depElite:105, depPawn:70, depQueen:95, formation:.9, ascend:200};
+
+function botProfile(p){ return p.name==='СИГМА'?SIGMA_PROFILE:(PERSONALITY[p.suit]||PERSONALITY.SPADE); }
 
 // ═══════════════════════════════════════════════════════════════
 // GAME STATE
@@ -341,7 +377,33 @@ let isHost=false,isHotseat=false,localPlayerId=null;
 let localSelected=null,botTimer=null,gameOver=false;
 let entropyTimer=null,degradeTimer=null;
 let roomId=null;
-const MY_ID = Math.random().toString(36).substr(2,9); // unique per tab/session
+// Стабільний ідентифікатор гравця/пристрою. Переживає перезавантаження
+// вкладки (зберігається в localStorage). Якщо сховище недоступне
+// (напр. прев'ю в редакторі) — генеруємо тимчасовий на час сесії,
+// тоді реконект працює лише в межах однієї вкладки.
+function _persistentId(){
+  try{
+    let id=localStorage.getItem('vessel_uid');
+    if(!id){id='u'+Math.random().toString(36).slice(2,11);localStorage.setItem('vessel_uid',id);}
+    return id;
+  }catch(e){ return 'u'+Math.random().toString(36).slice(2,11); }
+}
+const MY_ID=_persistentId();
+
+// Збереження останньої сесії для відновлення після розриву/перезавантаження
+const SESSION_TTL=2*60*60*1000; // 2 год — стільки ж живе кімната
+function rememberSession(){
+  try{ localStorage.setItem('vessel_session',JSON.stringify({roomId,isHost,localPlayerId,ts:Date.now()})); }catch(e){}
+}
+function clearSession(){ try{ localStorage.removeItem('vessel_session'); }catch(e){} }
+function loadSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('vessel_session')||'null');
+    if(!s||!s.roomId)return null;
+    if(Date.now()-(s.ts||0)>SESSION_TTL){clearSession();return null;}
+    return s;
+  }catch(e){ return null; }
+}
 
 // ═══════════════════════════════════════════════════════════════
 // NOTIFICATIONS
@@ -385,8 +447,13 @@ function canControlBot(){return(isHost||isHotseat)&&S.players[S.activePlayer]?.t
 function getXY(s){if(s<6)return{r:0,c:6+s};if(s<18)return{r:s-6,c:12};if(s<30)return{r:12,c:12-(s-18)};if(s<42)return{r:12-(s-30),c:0};return{r:0,c:s-42};}
 function getTailXY(pid,lvl){if(pid===0)return{r:lvl,c:6};if(pid===1)return{r:6,c:12-lvl};if(pid===2)return{r:12-lvl,c:6};return{r:6,c:lvl};}
 function relPos(pc){return(pc.pos-S.players[pc.owner].offset+48)%48;}
-function isAtHome(pc){return relPos(pc)>=36;}
-function canAscend(ownerId){return!S.pieces.some(p=>p.owner===ownerId&&p.status==='BOARD'&&!isAtHome(p));}
+// Фаза 2 настає, коли ВСІ пішаки гравця спалено в енергію (EXTRACTED).
+// Захоплений пішак (відкинутий на старт) лишається "живим" і тримає Фазу 1.
+function inPhase2(ownerId){return!S.pieces.some(p=>p.owner===ownerId&&p.type==='P'&&p.status!=='EXTRACTED');}
+// Дім (домашня чверть) існує ЛИШЕ у Фазі 2. У Фазі 1 чверть перед стартом
+// звичайна: Королева вільно йде в обидва боки й проходить власний старт.
+function isAtHome(pc){return inPhase2(pc.owner)&&relPos(pc)>=36;}
+function canAscend(ownerId){return inPhase2(ownerId)&&!S.pieces.some(p=>p.owner===ownerId&&p.status==='BOARD'&&!isAtHome(p));}
 
 // ═══════════════════════════════════════════════════════════════
 // PHANTOM WALLS
@@ -415,17 +482,21 @@ function getPhantoms(){
 // ═══════════════════════════════════════════════════════════════
 function validateMove(pc,nPos,phs){
   const h=S.players[pc.owner].offset;
+  // Незворотність діє лише у Фазі 2, коли фігура вже в домашній чверті
   if(pc.moved&&isAtHome(pc)){
     const rO=(pc.pos-h+48)%48,rN=(nPos-h+48)%48;
     if(rN<rO){if(rN===0&&pc.type==='Q'&&canAscend(pc.owner)){}else return false;}
   }
+  // Чужа ефірна стіна Ладей непрохідна (клітини всередині — "зайняті" для ворога)
   if(phs.some(w=>w.pos===nPos&&w.owner!==pc.owner))return false;
+  // Скупчення своїх фігур на клітині — ДОЗВОЛЕНЕ правилами (це не закон, а
+  // лише небажано тактично). Дисципліну строю тримають боти через штраф в оцінці.
   const enemies=S.pieces.filter(p=>p.pos===nPos&&p.owner!==pc.owner&&p.status==='BOARD'&&p.moved);
   if(enemies.length>0){
-    if(pc.type!=='Q')return false;
-    if(enemies.length>=2)return false;
-    if(!['P','Q'].includes(enemies[0].type))return false;
-    if(phs.some(w=>w.pos===nPos&&w.owner===enemies[0].owner))return false;
+    if(pc.type!=='Q')return false;                       // захоплювати може лише Королева
+    if(enemies.length>=2)return false;                   // ціль не сама на клітині (пішак прикритий) → збити не можна
+    if(!['P','Q'].includes(enemies[0].type))return false;// збити можна лише ворожого Пішака або Королеву
+    if(phs.some(w=>w.pos===nPos&&w.owner===enemies[0].owner))return false; // ціль у власній стіні — недосяжна
   }
   return true;
 }
@@ -441,6 +512,20 @@ function anyValidMove(){return S.pieces.some(pc=>pc.owner===S.activePlayer&&pc.s
 // ═══════════════════════════════════════════════════════════════
 // FIREBASE SYNC
 // ═══════════════════════════════════════════════════════════════
+// RTDB видаляє порожні масиви/null → відновлюємо їх при читанні,
+// інакше S.dice/S.diceUsed стають undefined і renderGame падає.
+function hydrateState(st){
+  if(!st)return st;
+  st.players=st.players||[];
+  st.pieces=st.pieces||[];
+  st.dice=st.dice||[];
+  st.diceUsed=st.diceUsed||[];
+  if(st.entropyTargetIdx===undefined)st.entropyTargetIdx=null;
+  if(st.morseBuffer===undefined)st.morseBuffer='';
+  if(st.morseWord===undefined)st.morseWord='';
+  if(st.queenDir===undefined)st.queenDir=1;
+  return st;
+}
 function sync(){
   checkWinner();
   if(!isHotseat&&roomId&&db){
@@ -456,7 +541,7 @@ function startGameListener(){
   gameStateRef.on('value',snapshot=>{
     const data=snapshot.val();if(!data||!data.S)return;
     if(data.writtenBy===MY_ID)return;
-    S=data.S;gameOver=data.gameOver||false;localSelected=null;
+    S=hydrateState(data.S);gameOver=data.gameOver||false;localSelected=null;
     renderGame();checkWinner();
     if(isHost&&!gameOver&&S.players[S.activePlayer]?.type==='AI'&&!botTimer){
       botTimer=setTimeout(runBot,800);
@@ -518,6 +603,7 @@ function _initHostReady(){
     lobby:{players:JSON.parse(JSON.stringify(S.players)),createdAt:Date.now(),status:'LOBBY'},
     status:'LOBBY'
   });
+  rememberSession();
   // Listen for slot changes
   lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
   lobbyRef.on('value',snap=>{
@@ -623,43 +709,62 @@ function joinByCode(){
 }
 
 function joinById(code){
-  document.getElementById('join-status').innerText='⏳ Підключення...';
+  const statusEl=document.getElementById('join-status');
+  statusEl.innerText='⏳ Підключення...';
+  // 1) Перевіряємо, що кімната існує
   db.ref('rooms/'+code+'/lobby').once('value',snapshot=>{
-    if(!snapshot.exists()){document.getElementById('join-status').innerText='✗ Кімната не знайдена';return;}
-    const lobby=snapshot.val();
-    const players=lobby.players||[];
-    const emptyIdx=players.findIndex(p=>p&&p.type==='EMPTY');
-    if(emptyIdx===-1){document.getElementById('join-status').innerText='✗ Немає вільних місць';return;}
-    localPlayerId=emptyIdx;isHost=false;isHotseat=false;roomId=code;
-    S.players=players.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
-    S.players[localPlayerId].type='HUMAN';
-    // Write only our slot
-    db.ref('rooms/'+code+'/lobby/players/'+localPlayerId).set(S.players[localPlayerId]);
-    document.getElementById('rooms-browser').classList.add('hidden');
-    document.getElementById('guest-lobby').classList.remove('hidden');
-    const codeEl=document.getElementById('guest-room-code');if(codeEl)codeEl.innerText='КОД: '+code;
-    // Listen for lobby and game start
-    lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
-    lobbyRef.on('value',snap=>{
-      const pl=snap.val();if(!pl)return;
-      pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});
-      renderGuestLobby();
+    if(!snapshot.exists()){statusEl.innerText='✗ Кімната не знайдена';return;}
+    // 2) Атомарно займаємо вільний слот.
+    //    Транзакція захищає від гонки: якщо інший гравець устиг
+    //    зайняти слот між читанням і записом, RTDB перечитає свіжі
+    //    дані й функція вибере наступний вільний слот.
+    const playersRef=db.ref('rooms/'+code+'/lobby/players');
+    playersRef.transaction(players=>{
+      if(!players)return players;                                    // оптимістичний null-прохід → даємо RTDB перечитати з сервера
+      if(players.findIndex(p=>p&&p.uid===MY_ID)!==-1)return players; // слот уже наш (повторний прогін транзакції)
+      const idx=players.findIndex(p=>p&&p.type==='EMPTY');
+      if(idx===-1)return;                                            // abort: вільних місць немає
+      players[idx]={...players[idx],type:'HUMAN',uid:MY_ID};         // мітимо слот своїм MY_ID
+      return players;
+    },(error,committed,snap2)=>{
+      if(error){statusEl.innerText='✗ Помилка: '+error.message;return;}
+      const players=snap2&&snap2.val();
+      if(!committed||!players){statusEl.innerText='✗ Немає вільних місць';return;}
+      const idx=players.findIndex(p=>p&&p.uid===MY_ID);
+      if(idx===-1){statusEl.innerText='✗ Немає вільних місць';return;}
+      localPlayerId=idx;isHost=false;isHotseat=false;roomId=code;
+      S.players=players.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
+      _enterGuestLobby(code);
     });
-    statusRef=db.ref('rooms/'+roomId+'/status');
-    statusRef.on('value',snap=>{
-      if(snap.val()==='PLAYING'){
-        db.ref('rooms/'+roomId+'/gameState').once('value',gSnap=>{
-          const data=gSnap.val();if(!data||!data.S)return;
-          S=data.S;gameOver=data.gameOver||false;
-          document.getElementById('guest-lobby').classList.add('hidden');
-          document.getElementById('game-screen').style.display='block';
-          initBoard();startGameListener();renderGame();checkWinner();
-        });
-      }
-    });
-    renderGuestLobby();
-    notify('✅ '+S.players[localPlayerId].name+' — готовий до бою!');
   });
+}
+
+function _enterGuestLobby(code){
+  document.getElementById('rooms-browser').classList.add('hidden');
+  document.getElementById('guest-lobby').classList.remove('hidden');
+  const codeEl=document.getElementById('guest-room-code');if(codeEl)codeEl.innerText='КОД: '+code;
+  // Слухаємо лобі та старт гри
+  lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
+  lobbyRef.on('value',snap=>{
+    const pl=snap.val();if(!pl)return;
+    pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});
+    renderGuestLobby();
+  });
+  statusRef=db.ref('rooms/'+roomId+'/status');
+  statusRef.on('value',snap=>{
+    if(snap.val()==='PLAYING'){
+      db.ref('rooms/'+roomId+'/gameState').once('value',gSnap=>{
+        const data=gSnap.val();if(!data||!data.S)return;
+        S=hydrateState(data.S);gameOver=data.gameOver||false;
+        document.getElementById('guest-lobby').classList.add('hidden');
+        document.getElementById('game-screen').style.display='block';
+        initBoard();startGameListener();renderGame();checkWinner();
+      });
+    }
+  });
+  renderGuestLobby();
+  rememberSession();
+  notify('✅ '+S.players[localPlayerId].name+' — готовий до бою!');
 }
 
 function renderGuestLobby(){
@@ -695,6 +800,14 @@ function startGame(){
     if(statusRef){statusRef.off();statusRef=null;}
   }
   sync();
+  if(roomId)rememberSession();
+  // Знайомство: показуємо характер кожного бота
+  if(isHost||isHotseat){
+    S.players.filter(p=>p.type==='AI').forEach((p,i)=>{
+      const pr=botProfile(p);
+      setTimeout(()=>notify(`🤖 ${p.name} · ${pr.label}: ${pr.tagline}`,p.name==='СИГМА'?'sigma':''),400+i*900);
+    });
+  }
   if(isHost&&!isHotseat)startGameListener();
   if(isHost||isHotseat)runBot();
   resetEntropy();
@@ -724,10 +837,16 @@ function initBoard(){
 function renderGame(){
   if(gameOver)return;
   const phs=getPhantoms();const highlights=canControl()?getValidDests(localSelected):[];
+  // Домашня чверть гравців у Фазі 2 (12 клітин перед стартом) — підсвічуємо кольором власника
+  const homeMap={};
+  S.players.forEach(p=>{if(p.type==='EMPTY'||!inPhase2(p.id))return;for(let k=36;k<48;k++)homeMap[(p.offset+k)%48]=p.color;});
   document.querySelectorAll('.tail-cell').forEach(c=>c.remove());
   document.querySelectorAll('.cell').forEach(cell=>{
     const id=parseInt(cell.id.split('-')[1]);cell.innerHTML='';
     cell.className='cell'+(HEADS.includes(id)?' cell-head':'')+(phs.some(w=>w.pos===id)?' cell-wall':'')+(highlights.includes(id)?' cell-hi':'');
+    const hc=homeMap[id];
+    if(hc){cell.style.border='3px solid '+hc;cell.style.boxShadow='inset 0 0 10px '+hc+'77';}
+    else{cell.style.border='';cell.style.boxShadow='';}
     const ph=phs.find(w=>w.pos===id);if(ph){const e=document.createElement('div');e.className='ph-rook';e.style.color=S.players[ph.owner].color;e.innerText='♖';cell.appendChild(e);}
   });
   S.pieces.forEach(pc=>{
@@ -752,20 +871,21 @@ function renderGame(){
     if(p.type==='EMPTY')return;const active=S.activePlayer===p.id;
     const div=document.createElement('div');div.className='corner-ui';div.style.cssText=`top:${p.cy*100/13}%;left:${p.cx*100/13}%`;
     const asc=S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='Q'&&pc.status==='ASCENDED').length;
-    let h=`<div class="name-tag${active?' act':''}${p.name==='СИГМА'?' sigma':''}">${p.name}</div>`;
+    let h=`<div class="name-tag${active?' act':''}${p.name==='СИГМА'?' sigma':''}">${p.name}${inPhase2(p.id)?' 🏠':''}</div>`;
+    if(p.type==='AI'){const pr=botProfile(p);if(pr&&pr.label)h+=`<div style="font-size:6px;opacity:.5;letter-spacing:1px;color:${p.name==='СИГМА'?'var(--sigma)':p.color}">${pr.label}</div>`;}
     if(p.energy>0)h+=`<div style="color:var(--gold);font-size:9px">⚡${p.energy}</div>`;
     if(asc>0)h+=`<div style="font-size:9px;color:var(--rose)">♛×${asc}</div>`;
     if(p.activeShield&&!isHotseat&&p.id===localPlayerId)h+=`<div style="font-size:9px;color:var(--gold)">${p.activeShield==='DEF'?'🛡':'🪞'}</div>`;
     if(active){
       h+=`<div style="font-size:8px;color:var(--cyan);opacity:.8">✉${p.letters} ✦${p.spellAttempts}/3</div>`;
       if(S.gameState==='ROLL')h+=`<div class="dice-row"><button class="btn btn-sm" style="pointer-events:auto" onclick="doRoll()">🎲 БРОСОК</button></div>`;
-      else{h+='<div class="dice-row">';S.dice.forEach((v,i)=>{h+=`<div class="die ${S.diceUsed[i]?'die-used':''} ${S.gameState==='ENERGY'?'die-nrg':''} ${S.entropyTargetIdx===i?'die-entropy':''}" onclick="useDice(${i})">${v}</div>`;});h+='</div>';}
+      else{h+='<div class="dice-row">';(S.dice||[]).forEach((v,i)=>{h+=`<div class="die ${(S.diceUsed||[])[i]?'die-used':''} ${S.gameState==='ENERGY'?'die-nrg':''} ${S.entropyTargetIdx===i?'die-entropy':''}" onclick="useDice(${i})">${v}</div>`;});h+='</div>';}
     }
     div.innerHTML=h;ui.appendChild(div);
   });
   const selPc=S.pieces.find(p=>p.id===localSelected);
   document.getElementById('q-panel').className=(selPc&&selPc.type==='Q'&&selPc.status==='BOARD'&&S.gameState==='MOVE'&&canControl())?'':'hidden';
-  document.getElementById('skip-btn').className=(S.gameState==='MOVE'&&canControl()&&!S.diceUsed.every(u=>u)&&!anyValidMove())?'btn btn-ghost btn-sm':'hidden';
+  document.getElementById('skip-btn').className=(S.gameState==='MOVE'&&canControl()&&!(S.diceUsed||[]).every(u=>u)&&!anyValidMove())?'btn btn-ghost btn-sm':'hidden';
   document.getElementById('grimoire-btn').classList.remove('hidden');
   document.getElementById('spell-hud').innerText=S.morseWord||'';
   document.getElementById('morse-buf').innerText=S.morseBuffer?`[${S.morseBuffer}]`:'';
@@ -858,7 +978,8 @@ function useDice(idx){
   const nPos=(pc.pos+steps*dir+4800)%48;
   if(!validateMove(pc,nPos,phs)){shakeApp();return;}
   let hc=0;for(let i=1;i<=Math.abs(steps);i++){if(HEADS.includes((pc.pos+i*dir+4800)%48))hc++;}
-  for(let j=0;j<hc;j++){const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD'&&p.moved).sort((a,b)=>relPos(a)-relPos(b))[0];if(lag){lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;}}
+  // Королева — єдина велика, що НЕ спалює пішака при перетині Кута
+  if(pc.type!=='Q'){for(let j=0;j<hc;j++){const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD'&&p.moved).sort((a,b)=>relPos(a)-relPos(b))[0];if(lag){lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;}}}
   const isAscension=nPos===player.offset&&pc.moved&&canAscend(player.id)&&pc.type==='Q';
   if(isAscension){
     S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:nPos,status:'ASCENDED'}:p);
@@ -916,6 +1037,7 @@ function checkWinner(){
     if(S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='Q'&&pc.status==='ASCENDED').length>=2){
       gameOver=true;if(botTimer){clearTimeout(botTimer);botTimer=null;}
       clearTimeout(entropyTimer);clearInterval(degradeTimer);if(gameStateRef){gameStateRef.off();gameStateRef=null;}
+      clearSession();
       // Mark room as finished so it disappears from browser
       if(roomId&&db)db.ref('rooms/'+roomId+'/status').set('FINISHED');
       document.getElementById('winner-name').innerText=p.name;
@@ -959,7 +1081,7 @@ function runBot(){
   if(!gameOver)botTimer=setTimeout(runBot,1100);
 }
 function botMove(ap){
-  const phs=getPhantoms();const isSigma=ap.name==='СИГМА';
+  const phs=getPhantoms();const P=botProfile(ap);
   const isThreatened=(pos,me)=>S.pieces.some(e=>e.owner!==me&&e.type==='Q'&&e.status==='BOARD'&&e.moved&&((pos-e.pos+48)%48)>0&&((pos-e.pos+48)%48)<=6);
   const protectedNow=(pos)=>{const rooks=S.pieces.filter(p=>p.owner===ap.id&&p.type==='R'&&p.status==='BOARD'&&p.moved);if(rooks.length!==2)return false;return getCellsBetween(rooks[0].pos,rooks[1].pos).includes(pos);};
   const isGuarded=(pos)=>S.pieces.some(p=>p.owner===ap.id&&p.status==='BOARD'&&p.moved&&p.pos===pos&&['R','E','K'].includes(p.type));
@@ -972,18 +1094,37 @@ function botMove(ap){
         if(S.diceUsed[dIdx])return;const dir=pc.type==='Q'?qDir:1;
         let steps;if(pc.type==='K'){steps=S.dice.reduce((s,v2,i2)=>!S.diceUsed[i2]?s+v2:s,0);}else{steps=pc.type==='P'?1:pc.type==='E'?v*2:v;}
         const dest=(pc.pos+steps*dir+4800)%48;if(!validateMove(pc,dest,phs))return;
-        let score=isSigma?0:Math.random()*.4;
+        let score=Math.random()*P.rand*40;            // хаос за характером
         const hasOurPawn=S.pieces.some(e=>e.owner===ap.id&&e.type==='P'&&e.status==='BOARD'&&e.pos===dest&&e.id!==pc.id);
         const hasOurGuard=isGuarded(dest);const underWall=protectedNow(dest);
-        if(!pc.moved){const startBusy=S.pieces.some(e=>e.pos===ap.offset&&e.status==='BOARD'&&e.moved);if(startBusy)score-=200;else{if(pc.type==='P')score+=70;else if(['R','E','K'].includes(pc.type))score+=100;else if(pc.type==='Q')score+=90;}}
+        // 1) ДИСЦИПЛІНА ВИВЕДЕННЯ. З депо можна випускати кілька фігур за хід
+        //    (по одній на кубик) — заборони "зайнятого старту" немає.
+        if(!pc.moved){if(pc.type==='P')score+=P.depPawn;else if(['R','E','K'].includes(pc.type))score+=P.depElite;else if(pc.type==='Q')score+=P.depQueen;}
         if(pc.moved&&myUndeployed.length>3)score-=50;
-        if(pc.type==='P'){if(hasOurPawn)score-=300;else{if(!S.pieces.some(e=>e.status==='BOARD'&&e.moved&&e.pos===dest&&e.id!==pc.id))score+=25;if(hasOurGuard||underWall)score+=60;}if(pc.moved){score-=20;const ct=isThreatened(pc.pos,ap.id),nt=isThreatened(dest,ap.id);if(ct&&!nt)score+=90;if(!ct&&nt)score-=120;}}
-        if(['R','E','K'].includes(pc.type)){const adj=S.pieces.filter(p=>p.owner===ap.id&&p.type==='P'&&p.status==='BOARD'&&p.moved&&Math.min(Math.abs(dest-p.pos),48-Math.abs(dest-p.pos))<=2);if(adj.length>0)score+=adj.length*40;if(hasOurPawn&&!hasOurGuard)score+=45;}
-        if(pc.type==='R'){const other=S.pieces.find(p=>p.owner===ap.id&&p.type==='R'&&p.id!==pc.id&&p.status==='BOARD'&&p.moved);if(other){const diff=Math.abs(dest-other.pos),dist=Math.min(diff,48-diff);if(dist>=1&&dist<=4){score+=50;const wc=getCellsBetween(dest,other.pos);score+=S.pieces.filter(p=>p.owner===ap.id&&p.type==='P'&&p.status==='BOARD'&&wc.includes(p.pos)).length*80;}}}
+        // ПРОГРЕСИВНИЙ ШТРАФ ЗА СКУПЧЕННЯ: чим більше фігур уже на клітині —
+        // тим дорожче туди йти (квадратично). Тримає стрій розпорошеним.
+        {const crowd=S.pieces.filter(p=>p.id!==pc.id&&p.status==='BOARD'&&p.moved&&p.pos===dest).length;if(crowd>0)score-=crowd*crowd*6;}
+        // 2) ПІШАК: унікальні клітини, прикриття, уникання загрози (×safety)
+        if(pc.type==='P'){
+          if(hasOurPawn)score-=300;
+          else{if(!S.pieces.some(e=>e.status==='BOARD'&&e.moved&&e.pos===dest&&e.id!==pc.id))score+=25;if(hasOurGuard||underWall)score+=60*P.formation;}
+          if(pc.moved){score-=20;const ct=isThreatened(pc.pos,ap.id),nt=isThreatened(dest,ap.id);if(ct&&!nt)score+=90*P.safety;if(!ct&&nt)score-=120*P.safety;}
+        }
+        // 3) ТЯЖКІ ФІГУРИ — телохоронці пішок (×formation)
+        if(['R','E','K'].includes(pc.type)){const adj=S.pieces.filter(p=>p.owner===ap.id&&p.type==='P'&&p.status==='BOARD'&&p.moved&&Math.min(Math.abs(dest-p.pos),48-Math.abs(dest-p.pos))<=2);if(adj.length>0)score+=adj.length*40*P.formation;if(hasOurPawn&&!hasOurGuard)score+=45*P.formation;}
+        // 4) ЛАДЬЇ — ефірні стіни (×formation)
+        if(pc.type==='R'){const other=S.pieces.find(p=>p.owner===ap.id&&p.type==='R'&&p.id!==pc.id&&p.status==='BOARD'&&p.moved);if(other){const diff=Math.abs(dest-other.pos),dist=Math.min(diff,48-diff);if(dist>=1&&dist<=4){score+=50*P.formation;const wc=getCellsBetween(dest,other.pos);score+=S.pieces.filter(p=>p.owner===ap.id&&(p.type==='P'||p.type==='Q')&&p.status==='BOARD'&&wc.includes(p.pos)).length*80*P.formation;}}}
+        // 5) ЗАХОПЛЕННЯ (тільки Ферзь може стати на ворога) — цінність за характером
         const enemy=S.pieces.find(e=>e.pos===dest&&e.owner!==ap.id&&e.moved&&e.status==='BOARD');
-        if(enemy){if(pc.type==='Q')score+=(enemy.type==='Q'?120:70);if(isSigma)score+=30;}
-        if(pc.type==='Q'&&dest===ap.offset&&pc.moved&&canAscend(ap.id))score+=150;
-        score+=(dest-ap.offset+48)%48*.05;
+        if(enemy&&pc.type==='Q')score+=(enemy.type==='Q'?P.capQ:P.capO);
+        // 6) ПОЛЮВАННЯ: стати Ферзем на 1-6 позаду ворога (загроза удару) ×aggression
+        if(pc.type==='Q'&&P.aggression>0){let stalk=0;S.pieces.forEach(e=>{if(e.owner===ap.id||!e.moved||e.status!=='BOARD')return;const fwd=(e.pos-dest+48)%48;if(fwd>=1&&fwd<=6)stalk+=(e.type==='Q'?6:3);});score+=stalk*P.aggression;}
+        // 7) ЖНИВА: перетин Кута → екстракція пішки (✉+⚡) ×harvest
+        if(pc.moved){let hc=0;for(let i=1;i<=Math.abs(steps);i++){if(HEADS.includes((pc.pos+i*dir+4800)%48))hc++;}if(hc>0){const myPawns=S.pieces.filter(p=>p.owner===ap.id&&p.type==='P'&&p.status==='BOARD'&&p.moved).length;if(myPawns>1)score+=hc*P.harvest;else score-=40;}}
+        // 8) ВОЗНЕСІННЯ — головна мета
+        if(pc.type==='Q'&&dest===ap.offset&&pc.moved&&canAscend(ap.id))score+=P.ascend;
+        // 9) загальний рух уперед
+        score+=(dest-ap.offset+48)%48*P.advance;
         if(score>bestScore){bestScore=score;bestMove={pcId:pc.id,dIdx,dest,qDir:pc.type==='Q'?qDir:1};}
       });
     });
@@ -1020,6 +1161,65 @@ document.getElementById('game-screen').addEventListener('pointerup',e=>{
   else{S.morseBuffer='';S.morseWord='';playBeep('error');setTimeout(stopTone,400);shakeApp();sync();return;}
   morseLetterTimer=setTimeout(finalizeMorseLetter,600);renderGame();
 });
+// ═══════════════════════════════════════════════════════════════
+// RECONNECT — відновлення після розриву / перезавантаження вкладки
+// ═══════════════════════════════════════════════════════════════
+function _reconnectFail(msg){
+  notify('✗ '+msg);clearSession();
+  const b=document.getElementById('reconnect-btn');if(b)b.classList.add('hidden');
+  showMenu();
+}
+function reconnect(){
+  const s=loadSession();
+  if(!s){_reconnectFail('Немає збереженої сесії');return;}
+  initAudio();
+  notify('↻ Відновлення сесії...');
+  loadFirebase(()=>{
+    db.ref('rooms/'+s.roomId).once('value',snap=>{
+      const room=snap.val();
+      if(!room||!room.lobby){_reconnectFail('Кімнату закрито');return;}
+      if(room.status==='FINISHED'){_reconnectFail('Гру вже завершено');return;}
+      const players=room.lobby.players||[];
+      const idx=players.findIndex(p=>p&&p.uid===MY_ID);
+      isHotseat=false;isHost=!!s.isHost;roomId=s.roomId;
+      // Гість упізнається за uid; хост — за збереженою роллю (слот 0 без uid)
+      if(idx!==-1)localPlayerId=idx;
+      else if(isHost)localPlayerId=0;
+      else {_reconnectFail('Твоє місце вже зайняте');return;}
+      S.players=players.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
+
+      if(room.status==='PLAYING'){
+        const gs=room.gameState;
+        if(gs&&gs.S){S=hydrateState(gs.S);gameOver=gs.gameOver||false;}
+        document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'));
+        document.getElementById('game-screen').style.display='block';
+        initBoard();startGameListener();renderGame();checkWinner();
+        // Хост повертається — відновлюємо керування ботами, якщо черга бота
+        if(isHost&&!gameOver&&S.players[S.activePlayer]?.type==='AI'&&!botTimer)botTimer=setTimeout(runBot,800);
+        rememberSession();
+        notify('✅ З поверненням, '+(S.players[localPlayerId]?.name||'гравцю')+'!');
+      } else {
+        // Кімната ще в лобі
+        document.getElementById('menu').classList.add('hidden');
+        if(isHost){
+          document.getElementById('room-code-display').innerText=roomId;
+          document.getElementById('host-lobby').classList.remove('hidden');
+          lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
+          lobbyRef.on('value',snp=>{const pl=snp.val();if(!pl)return;pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});renderHostLobby();});
+          renderHostLobby();
+        } else {
+          _enterGuestLobby(roomId);
+        }
+        notify('✅ Сесію відновлено');
+      }
+    },err=>{_reconnectFail('Помилка: '+err.message);});
+  });
+}
+
+// На старті показуємо кнопку «Продовжити», якщо є свіжа збережена сесія
+(function(){
+  if(loadSession()){const b=document.getElementById('reconnect-btn');if(b)b.classList.remove('hidden');}
+})();
 </script>
 </body>
 </html>
