@@ -978,8 +978,11 @@ function useDice(idx){
   const nPos=(pc.pos+steps*dir+4800)%48;
   if(!validateMove(pc,nPos,phs)){shakeApp();return;}
   let hc=0;for(let i=1;i<=Math.abs(steps);i++){if(HEADS.includes((pc.pos+i*dir+4800)%48))hc++;}
-  // Королева — єдина велика, що НЕ спалює пішака при перетині Кута
-  if(pc.type!=='Q'){for(let j=0;j<hc;j++){const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD'&&p.moved).sort((a,b)=>relPos(a)-relPos(b))[0];if(lag){lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;}}}
+  // Королева — єдина велика, що НЕ спалює пішака при перетині Кута.
+  // Пріоритет спалювання: спершу НЕВИВЕДЕНІ пішаки (депо/повернуті захопленням —
+  // найвідсталіші), потім виведені за відставанням. Це не дає гравцю застрягнути
+  // у Фазі 1, якщо дім перекрито й вивести повернутого пішака неможливо.
+  if(pc.type!=='Q'){for(let j=0;j<hc;j++){const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD').sort((a,b)=>(a.moved?1:0)-(b.moved?1:0)||relPos(a)-relPos(b))[0];if(lag){lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;}}}
   const isAscension=nPos===player.offset&&pc.moved&&canAscend(player.id)&&pc.type==='Q';
   if(isAscension){
     S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:nPos,status:'ASCENDED'}:p);
