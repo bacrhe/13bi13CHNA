@@ -16,7 +16,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:pointer}
-#app{display:flex;flex-direction:column;height:100vh;width:100vw;align-items:center;justify-content:center}
+#app{display:flex;flex-direction:column;height:100dvh;width:100vw;align-items:center;justify-content:center;box-sizing:border-box;padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(94px + env(safe-area-inset-bottom)) env(safe-area-inset-left)}
 .shake{animation:shk .3s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes shk{10%,90%{transform:translate3d(-2px,0,0)}20%,80%{transform:translate3d(4px,0,0)}30%,50%,70%{transform:translate3d(-8px,0,0);filter:hue-rotate(90deg)}40%,60%{transform:translate3d(8px,0,0)}}
 .overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;z-index:100;padding:24px 20px;text-align:center;-webkit-overflow-scrolling:touch}
@@ -38,7 +38,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
 .room-code-label{font-size:8px;opacity:.4;letter-spacing:2px;margin-bottom:16px}
 
 /* GAME BOARD */
-#game-screen{display:none;position:relative;width:100vmin;height:100vmin;background:var(--void);border:1px solid #1e293b;touch-action:none}
+#game-screen{display:none;position:relative;width:min(calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)),calc(100dvh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));height:min(calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)),calc(100dvh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));background:var(--void);border:1px solid #1e293b;touch-action:none}
 .cell{position:absolute;border:1px solid rgba(255,255,255,.05);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;z-index:2;overflow:hidden}
 .cell.crowded .piece{font-size:clamp(7px,1.8vmin,13px)!important;margin:-1px}
 .cell.hyper-crowded .piece{font-size:clamp(5px,1.2vmin,9px)!important;margin:-2px}
@@ -65,10 +65,13 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
 #spell-hud{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);color:var(--cyan);font-size:17px;letter-spacing:5px;z-index:10;pointer-events:none;font-weight:900;text-shadow:0 0 10px var(--cyan);text-align:center;max-width:80%}
 #morse-buf{position:absolute;top:calc(48% + 28px);left:50%;transform:translate(-50%,-50%);color:rgba(34,211,238,.4);font-size:10px;z-index:10;pointer-events:none;letter-spacing:4px}
 #vec-hud{position:absolute;top:calc(48% + 50px);left:50%;transform:translate(-50%,-50%);color:var(--gold);font-size:7px;opacity:.5;z-index:10;pointer-events:none;letter-spacing:2px}
-#q-panel{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:200;background:rgba(0,0,0,.92);padding:10px 16px;border-radius:40px;border:1px solid var(--em)}
-#skip-btn{position:fixed;bottom:24px;right:16px;z-index:200}
-#grimoire-btn{position:fixed;bottom:24px;left:16px;z-index:200}
+#q-panel{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:200;background:rgba(0,0,0,.92);padding:10px 16px;border-radius:40px;border:1px solid var(--em)}
+#skip-btn{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));right:calc(12px + env(safe-area-inset-right));z-index:200}
+#grimoire-btn{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:calc(12px + env(safe-area-inset-left));z-index:200}
+#hint{position:fixed;top:calc(6px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:180;pointer-events:none;background:rgba(2,6,23,.82);border:1px solid var(--em-d);color:var(--em);font-size:11px;font-weight:700;letter-spacing:.5px;padding:6px 14px;border-radius:20px;max-width:92vw;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
+#hint.hidden{opacity:0}
 #grimoire-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+#rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;align-items:flex-end;justify-content:center}
 .g-inner{background:#0f172a;border:1px solid var(--em);border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:440px;max-height:75vh;overflow-y:auto}
 .g-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:6px}
 .g-row:last-child{border:none}
@@ -104,6 +107,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   <button class="btn btn-w" onclick="initHotseat()">♟ HOTSEAT</button>
   <button class="btn btn-w btn-ghost" onclick="initHost()">📡 СОЗДАТЬ ЗАЛ</button>
   <button class="btn btn-w btn-ghost" onclick="initJoin()">🔍 ЗНАЙТИ КІМнату</button>
+  <button class="btn btn-w btn-ghost" style="margin-top:14px" onclick="openRules()">❓ ЯК ГРАТИ · ПРАВИЛА</button>
 </div>
 
 <!-- HOTSEAT LOBBY -->
@@ -170,6 +174,17 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   </div>
   <button id="skip-btn" class="btn btn-ghost btn-sm hidden" onclick="doSkip()">ПРОПУСК</button>
   <button id="grimoire-btn" class="btn btn-ghost btn-sm hidden" onclick="openGrimoire()">📖 ГРИМУАР</button>
+</div>
+<div id="hint" class="hidden"></div>
+
+<div id="rules-modal" class="hidden" onclick="closeRules()">
+  <div class="g-inner" style="max-width:560px;max-height:88vh" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;position:sticky;top:0;background:#0f172a;padding-bottom:6px">
+      <div style="color:var(--em);font-weight:900;letter-spacing:1px;font-size:13px">❓ ЯК ГРАТИ · THE VESSEL</div>
+      <button class="btn btn-ghost btn-sm" style="margin:0" onclick="closeRules()">✕</button>
+    </div>
+    <div id="rules-body" style="font-size:11px;line-height:1.55;text-align:left;color:#cbd5e1"></div>
+  </div>
 </div>
 
 </div><!-- #app -->
@@ -429,6 +444,40 @@ function openGrimoire(){
   document.getElementById('grimoire-modal').classList.remove('hidden');
 }
 function closeGrimoire(){document.getElementById('grimoire-modal').classList.add('hidden');}
+
+const RULES_HTML=`
+<p><b style="color:var(--em)">Мета.</b> Провести дві свої Королеви (♕) повне коло по 48 клітинах периметра й повернути на старт — це Вознесіння. Хто вознесе двох Королев — переміг.</p>
+<p><b style="color:var(--em)">Поле.</b> Грається зовнішнє кільце сітки 13×13 — 48 клітин. Чотири фракції стартують у кутах: ♠ Пики, ♥ Червы, ♣ Трефы, ♦ Бубны. Стартові клітини (0/12/24/36) — «Кути».</p>
+<p><b style="color:var(--em)">Хід.</b> 1) Кинь кубики (їх тим більше, чим більше пішаків на унікальних клітинах). 2) Якщо є ⚡ — влий усю енергію в один кубик. 3) Признач кубики фігурам. 4) Будь-коли можна прочитати одне заклинання.</p>
+<p><b style="color:var(--em)">Фігури</b> (по-різному витрачають кубик):<br>
+♟ <b>Пішак</b> — рівно 1 клітина будь-яким кубиком. Генерує кубики й паливо.<br>
+♝ <b>Слон</b> — значення кубика ×2.<br>
+♜ <b>Ладья</b> — на значення кубика. Дві Ладьї за 4 клітини одна від одної ставлять <b>ефірну стіну</b>: 3 клітини між ними недосяжні ворогу — там безпечні пішаки й Королеви.<br>
+♞ <b>Конь</b> — стрибок на суму всіх невитрачених кубиків.<br>
+♛ <b>Королева</b> — на значення кубика, вперед і назад. Єдина, хто захоплює.</p>
+<p><b style="color:var(--em)">Захоплення.</b> Лише Королева збиває ворога на старт — і тільки ворожого <b>пішака</b>, що стоїть сам (без прикриття великою фігурою), або ворожу Королеву (тоді обидві йдуть на старт). Слони/Ладьї/Коні невразливі. Свій старт варто тримати зайнятим.</p>
+<p><b style="color:var(--em)">Економіка.</b> Коли велика фігура (не Королева!) перетинає Кут — один твій найвідсталіший пішак згорає в +1⚡ та +1✉ (лист). ⚡ підсилює кубик, ✉ — валюта заклинань.</p>
+<p><b style="color:var(--em)">Дві фази.</b> <b>Фаза 1</b> — поки лишився хоч один пішак: дім зачинений, Королева ходить вільно в обидва боки й проходить власний старт як звичайну клітину. <b>Фаза 2</b> — коли всі 8 пішаків згоріли: домашня чверть підсвічується твоїм кольором (🏠), Королева в ній уже не задкує, і за умови «всі великі вдома» може Вознестися точним кубиком на старт.</p>
+<p><b style="color:var(--em)">Магія (Морзе).</b> Вистукуй назву закляття азбукою Морзе: короткий тап — крапка (·), довгий — тире (–), пауза 0.6с — кінець літери. Потім свайп у бік фракції = ціль і каст. 3 спроби на хід, 1 успішне закляття. Повний список — у 📖 ГРИМУАР.</p>
+<p><b style="color:var(--em)">Шум (не зволікай).</b> Якщо маєш ≥2 кубики й довго думаєш — найбільший кубик починає «танути». СИГМА (бос) живиться цим. Зволікав надто довго — система походить за тебе.</p>
+<p style="opacity:.6;margin-top:10px">Свайп по полю = ввід Морзе й вибір цілі. Тап по фігурі/кубику = вибір і хід.</p>`;
+function openRules(){document.getElementById('rules-body').innerHTML=RULES_HTML;document.getElementById('rules-modal').classList.remove('hidden');}
+function closeRules(){document.getElementById('rules-modal').classList.add('hidden');}
+
+// Контекстна підказка живому гравцю — що робити зараз
+function updateHint(){
+  const el=document.getElementById('hint');if(!el)return;
+  if(gameOver||document.getElementById('game-screen').style.display!=='block'){el.classList.add('hidden');return;}
+  let txt='';
+  if(canControl()){
+    if(S.gameState==='ROLL')txt='🎲 Твій хід — кинь кубики';
+    else if(S.gameState==='ENERGY')txt='⚡ Влий енергію — тапни кубик';
+    else if(S.gameState==='MOVE'){txt=localSelected?'Тапни кубик, щоб походити обраною фігурою':'Обери фігуру, якою ходити';}
+  }else{
+    const ap=S.players[S.activePlayer];txt=ap?`Хід суперника: ${ap.name}…`:'';
+  }
+  if(txt){el.innerText=txt;el.classList.remove('hidden');}else{el.classList.add('hidden');}
+}
 
 // ═══════════════════════════════════════════════════════════════
 // ACCESS CONTROL
@@ -890,7 +939,7 @@ function renderGame(){
   document.getElementById('spell-hud').innerText=S.morseWord||'';
   document.getElementById('morse-buf').innerText=S.morseBuffer?`[${S.morseBuffer}]`:'';
   document.getElementById('vec-hud').innerText=S.lastVec;
-
+  updateHint();
 }
 
 // ═══════════════════════════════════════════════════════════════
