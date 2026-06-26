@@ -62,14 +62,24 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
 .die-used{opacity:.06;filter:grayscale(1);pointer-events:none!important}
 .die-entropy{border-color:var(--rose)!important;color:var(--rose)!important;animation:noisePulse .3s infinite alternate;pointer-events:none}
 @keyframes noisePulse{from{filter:hue-rotate(0deg);transform:translate(1px,-1px) scale(1.05);box-shadow:0 0 8px var(--rose)}to{filter:hue-rotate(40deg);transform:translate(-1px,1px) scale(0.95);box-shadow:0 0 15px var(--rose)}}
-#spell-hud{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);color:var(--cyan);font-size:17px;letter-spacing:5px;z-index:10;pointer-events:none;font-weight:900;text-shadow:0 0 10px var(--cyan);text-align:center;max-width:80%}
-#morse-buf{position:absolute;top:calc(48% + 28px);left:50%;transform:translate(-50%,-50%);color:rgba(34,211,238,.4);font-size:10px;z-index:10;pointer-events:none;letter-spacing:4px}
-#vec-hud{position:absolute;top:calc(48% + 50px);left:50%;transform:translate(-50%,-50%);color:var(--gold);font-size:7px;opacity:.5;z-index:10;pointer-events:none;letter-spacing:2px}
+#spell-hud{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(34,211,238,.85);font-size:clamp(20px,7vmin,48px);letter-spacing:7px;z-index:70;pointer-events:none;font-weight:900;text-shadow:0 0 16px var(--cyan);text-align:center;max-width:140%;white-space:nowrap}
+#morse-buf{position:absolute;top:calc(50% + clamp(24px,6.5vmin,44px));left:50%;transform:translateX(-50%);color:var(--cyan);font-size:clamp(12px,2.8vmin,17px);z-index:70;pointer-events:none;letter-spacing:7px;background:rgba(2,6,23,.72);padding:2px 9px;border-radius:9px;min-width:30px;text-align:center}
+#vec-hud{position:absolute;top:calc(50% + clamp(46px,11vmin,72px));left:50%;transform:translateX(-50%);color:var(--gold);font-size:7px;opacity:.5;z-index:70;pointer-events:none;letter-spacing:2px}
 #q-panel{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:200;background:rgba(0,0,0,.92);padding:10px 16px;border-radius:40px;border:1px solid var(--em)}
 #skip-btn{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));right:calc(12px + env(safe-area-inset-right));z-index:200}
 #grimoire-btn{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:calc(12px + env(safe-area-inset-left));z-index:200}
-#hint{position:fixed;top:calc(6px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:180;pointer-events:none;background:rgba(2,6,23,.82);border:1px solid var(--em-d);color:var(--em);font-size:11px;font-weight:700;letter-spacing:.5px;padding:6px 14px;border-radius:20px;max-width:92vw;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
+#hint{position:fixed;bottom:calc(58px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:180;pointer-events:none;background:rgba(2,6,23,.8);border:1px solid var(--em-d);border-radius:13px;width:min(90vw,540px);height:24px;overflow:hidden;display:flex;align-items:center;transition:opacity .2s}
+#hint .tick{white-space:nowrap;color:var(--em);font-size:11px;font-weight:700;letter-spacing:.5px;padding-left:100%;animation:tickMove 13s linear infinite;will-change:transform}
+@keyframes tickMove{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 #hint.hidden{opacity:0}
+#hint.hidden{opacity:0}
+#center-panel{position:absolute;top:62%;left:50%;transform:translate(-50%,-50%);z-index:65;display:flex;flex-direction:column;align-items:center;gap:7px;width:66%;max-width:66%;pointer-events:none}
+#center-panel .dice-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:100%;pointer-events:auto}
+#center-panel .cp-info{font-size:9px;color:var(--cyan);opacity:.85;background:rgba(2,6,23,.6);padding:3px 9px;border-radius:10px;text-align:center}
+@keyframes attnPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.55)}50%{box-shadow:0 0 0 9px rgba(16,185,129,0)}}
+.attn{animation:attnPulse 1.4s infinite}
+.piece.movable{filter:drop-shadow(0 0 5px currentColor);animation:movGlow 1.6s infinite}
+@keyframes movGlow{0%,100%{opacity:.85}50%{opacity:1;filter:drop-shadow(0 0 9px currentColor)}}
 #grimoire-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:flex;align-items:flex-end;justify-content:center}
 #rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;align-items:flex-end;justify-content:center}
 .g-inner{background:#0f172a;border:1px solid var(--em);border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:440px;max-height:75vh;overflow-y:auto}
@@ -107,6 +117,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   <button class="btn btn-w" onclick="initHotseat()">♟ HOTSEAT</button>
   <button class="btn btn-w btn-ghost" onclick="initHost()">📡 СОЗДАТЬ ЗАЛ</button>
   <button class="btn btn-w btn-ghost" onclick="initJoin()">🔍 ЗНАЙТИ КІМнату</button>
+  <button class="btn btn-w btn-ghost" style="background:#1e3a5f;box-shadow:0 4px 0 #0f1f33" onclick="initSpectatorHost()">📺 ЕКРАН-СПОСТЕРІГАЧ</button>
   <button class="btn btn-w btn-ghost" style="margin-top:14px" onclick="openRules()">❓ ЯК ГРАТИ · ПРАВИЛА</button>
 </div>
 
@@ -123,6 +134,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   <div class="room-code-label">КОД КОМНАТИ</div>
   <div class="room-code" id="room-code-display">------</div>
   <button class="btn btn-sm" style="margin-bottom:16px" onclick="copyRoomCode()">📋 СКОПІЮВАТИ</button>
+  <div id="host-spec-note" class="hidden" style="font-size:9px;color:#60a5fa;margin-bottom:12px;letter-spacing:1px">📺 ВИ — СПОСТЕРІГАЧ. Гравці заходять за кодом і займають фракції.</div>
   <div id="host-slots" class="slot-grid"></div>
   <button id="host-start-btn" class="btn btn-w hidden" style="margin-top:16px" onclick="startGame()">▶ ПОЧАТИ ГРУ</button>
   <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="showMenu()">← НАЗАД</button>
@@ -140,6 +152,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
       placeholder="XXXXXX" oninput="this.value=this.value.toUpperCase()">
     <button class="btn" style="margin:0;padding:10px 14px" onclick="joinByCode()">→</button>
   </div>
+  <button class="btn btn-ghost btn-sm" style="margin-top:10px;background:#1e3a5f;box-shadow:0 4px 0 #0f1f33" onclick="spectateByCode()">👁 СПОСТЕРІГАТИ ЗА КОДОМ</button>
   <div id="join-status" style="font-size:9px;color:var(--rose);margin-top:10px;min-height:16px"></div>
   <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="showMenu()">← НАЗАД</button>
 </div>
@@ -168,6 +181,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   <div id="morse-buf"></div>
   <div id="vec-hud">ВЕКТОР ОЖИДАНИЯ</div>
   <div id="ui-layer"></div>
+  <div id="center-panel"></div>
   <div id="q-panel" class="hidden">
     <button class="btn btn-sm" style="margin:0" onclick="setQDir(-1)">◀ НАЗАД</button>
     <button class="btn btn-sm" style="margin:0" onclick="setQDir(1)">ВПЕРЁД ▶</button>
@@ -175,7 +189,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
   <button id="skip-btn" class="btn btn-ghost btn-sm hidden" onclick="doSkip()">ПРОПУСК</button>
   <button id="grimoire-btn" class="btn btn-ghost btn-sm hidden" onclick="openGrimoire()">📖 ГРИМУАР</button>
 </div>
-<div id="hint" class="hidden"></div>
+<div id="hint" class="hidden"><span class="tick"></span></div>
 
 <div id="rules-modal" class="hidden" onclick="closeRules()">
   <div class="g-inner" style="max-width:560px;max-height:88vh" onclick="event.stopPropagation()">
@@ -190,6 +204,7 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
 </div><!-- #app -->
 
 <div id="notif-stack"></div>
+<button id="sound-btn" onclick="toggleSound()" style="position:fixed;top:calc(8px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));z-index:400;background:rgba(2,6,23,.8);border:1px solid var(--em-d);color:#fff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;padding:0">🔊</button>
 <div id="conn-status" class="connecting" title="Статус соединения"></div>
 
 <!-- GRIMOIRE MODAL -->
@@ -262,18 +277,27 @@ function loadFirebase(callback) {
 // ═══════════════════════════════════════════════════════════════
 // AUDIO
 // ═══════════════════════════════════════════════════════════════
-let audioCtx=null, droneFx=null, toneFx=null;
+let audioCtx=null, droneFx=null, toneFx=null, droneGain=null;
+let soundMuted=(()=>{try{return localStorage.getItem('vessel_muted')==='1';}catch(e){return false;}})();
 function initAudio(){
   if(audioCtx)return;
   try{
     audioCtx=new(window.AudioContext||window.webkitAudioContext)();
     droneFx=audioCtx.createOscillator();droneFx.type='triangle';droneFx.frequency.value=55;
-    const g=audioCtx.createGain();g.gain.value=.025;
-    droneFx.connect(g);g.connect(audioCtx.destination);droneFx.start();
+    droneGain=audioCtx.createGain();droneGain.gain.value=soundMuted?0:.025;
+    droneFx.connect(droneGain);droneGain.connect(audioCtx.destination);droneFx.start();
   }catch(e){}
 }
+function toggleSound(){
+  soundMuted=!soundMuted;
+  try{localStorage.setItem('vessel_muted',soundMuted?'1':'0');}catch(e){}
+  if(droneGain)droneGain.gain.value=soundMuted?0:.025;
+  if(soundMuted)stopTone();
+  const b=document.getElementById('sound-btn');if(b)b.innerText=soundMuted?'🔇':'🔊';
+  notify(soundMuted?'🔇 Звук вимкнено':'🔊 Звук увімкнено');
+}
 function playBeep(type){
-  if(!audioCtx)return;stopTone();
+  if(!audioCtx||soundMuted)return;stopTone();
   toneFx=audioCtx.createOscillator();const g=audioCtx.createGain();
   if(type==='dot'){toneFx.type='sine';toneFx.frequency.value=660;g.gain.value=.09;}
   if(type==='dash'){toneFx.type='sine';toneFx.frequency.value=440;g.gain.value=.09;}
@@ -388,7 +412,7 @@ const makeState=()=>({
 
 let S=makeState();
 let morseLetterTimer=null;
-let isHost=false,isHotseat=false,localPlayerId=null;
+let isHost=false,isHotseat=false,localPlayerId=null,isSpectator=false;
 let localSelected=null,botTimer=null,gameOver=false;
 let entropyTimer=null,degradeTimer=null;
 let roomId=null;
@@ -408,7 +432,7 @@ const MY_ID=_persistentId();
 // Збереження останньої сесії для відновлення після розриву/перезавантаження
 const SESSION_TTL=2*60*60*1000; // 2 год — стільки ж живе кімната
 function rememberSession(){
-  try{ localStorage.setItem('vessel_session',JSON.stringify({roomId,isHost,localPlayerId,ts:Date.now()})); }catch(e){}
+  try{ localStorage.setItem('vessel_session',JSON.stringify({roomId,isHost,localPlayerId,isSpectator,ts:Date.now()})); }catch(e){}
 }
 function clearSession(){ try{ localStorage.removeItem('vessel_session'); }catch(e){} }
 function loadSession(){
@@ -424,6 +448,7 @@ function loadSession(){
 // NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════════
 function notify(msg,type=''){
+  if(typeof pushTicker==='function'&&document.getElementById('game-screen')?.style.display==='block')pushTicker(msg);
   const stack=document.getElementById('notif-stack');if(!stack)return;
   const n=document.createElement('div');n.className='notif'+(type?' '+type:'');n.innerText=msg;
   stack.appendChild(n);
@@ -464,19 +489,29 @@ const RULES_HTML=`
 function openRules(){document.getElementById('rules-body').innerHTML=RULES_HTML;document.getElementById('rules-modal').classList.remove('hidden');}
 function closeRules(){document.getElementById('rules-modal').classList.add('hidden');}
 
-// Контекстна підказка живому гравцю — що робити зараз
+// Контекстна підказка / повідомлення — нижня біжуча строка
+let tickerOverrideUntil=0;
+function setTicker(text){
+  const el=document.getElementById('hint');if(!el)return;
+  const t=el.querySelector('.tick');if(!t)return;
+  if(t.textContent!==text){t.textContent=text;t.style.animation='none';void t.offsetWidth;t.style.animation='';}
+  el.classList.remove('hidden');
+}
+function pushTicker(msg){tickerOverrideUntil=Date.now()+6000;setTicker(msg);}
 function updateHint(){
   const el=document.getElementById('hint');if(!el)return;
   if(gameOver||document.getElementById('game-screen').style.display!=='block'){el.classList.add('hidden');return;}
+  if(Date.now()<tickerOverrideUntil)return; // зараз показуємо повідомлення
   let txt='';
-  if(canControl()){
+  if(isSpectator){const ap0=S.players[S.activePlayer];txt=ap0?`👁 Спостереження · хід: ${ap0.name}`:'👁 Спостереження';}
+  else if(canControl()){
     if(S.gameState==='ROLL')txt='🎲 Твій хід — кинь кубики';
     else if(S.gameState==='ENERGY')txt='⚡ Влий енергію — тапни кубик';
-    else if(S.gameState==='MOVE'){txt=localSelected?'Тапни кубик, щоб походити обраною фігурою':'Обери фігуру, якою ходити';}
+    else if(S.gameState==='MOVE'){txt=localSelected?'Тапни кубик, щоб походити обраною фігурою':'Обери фігуру, що світиться';}
   }else{
     const ap=S.players[S.activePlayer];txt=ap?`Хід суперника: ${ap.name}…`:'';
   }
-  if(txt){el.innerText=txt;el.classList.remove('hidden');}else{el.classList.add('hidden');}
+  if(txt)setTicker(txt);else el.classList.add('hidden');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -605,7 +640,7 @@ function startGameListener(){
 // LOBBY — HOTSEAT
 // ═══════════════════════════════════════════════════════════════
 function initHotseat(){
-  initAudio();isHotseat=true;isHost=true;localPlayerId=null;S=makeState();
+  initAudio();isHotseat=true;isHost=true;localPlayerId=null;isSpectator=false;S=makeState();
   document.getElementById('menu').classList.add('hidden');
   document.getElementById('hs-lobby').classList.remove('hidden');
   renderHsLobby();
@@ -640,7 +675,7 @@ function initHost(){
   loadFirebase(() => _initHostReady());
 }
 function _initHostReady(){
-  isHost=true;isHotseat=false;S=makeState();
+  isHost=true;isHotseat=false;isSpectator=false;S=makeState();
   roomId=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
   localPlayerId=0;
   S.players[0].type='HUMAN';
@@ -659,6 +694,59 @@ function _initHostReady(){
     const pl=snap.val();if(!pl)return;
     pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});
     renderHostLobby();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPECTATOR (спостерігач: бачить усе, нічим не керує)
+// ═══════════════════════════════════════════════════════════════
+function initSpectatorHost(){
+  initAudio();
+  loadFirebase(()=>{
+    isHost=true;isHotseat=false;isSpectator=true;S=makeState();
+    roomId=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
+    localPlayerId=null;            // спостерігач НЕ займає слот — усі 4 для гравців
+    document.getElementById('room-code-display').innerText=roomId;
+    document.getElementById('menu').classList.add('hidden');
+    document.getElementById('host-lobby').classList.remove('hidden');
+    const hh=document.getElementById('host-spec-note');if(hh)hh.classList.remove('hidden');
+    db.ref('rooms/'+roomId).set({lobby:{players:JSON.parse(JSON.stringify(S.players)),createdAt:Date.now(),status:'LOBBY'},status:'LOBBY'});
+    rememberSession();
+    lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
+    lobbyRef.on('value',snap=>{const pl=snap.val();if(!pl)return;pl.forEach((p,i)=>{if(p)S.players[i]={...S.players[i],...p};});renderHostLobby();});
+  });
+}
+function spectateByCode(){
+  const code=(document.getElementById('room-input').value||'').trim().toUpperCase();
+  if(code.length<4){document.getElementById('join-status').innerText='Введи код кімнати';return;}
+  initAudio();loadFirebase(()=>joinAsSpectator(code));
+}
+function joinAsSpectator(code){
+  isHost=false;isHotseat=false;isSpectator=true;roomId=code;localPlayerId=null;
+  const statusEl=document.getElementById('join-status');statusEl.innerText='👁 Підключення...';
+  db.ref('rooms/'+code+'/lobby').once('value',snap=>{
+    if(!snap.exists()){statusEl.innerText='✗ Кімнату не знайдено';return;}
+    const pl=(snap.val().players)||[];S.players=pl.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
+    document.getElementById('rooms-browser').classList.add('hidden');
+    document.getElementById('guest-lobby').classList.remove('hidden');
+    const ce=document.getElementById('guest-room-code');if(ce)ce.innerText='👁 СПОСТЕРІГАЧ · '+code;
+    rememberSession();
+    lobbyRef=db.ref('rooms/'+roomId+'/lobby/players');
+    lobbyRef.on('value',s=>{const p=s.val();if(!p)return;p.forEach((pp,i)=>{if(pp)S.players[i]={...S.players[i],...pp};});renderGuestLobby();});
+    statusRef=db.ref('rooms/'+roomId+'/status');
+    statusRef.on('value',s=>{
+      if(s.val()==='PLAYING'){
+        db.ref('rooms/'+roomId+'/gameState').once('value',g=>{
+          const d=g.val();if(!d||!d.S)return;
+          S=hydrateState(d.S);gameOver=d.gameOver||false;
+          document.getElementById('guest-lobby').classList.add('hidden');
+          document.getElementById('game-screen').style.display='block';
+          initBoard();startGameListener();renderGame();checkWinner();
+        });
+      }
+    });
+    renderGuestLobby();
+    notify('👁 Спостерігаєш за кімнатою '+code);
   });
 }
 
@@ -781,7 +869,7 @@ function joinById(code){
       if(!committed||!players){statusEl.innerText='✗ Немає вільних місць';return;}
       const idx=players.findIndex(p=>p&&p.uid===MY_ID);
       if(idx===-1){statusEl.innerText='✗ Немає вільних місць';return;}
-      localPlayerId=idx;isHost=false;isHotseat=false;roomId=code;
+      localPlayerId=idx;isHost=false;isHotseat=false;isSpectator=false;roomId=code;
       S.players=players.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
       _enterGuestLobby(code);
     });
@@ -898,9 +986,11 @@ function renderGame(){
     else{cell.style.border='';cell.style.boxShadow='';}
     const ph=phs.find(w=>w.pos===id);if(ph){const e=document.createElement('div');e.className='ph-rook';e.style.color=S.players[ph.owner].color;e.innerText='♖';cell.appendChild(e);}
   });
+  const canAct=canControl()&&S.gameState==='MOVE'&&!localSelected;
   S.pieces.forEach(pc=>{
     if(!pc.moved||pc.status!=='BOARD')return;const cell=document.getElementById(`cell-${pc.pos}`);if(!cell)return;
-    const el=document.createElement('div');el.className='piece'+(localSelected===pc.id?' sel':'');
+    const movable=canAct&&pc.owner===S.activePlayer&&getValidDests(pc.id).length>0;
+    const el=document.createElement('div');el.className='piece'+(localSelected===pc.id?' sel':'')+(movable?' movable':'');
     el.style.color=S.players[pc.owner].color;el.innerText=pc.icon;
     el.onclick=e=>{e.stopPropagation();selectPiece(pc.id);};cell.appendChild(el);
   });
@@ -911,7 +1001,8 @@ function renderGame(){
       const{r,c}=getTailXY(p.id,lvl);const cell=document.createElement('div');cell.className='tail-cell cell';
       cell.style.cssText=`top:${r*100/13}%;left:${c*100/13}%;width:${100/13}%;height:${100/13}%`;
       const isSel=grp.some(pc=>pc.id===localSelected);
-      cell.innerHTML=`<div class="piece${isSel?' sel':''}" style="color:${p.color}">${grp[0].icon}<span style="font-size:6px;opacity:.5">×${grp.length}</span></div>`;
+      const movable=canAct&&p.id===S.activePlayer&&grp.some(pc=>getValidDests(pc.id).length>0);
+      cell.innerHTML=`<div class="piece${isSel?' sel':''}${movable?' movable':''}" style="color:${p.color}">${grp[0].icon}<span style="font-size:6px;opacity:.5">×${grp.length}</span></div>`;
       cell.onclick=e=>{e.stopPropagation();selectPiece(grp[0].id);};document.getElementById('board').appendChild(cell);
     });
   });
@@ -924,14 +1015,30 @@ function renderGame(){
     if(p.type==='AI'){const pr=botProfile(p);if(pr&&pr.label)h+=`<div style="font-size:6px;opacity:.5;letter-spacing:1px;color:${p.name==='СИГМА'?'var(--sigma)':p.color}">${pr.label}</div>`;}
     if(p.energy>0)h+=`<div style="color:var(--gold);font-size:9px">⚡${p.energy}</div>`;
     if(asc>0)h+=`<div style="font-size:9px;color:var(--rose)">♛×${asc}</div>`;
-    if(p.activeShield&&!isHotseat&&p.id===localPlayerId)h+=`<div style="font-size:9px;color:var(--gold)">${p.activeShield==='DEF'?'🛡':'🪞'}</div>`;
-    if(active){
-      h+=`<div style="font-size:8px;color:var(--cyan);opacity:.8">✉${p.letters} ✦${p.spellAttempts}/3</div>`;
-      if(S.gameState==='ROLL')h+=`<div class="dice-row"><button class="btn btn-sm" style="pointer-events:auto" onclick="doRoll()">🎲 БРОСОК</button></div>`;
-      else{h+='<div class="dice-row">';(S.dice||[]).forEach((v,i)=>{h+=`<div class="die ${(S.diceUsed||[])[i]?'die-used':''} ${S.gameState==='ENERGY'?'die-nrg':''} ${S.entropyTargetIdx===i?'die-entropy':''}" onclick="useDice(${i})">${v}</div>`;});h+='</div>';}
-    }
+    // Повна видимість: листи, спроби, щити, бафи/дебафи — видно всім (і спостерігачам)
+    h+=`<div style="font-size:8px;color:var(--cyan);opacity:.8">✉${p.letters} ✦${p.spellAttempts}/3</div>`;
+    if(p.activeShield)h+=`<div style="font-size:9px;color:var(--gold)">${p.activeShield==='DEF'?'🛡 ЩИТ':'🪞 ДЗЕРКАЛО'}</div>`;
+    let bd='';
+    if(p.mutedThisTurn)bd+='🔇';
+    if(p.nextRollPenalty==='ones')bd+='🎲1';
+    if(p.nextRollBonus==='sixes')bd+='🎲6';
+    if(bd)h+=`<div style="font-size:8px;color:var(--rose);opacity:.9">${bd}</div>`;
     div.innerHTML=h;ui.appendChild(div);
   });
+  // Кубики й кнопка броску — в обмеженій центральній панелі (не вилазять на поле)
+  const cp=document.getElementById('center-panel');
+  const ap=S.players[S.activePlayer];
+  if(ap&&ap.type!=='EMPTY'&&!gameOver){
+    let ch='';
+    if(S.gameState==='ROLL'){
+      if(canControlBot())ch=`<div class="cp-info">🎲 ${ap.name} кидає…</div>`;
+      else if(canControl())ch=`<div class="dice-row"><button class="btn attn" style="pointer-events:auto" onclick="doRoll()">🎲 КИНУТИ КУБИКИ</button></div>`;
+      else ch=`<div class="cp-info">Хід: ${ap.name}</div>`;
+    }else{
+      ch='<div class="dice-row">'+(S.dice||[]).map((v,i)=>`<div class="die ${(S.diceUsed||[])[i]?'die-used':''} ${S.gameState==='ENERGY'?'die-nrg':''} ${S.entropyTargetIdx===i?'die-entropy':''}" onclick="useDice(${i})">${v}</div>`).join('')+'</div>';
+    }
+    cp.innerHTML=ch;
+  }else cp.innerHTML='';
   const selPc=S.pieces.find(p=>p.id===localSelected);
   document.getElementById('q-panel').className=(selPc&&selPc.type==='Q'&&selPc.status==='BOARD'&&S.gameState==='MOVE'&&canControl())?'':'hidden';
   document.getElementById('skip-btn').className=(S.gameState==='MOVE'&&canControl()&&!(S.diceUsed||[]).every(u=>u)&&!anyValidMove())?'btn btn-ghost btn-sm':'hidden';
@@ -1233,9 +1340,10 @@ function reconnect(){
       if(room.status==='FINISHED'){_reconnectFail('Гру вже завершено');return;}
       const players=room.lobby.players||[];
       const idx=players.findIndex(p=>p&&p.uid===MY_ID);
-      isHotseat=false;isHost=!!s.isHost;roomId=s.roomId;
-      // Гість упізнається за uid; хост — за збереженою роллю (слот 0 без uid)
-      if(idx!==-1)localPlayerId=idx;
+      isHotseat=false;isHost=!!s.isHost;isSpectator=!!s.isSpectator;roomId=s.roomId;
+      // Спостерігач не має слота; гість — за uid; хост — за збереженою роллю
+      if(isSpectator)localPlayerId=null;
+      else if(idx!==-1)localPlayerId=idx;
       else if(isHost)localPlayerId=0;
       else {_reconnectFail('Твоє місце вже зайняте');return;}
       S.players=players.map((p,i)=>p?{...S.players[i],...p}:S.players[i]);
@@ -1249,7 +1357,7 @@ function reconnect(){
         // Хост повертається — відновлюємо керування ботами, якщо черга бота
         if(isHost&&!gameOver&&S.players[S.activePlayer]?.type==='AI'&&!botTimer)botTimer=setTimeout(runBot,800);
         rememberSession();
-        notify('✅ З поверненням, '+(S.players[localPlayerId]?.name||'гравцю')+'!');
+        notify(isSpectator?'👁 Спостереження відновлено':'✅ З поверненням, '+(S.players[localPlayerId]?.name||'гравцю')+'!');
       } else {
         // Кімната ще в лобі
         document.getElementById('menu').classList.add('hidden');
@@ -1271,6 +1379,7 @@ function reconnect(){
 // На старті показуємо кнопку «Продовжити», якщо є свіжа збережена сесія
 (function(){
   if(loadSession()){const b=document.getElementById('reconnect-btn');if(b)b.classList.remove('hidden');}
+  const sb=document.getElementById('sound-btn');if(sb)sb.innerText=soundMuted?'🔇':'🔊';
 })();
 </script>
 </body>
