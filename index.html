@@ -1432,7 +1432,7 @@ function finalizeMorseLetter(){
   S.morseBuffer='';renderGame();
 }
 document.getElementById('game-screen').addEventListener('pointerdown',e=>{
-  if(e.target.closest('.piece,.btn,.die'))return;if(!canControl())return;
+  if(e.target.closest('.piece,.btn,.die,.quad-cell'))return;if(!canControl())return;
   touchT=Date.now();touchX=e.clientX;touchY=e.clientY;playBeep('dot');resetEntropy();
 });
 document.getElementById('game-screen').addEventListener('pointerup',e=>{
@@ -1450,6 +1450,62 @@ document.getElementById('game-screen').addEventListener('pointerup',e=>{
   else{S.morseBuffer='';S.morseWord='';playBeep('error');setTimeout(stopTone,400);shakeApp();sync();return;}
   morseLetterTimer=setTimeout(finalizeMorseLetter,600);renderGame();
 });
+// ═══════════════════════════════════════════════════════════════
+// УНІФІКОВАНИЙ ВВІД: клавіатура + геймпад (тач і миша вже працюють)
+// ═══════════════════════════════════════════════════════════════
+function _inGame(){const g=document.getElementById('game-screen');return g&&g.style.display==='block';}
+function _ownMovable(){
+  if(!canControl()||S.gameState!=='MOVE')return[];
+  const out=[];
+  S.pieces.filter(p=>p.owner===S.activePlayer&&p.moved&&p.status==='BOARD'&&getValidDests(p.id).length>0).forEach(p=>out.push(p.id));
+  S.pieces.filter(p=>p.owner===S.activePlayer&&!p.moved&&p.status==='BOARD'&&getValidDests(p.id).length>0).forEach(p=>out.push(p.id));
+  return out;
+}
+function _cyclePiece(d){const l=_ownMovable();if(!l.length)return;let i=l.indexOf(localSelected);i=(i+d+l.length)%l.length;if(i<0)i=0;selectPiece(l[i]);}
+function _firstFreeDie(){const u=S.diceUsed||[];for(let i=0;i<(S.dice||[]).length;i++)if(!u[i])return i;return-1;}
+function _confirmInput(){
+  if(!canControl())return;
+  if(S.gameState==='ROLL'){doRoll();return;}
+  if(S.gameState==='MOVE'&&localSelected){const d=_firstFreeDie();if(d>=0)useDice(d);}
+}
+document.addEventListener('keydown',e=>{
+  if(!_inGame())return;
+  const modal=document.querySelector('#grimoire-modal:not(.hidden),#rules-modal:not(.hidden)');
+  if(modal){if(e.key==='Escape'){closeGrimoire();closeRules();}return;}
+  if(!canControl())return;
+  const k=e.key;
+  if(k>='1'&&k<='9'){const i=+k-1;if((S.dice||[])[i]!==undefined){useDice(i);e.preventDefault();}return;}
+  if(k==='0'){if((S.dice||[])[9]!==undefined){useDice(9);e.preventDefault();}return;}
+  if(k===' '||k==='Enter'){_confirmInput();e.preventDefault();return;}
+  if(k==='ArrowLeft'){_cyclePiece(-1);e.preventDefault();return;}
+  if(k==='ArrowRight'){_cyclePiece(1);e.preventDefault();return;}
+  if(k==='ArrowUp'||k==='ArrowDown'){const d=_firstFreeDie();if(localSelected&&d>=0)useDice(d);e.preventDefault();return;}
+  if(k==='Escape'){localSelected=null;renderGame();return;}
+  if(k==='q'||k==='Q'||k==='й'||k==='Й'){setQDir(-1);return;}
+  if(k==='e'||k==='E'||k==='у'||k==='У'){setQDir(1);return;}
+  if(k==='g'||k==='G'||k==='п'||k==='П'){openGrimoire();return;}
+  if(k==='s'||k==='S'||k==='і'||k==='І'){doSkip();return;}
+});
+// Геймпад / джойстик
+let _gpPrev={},_gpRAF=null;
+function _gpEdge(n,v){const w=_gpPrev[n];_gpPrev[n]=v;return v&&!w;}
+function _gpPoll(){
+  const pads=navigator.getGamepads?navigator.getGamepads():[];
+  let gp=null;for(const p of pads)if(p){gp=p;break;}
+  if(gp&&_inGame()&&canControl()){
+    const b=i=>gp.buttons[i]&&gp.buttons[i].pressed;const ax=gp.axes||[];
+    const left=b(14)||ax[0]<-.5,right=b(15)||ax[0]>.5,up=b(12)||ax[1]<-.5,down=b(13)||ax[1]>.5;
+    if(_gpEdge('l',left))_cyclePiece(-1);
+    if(_gpEdge('r',right))_cyclePiece(1);
+    if(_gpEdge('u',up))_confirmInput();
+    if(_gpEdge('d',down))_confirmInput();
+    if(_gpEdge('a',b(0)))_confirmInput();
+    if(_gpEdge('b',b(1))){localSelected=null;renderGame();}
+  }
+  _gpRAF=requestAnimationFrame(_gpPoll);
+}
+if(navigator.getGamepads){window.addEventListener('gamepadconnected',()=>{if(!_gpRAF)_gpPoll();});}
+
 // ═══════════════════════════════════════════════════════════════
 // RECONNECT — відновлення після розриву / перезавантаження вкладки
 // ═══════════════════════════════════════════════════════════════
