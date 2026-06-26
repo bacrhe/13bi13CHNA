@@ -411,6 +411,31 @@ const makeState=()=>({
 });
 
 let S=makeState();
+
+// ── Квадранти 5×5 кожного гравця (внутрішнє поле, координати 1–11) ──
+// Інфо-смужка прилягає до центру/депо: ✉ → ⚡ → статуси. Решта 5×4 — кубики.
+const QUAD={
+  0:{strip:[[5,5],[4,5],[3,5],[2,5],[1,5]],dice:[]},  // Пики (верх-ліво), смужка стовп.5
+  1:{strip:[[5,7],[5,8],[5,9],[5,10],[5,11]],dice:[]}, // Червы (верх-право), смужка ряд.5
+  2:{strip:[[7,7],[8,7],[9,7],[10,7],[11,7]],dice:[]}, // Трефы (низ-право), смужка стовп.7
+  3:{strip:[[7,5],[7,4],[7,3],[7,2],[7,1]],dice:[]}    // Бубны (низ-ліво), смужка ряд.7
+};
+(function(){
+  for(let c=4;c>=1;c--)for(let r=5;r>=1;r--)QUAD[0].dice.push([r,c]);
+  for(let r=4;r>=1;r--)for(let c=7;c<=11;c++)QUAD[1].dice.push([r,c]);
+  for(let c=8;c<=11;c++)for(let r=7;r<=11;r++)QUAD[2].dice.push([r,c]);
+  for(let r=8;r<=11;r++)for(let c=1;c<=5;c++)QUAD[3].dice.push([r,c]);
+})();
+// Плечі хреста центр(6,6)↔голова. Спалювання читає зворотно, каст — прямо.
+const CROSS_ARM={
+  0:[[6,6],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6]],
+  1:[[6,6],[6,7],[6,8],[6,9],[6,10],[6,11],[6,12]],
+  2:[[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],[12,6]],
+  3:[[6,6],[6,5],[6,4],[6,3],[6,2],[6,1],[6,0]]
+};
+const HEAD_POS={0:0,1:12,2:24,3:36};
+let fxLastPlayed=0, fxBusy=false;
+
 let morseLetterTimer=null;
 let isHost=false,isHotseat=false,localPlayerId=null,isSpectator=false;
 let localSelected=null,botTimer=null,gameOver=false;
@@ -969,6 +994,106 @@ function initBoard(){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FX-РУШІЙ: причинно-наслідкові імпульси (косметичні, варіант A)
+// ═══════════════════════════════════════════════════════════════
+const U13=100/13;
+function cellCenterPct(r,c){return{x:(c+0.5)*U13,y:(r+0.5)*U13};}
+// Відрізок периметра між pos a і b — коротшим боком кільця
+function perimSeg(a,b){
+  const fwd=(b-a+48)%48,bwd=(a-b+48)%48;const dir=fwd<=bwd?1:-1,len=Math.min(fwd,bwd);
+  const out=[];let p=a;for(let i=0;i<=len;i++){out.push(getXY(p));p=(p+dir+48)%48;}return out;
+}
+// Поставити подію в чергу стану (бачать усі клієнти)
+function pushFx(type,path,color,icon){
+  if(!path||path.length<2)return;
+  if(!S.fxQueue)S.fxQueue=[];
+  S.fxSeq=(S.fxSeq||0)+1;
+  S.fxQueue.push({id:S.fxSeq,type,path,color,icon,dur:70});
+  if(S.fxQueue.length>24)S.fxQueue=S.fxQueue.slice(-24);
+}
+// Струм спалювання: Кут owner → по хресту до центру → ✉/⚡ смужки бенефіціара
+function fxBurn(pawnPos,headOwner,benefOwner){
+  const arm=CROSS_ARM[headOwner].slice().reverse(); // Кут→центр
+  const fin=QUAD[benefOwner]?[QUAD[benefOwner].strip[0]]:[];
+  const path=arm.concat(fin);
+  pushFx('burn',path,S.players[benefOwner].color,'⚡');
+}
+// Маршрут касту: центр → плече до голови цілі
+function fxCast(targetOwner,casterColor,icon){
+  pushFx('cast',CROSS_ARM[targetOwner].slice(),casterColor,icon||'✦');
+}
+// Маршрут захоплення: клітина удару → старт жертви
+function fxCapture(hitPos,victimOwner,color){
+  const seg=perimSeg(hitPos,HEAD_POS[victimOwner]).map(o=>[o.r,o.c]);
+  pushFx('capture',seg,color||S.players[victimOwner].color,'✸');
+}
+// Програвання черги по черзі (один імпульс добіг — наступний пішов)
+function playFxQueue(){
+  if(fxBusy)return;
+  const q=(S.fxQueue||[]).filter(f=>f.id>fxLastPlayed);
+  if(!q.length)return;
+  fxBusy=true;
+  const ev=q[0];fxLastPlayed=ev.id;
+  animateFx(ev,()=>{fxBusy=false;setTimeout(playFxQueue,30);});
+}
+function animateFx(ev,done){
+  const gs=document.getElementById('game-screen');if(!gs){done();return;}
+  const dot=document.createElement('div');
+  dot.style.cssText=`position:absolute;z-index:90;width:3.2%;height:3.2%;display:flex;align-items:center;justify-content:center;font-size:clamp(9px,2vmin,15px);pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 0 5px ${ev.color});color:${ev.color};transition:left ${ev.dur}ms linear,top ${ev.dur}ms linear;`;
+  dot.innerText=ev.icon;
+  const p0=cellCenterPct(ev.path[0][0],ev.path[0][1]);
+  dot.style.left=p0.x+'%';dot.style.top=p0.y+'%';
+  gs.appendChild(dot);
+  let i=1;
+  const step=()=>{
+    if(i>=ev.path.length){
+      // фініш-спалах у цільовій клітині
+      dot.style.transition='transform .25s ease, opacity .25s ease';
+      dot.style.transform='translate(-50%,-50%) scale(2.2)';dot.style.opacity='0';
+      setTimeout(()=>{if(dot.parentNode)dot.remove();done();},260);
+      return;
+    }
+    const pt=cellCenterPct(ev.path[i][0],ev.path[i][1]);
+    dot.style.left=pt.x+'%';dot.style.top=pt.y+'%';
+    i++;setTimeout(step,ev.dur);
+  };
+  setTimeout(step,20);
+}
+
+// ── Розкладка квадрантів: кубики по клітинах + інфо-смужка ──
+function renderQuadrants(){
+  const ui=document.getElementById('ui-layer');if(!ui)return;
+  document.querySelectorAll('.quad-cell').forEach(e=>e.remove());
+  const box=(r,c)=>`position:absolute;top:${r*U13}%;left:${c*U13}%;width:${U13}%;height:${U13}%;display:flex;align-items:center;justify-content:center;box-sizing:border-box;`;
+  S.players.forEach(p=>{
+    if(p.type==='EMPTY')return;const q=QUAD[p.id];if(!q)return;
+    const st=[];if(p.activeShield)st.push(p.activeShield==='DEF'?'🛡':'🪞');
+    if(p.mutedThisTurn)st.push('🔇');if(p.nextRollPenalty==='ones')st.push('🎲1');if(p.nextRollBonus==='sixes')st.push('🎲6');
+    q.strip.forEach(([r,c],i)=>{
+      const d=document.createElement('div');d.className='quad-cell';d.style.cssText=box(r,c)+'flex-direction:column;line-height:1;pointer-events:none;';
+      if(i===0)d.innerHTML=`<span style="font-size:6px;color:var(--cyan)">✉</span><b style="font-size:8px;color:var(--cyan)">${p.letters}</b>`;
+      else if(i===1)d.innerHTML=`<span style="font-size:6px;color:var(--gold)">⚡</span><b style="font-size:8px;color:var(--gold)">${p.energy}</b>`;
+      else if(st[i-2])d.innerHTML=`<span style="font-size:9px">${st[i-2]}</span>`;
+      ui.appendChild(d);
+    });
+  });
+  const ap=S.players[S.activePlayer];
+  if(ap&&ap.type!=='EMPTY'&&!gameOver&&S.gameState!=='ROLL'&&Array.isArray(S.dice)){
+    const q=QUAD[ap.id];
+    S.dice.forEach((v,i)=>{
+      if(i>=q.dice.length)return;const[r,c]=q.dice[i];const used=(S.diceUsed||[])[i];
+      const d=document.createElement('div');d.className='quad-cell';
+      d.style.cssText=box(r,c)+`font-weight:900;font-size:clamp(9px,1.8vmin,14px);border-radius:4px;pointer-events:auto;cursor:pointer;`+
+        (used?'background:rgba(100,116,139,.25);color:#475569;':
+         S.entropyTargetIdx===i?'background:rgba(244,63,94,.3);color:#fff;border:1px solid var(--rose);':
+         S.gameState==='ENERGY'?'background:rgba(251,191,36,.22);color:var(--gold);border:1px solid var(--gold);':
+         'background:rgba(34,211,238,.18);color:#fff;border:1px solid var(--cyan);');
+      d.innerText=v;d.onclick=e=>{e.stopPropagation();useDice(i);};ui.appendChild(d);
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════════════════════════
 function renderGame(){
@@ -1025,20 +1150,15 @@ function renderGame(){
     if(bd)h+=`<div style="font-size:8px;color:var(--rose);opacity:.9">${bd}</div>`;
     div.innerHTML=h;ui.appendChild(div);
   });
-  // Кубики й кнопка броску — в обмеженій центральній панелі (не вилазять на поле)
+  // Кнопка броску — у центрі; самі кубики тепер по клітинах квадранта (renderQuadrants)
   const cp=document.getElementById('center-panel');
   const ap=S.players[S.activePlayer];
-  if(ap&&ap.type!=='EMPTY'&&!gameOver){
-    let ch='';
-    if(S.gameState==='ROLL'){
-      if(canControlBot())ch=`<div class="cp-info">🎲 ${ap.name} кидає…</div>`;
-      else if(canControl())ch=`<div class="dice-row"><button class="btn attn" style="pointer-events:auto" onclick="doRoll()">🎲 КИНУТИ КУБИКИ</button></div>`;
-      else ch=`<div class="cp-info">Хід: ${ap.name}</div>`;
-    }else{
-      ch='<div class="dice-row">'+(S.dice||[]).map((v,i)=>`<div class="die ${(S.diceUsed||[])[i]?'die-used':''} ${S.gameState==='ENERGY'?'die-nrg':''} ${S.entropyTargetIdx===i?'die-entropy':''}" onclick="useDice(${i})">${v}</div>`).join('')+'</div>';
-    }
-    cp.innerHTML=ch;
+  if(ap&&ap.type!=='EMPTY'&&!gameOver&&S.gameState==='ROLL'){
+    if(canControlBot())cp.innerHTML=`<div class="cp-info">🎲 ${ap.name} кидає…</div>`;
+    else if(canControl())cp.innerHTML=`<div class="dice-row"><button class="btn attn" style="pointer-events:auto" onclick="doRoll()">🎲 КИНУТИ КУБИКИ</button></div>`;
+    else cp.innerHTML=`<div class="cp-info">Хід: ${ap.name}</div>`;
   }else cp.innerHTML='';
+  renderQuadrants();
   const selPc=S.pieces.find(p=>p.id===localSelected);
   document.getElementById('q-panel').className=(selPc&&selPc.type==='Q'&&selPc.status==='BOARD'&&S.gameState==='MOVE'&&canControl())?'':'hidden';
   document.getElementById('skip-btn').className=(S.gameState==='MOVE'&&canControl()&&!(S.diceUsed||[]).every(u=>u)&&!anyValidMove())?'btn btn-ghost btn-sm':'hidden';
@@ -1047,6 +1167,7 @@ function renderGame(){
   document.getElementById('morse-buf').innerText=S.morseBuffer?`[${S.morseBuffer}]`:'';
   document.getElementById('vec-hud').innerText=S.lastVec;
   updateHint();
+  playFxQueue();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1138,7 +1259,14 @@ function useDice(idx){
   // Пріоритет спалювання: спершу НЕВИВЕДЕНІ пішаки (депо/повернуті захопленням —
   // найвідсталіші), потім виведені за відставанням. Це не дає гравцю застрягнути
   // у Фазі 1, якщо дім перекрито й вивести повернутого пішака неможливо.
-  if(pc.type!=='Q'){for(let j=0;j<hc;j++){const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD').sort((a,b)=>(a.moved?1:0)-(b.moved?1:0)||relPos(a)-relPos(b))[0];if(lag){lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;}}}
+  if(pc.type!=='Q'){
+    const crossedHeads=[];
+    for(let i=1;i<=Math.abs(steps);i++){const cpos=(pc.pos+i*dir+4800)%48;if(HEADS.includes(cpos))crossedHeads.push(cpos);}
+    crossedHeads.forEach(hp=>{
+      const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD').sort((a,b)=>(a.moved?1:0)-(b.moved?1:0)||relPos(a)-relPos(b))[0];
+      if(lag){const pawnPos=lag.pos;lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;fxBurn(pawnPos,hp/12,player.id);}
+    });
+  }
   const isAscension=nPos===player.offset&&pc.moved&&canAscend(player.id)&&pc.type==='Q';
   if(isAscension){
     S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:nPos,status:'ASCENDED'}:p);
@@ -1151,7 +1279,7 @@ function useDice(idx){
     let bounced=false;
     S.pieces=S.pieces.map(p=>{
       if(p.id===pc.id)return{...p,pos:nPos,moved:true};
-      if(p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD'){player.letters++;if(p.type==='Q')bounced=true;return{...p,pos:S.players[p.owner].offset,moved:false};}
+      if(p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD'){player.letters++;if(p.type==='Q')bounced=true;fxCapture(nPos,p.owner,player.color);return{...p,pos:S.players[p.owner].offset,moved:false};}
       return p;
     });
     if(bounced){S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:player.offset,moved:false}:p);notify('ОТРАЖЕНИЕ: Ферзь возвращён!');}
@@ -1182,7 +1310,9 @@ function castSpell(word,casterId,targetId){
   if(player.letters<spell.cost){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ Нужно ✉${spell.cost}`);return;}
   let tid=targetId;
   if(OFFENSIVE_SPELLS.has(word)&&casterId!==targetId&&S.players[targetId].activeShield==='MIR'){S.players[targetId].activeShield=null;tid=casterId;notify(`🪞 ${_nm(targetId)}: ЗЕРКАЛО!`);}
-  player.letters-=spell.cost;player.spellCastThisTurn=true;spell.eff(casterId,tid);
+  player.letters-=spell.cost;player.spellCastThisTurn=true;
+  fxCast(tid,player.color,OFFENSIVE_SPELLS.has(word)?'💥':'✦');
+  spell.eff(casterId,tid);
   playBeep('spell');setTimeout(stopTone,400);sync();resetEntropy();
 }
 
