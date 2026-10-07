@@ -126,6 +126,32 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
 .pc-s .e{color:var(--gold)}.pc-s .l{color:var(--cyan)}.pc-s .a{color:#94a3b8}.pc-s .q{color:var(--rose)}
 .pc-t{font-size:7px;opacity:.5;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc.sig .pc-t{color:var(--sigma);opacity:.9}
+/* «лупа» тісної клітини */
+#cell-picker{position:absolute;z-index:45;left:0;top:0;background:rgba(2,6,23,.95);border:1px solid var(--c,#10b981);border-radius:14px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 18px -6px var(--c,#10b981);max-width:calc(100vw - 16px);touch-action:manipulation;animation:pkIn .14s ease-out}
+@keyframes pkIn{from{opacity:.75;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+#cell-picker::after{content:'';position:absolute;left:var(--ax,50%);bottom:-7px;width:12px;height:12px;background:rgba(2,6,23,.95);border-right:1px solid var(--c,#10b981);border-bottom:1px solid var(--c,#10b981);transform:translateX(-50%) rotate(45deg)}
+#cell-picker.below::after{bottom:auto;top:-7px;transform:translateX(-50%) rotate(225deg)}
+.cpk-h{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:9px;letter-spacing:1px;color:#94a3b8;margin:0 2px 6px}
+.cpk-x{background:#1e293b;border:none;color:#e2e8f0;width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;touch-action:manipulation}
+.cpk-move{display:block;width:100%;margin:0 0 7px;padding:11px 10px;border-radius:10px;border:1px solid #34d399;background:rgba(6,78,59,.9);color:#d1fae5;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer;touch-action:manipulation;text-align:center}
+.cpk-move.alt{border-color:#f59e0b;background:rgba(120,53,15,.9);color:#fde68a}
+.cpk-grid{display:grid;gap:6px}
+.cpk-tile{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px 6px;border-radius:11px;border:1px solid rgba(148,163,184,.18);background:radial-gradient(circle at 50% 38%,rgba(148,163,184,.16),rgba(2,6,23,.6) 70%);color:#e2e8f0;font-family:monospace;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:94px}
+.cpk-tile.own{border-color:var(--c)}
+.cpk-tile.own:active{transform:scale(.95)}
+.cpk-tile.sel{box-shadow:0 0 0 2px #34d399,0 0 14px rgba(52,211,153,.5)}
+.cpk-tile.nomove{opacity:.55}
+.cpk-tile[disabled]{opacity:.6;cursor:default;border-style:dashed}
+.cpk-img{width:50px;height:62px;background-size:500% 100%;background-repeat:no-repeat}
+.cpk-n{font-size:10px;font-weight:900;white-space:nowrap}
+.cpk-f{font-size:8px;opacity:.75;white-space:nowrap;display:flex;align-items:center;gap:3px}
+/* стрічка повідомлень у грі: поза полем, напівпрозора, крізь неї не блокуються дотики */
+body.ingame #notif-stack{transform:none;align-items:stretch;justify-content:flex-start;gap:3px;overflow:hidden}
+body.ingame #notif-stack:not(.band):not(.overlay){display:none}
+body.ingame .notif{font-size:10px;font-weight:700;letter-spacing:.3px;padding:3px 10px;min-height:22px;display:flex;align-items:center;flex-shrink:0;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(2,6,23,.62);color:#e2e8f0;border:1px solid rgba(148,163,184,.14);border-left:3px solid var(--em);box-shadow:none;text-shadow:0 1px 2px rgba(0,0,0,.95)}
+body.ingame .notif.sigma{border-left-color:var(--sigma);color:#ddd6fe;background:rgba(46,16,101,.45)}
+body.ingame .notif.entropy{border-left-color:var(--rose);color:#fecdd3;background:rgba(76,5,25,.45)}
+body.ingame #notif-stack.overlay .notif{background:rgba(2,6,23,.3);border-color:rgba(148,163,184,.08);align-self:flex-start;max-width:100%}
 #dice-frame{position:absolute;z-index:25;border:1px solid #334155;border-radius:14px;pointer-events:none;box-shadow:inset 0 0 18px rgba(0,0,0,.55),0 0 14px -6px currentColor}
 #dice-frame .df-t{position:absolute;top:-1px;left:12px;transform:translateY(-55%);background:#020617;padding:1px 8px;border-radius:8px;font-size:9px;letter-spacing:1px;white-space:nowrap;border:1px solid rgba(148,163,184,.25)}
 #cam-btn{position:fixed;top:calc(9px + env(safe-area-inset-top));right:calc(6px + env(safe-area-inset-right));z-index:400;background:rgba(2,6,23,.8);border:1px solid var(--em-d);color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;padding:0;touch-action:manipulation}
@@ -224,6 +250,7 @@ body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
   <div id="hud-top"></div>
   <div id="gl-loading" class="hidden">Завантаження 3D…</div>
   <div id="dice-frame" style="display:none"><span class="df-t"></span></div>
+  <div id="cell-picker" class="hidden"></div>
   <div id="spell-hud"></div>
   <div id="morse-buf"></div>
   <div id="vec-hud">ВЕКТОР ОЖИДАНИЯ</div>
@@ -270,7 +297,7 @@ body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
 </div>
 
 <script>
-const BUILD_TAG='build 2026-10-07';
+const BUILD_TAG='build 2026-10-08';
 // ═══════════════════════════════════════════════════════════════
 // THREE.JS (r128) — вантажимо у фоні з резервними CDN
 // ═══════════════════════════════════════════════════════════════
@@ -546,13 +573,15 @@ function loadSession(){
 // NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════════
 function notify(msg,type=''){
-  if(typeof pushTicker==='function'&&document.getElementById('game-screen')?.style.display==='block')pushTicker(msg);
   const stack=document.getElementById('notif-stack');if(!stack)return;
   const n=document.createElement('div');n.className='notif'+(type?' '+type:'');n.innerText=msg;
-  stack.appendChild(n);
-  while(stack.children.length>3)stack.removeChild(stack.firstChild);
-  setTimeout(()=>{n.style.opacity='0';},5200);
-  setTimeout(()=>{if(n.parentNode)n.parentNode.removeChild(n);},6200);
+  // У грі повідомлення живуть у «стрічці» поза полем (її місце задає 3D-розкладка): новіші зверху.
+  const ingame=document.body.classList.contains('ingame')&&stack.dataset.max;
+  if(ingame){stack.insertBefore(n,stack.firstChild);const max=+stack.dataset.max||2;while(stack.children.length>max)stack.removeChild(stack.lastChild);}
+  else{stack.appendChild(n);while(stack.children.length>3)stack.removeChild(stack.firstChild);}
+  const life=ingame?4500:5200;
+  setTimeout(()=>{n.style.opacity='0';},life);
+  setTimeout(()=>{if(n.parentNode)n.parentNode.removeChild(n);},life+900);
 }
 function shakeApp(){const a=document.getElementById('app');a.classList.add('shake');setTimeout(()=>a.classList.remove('shake'),300);}
 function showMenu(){document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'));document.getElementById('menu').classList.remove('hidden');}
@@ -586,7 +615,7 @@ const RULES_HTML=`
 <p><b style="color:var(--em)">Дві фази.</b> <b>Фаза 1</b> — поки лишився хоч один пішак: дім зачинений, Королева ходить вільно в обидва боки й проходить власний старт як звичайну клітину. <b>Фаза 2</b> — коли всі 8 пішаків згоріли: домашня чверть підсвічується рамкою твого кольору (🏠), Королева в ній уже не задкує, і за умови «всі великі вдома» може Вознестися точним кубиком на старт.</p>
 <p><b style="color:var(--em)">Магія (Морзе).</b> Вистукуй назву закляття азбукою Морзе по вільному місцю поля: короткий тап — крапка (·), довгий — тире (–), пауза 0.6с — кінець літери. Потім свайп у бік фракції (до її краю поля, як ти його бачиш) = ціль і каст. 3 спроби на хід, 1 успішне закляття. Повний список — у 📖 ГРИМУАР.</p>
 <p><b style="color:var(--em)">Шум (не зволікай).</b> Якщо маєш ≥2 кубики й довго думаєш — найбільший кубик починає «танути» (перевертається на меншу грань). СИГМА (бос) живиться цим. Зволікав надто довго — система походить за тебе.</p>
-<p><b style="color:var(--em)">Керування.</b> Тап по фігурі з кільцем — вибір; тап по підсвіченій клітинці (на ній число кубика) або по кубику в лотку — хід. У Королеви бурштинові клітинки — хід назад. Два пальці (або права кнопка миші/коліщатко) — обертати й масштабувати поле, 🎥 — вид з твого боку / зверху.</p>`;
+<p><b style="color:var(--em)">Керування.</b> Тап по клітині з твоєю фігурою — вибір (влучати точно у фігуру не треба, ціль — уся клітина). Якщо на клітині кілька твоїх <b>різних</b> фігур — спливає «лупа» з великими кнопками. Далі — тап по підсвіченій клітинці (на ній число кубика) або по кубику в лотку. Якщо там уже стоять твої фігури, «лупа» спитає: походити сюди чи взяти іншу. У Королеви бурштинові клітинки — хід назад. Тап по клітині з чужими фігурами показує, хто там стоїть. Морзе — по вільному місцю поля; свайп-каст можна починати будь-де. Два пальці (або права кнопка миші/коліщатко) — обертати й масштабувати поле, 🎥 — вид з твого боку / зверху. Повідомлення про ходи йдуть у стрічку над полем (на широкому екрані — над лотком) і не закривають фігур.</p>`;
 function openRules(){document.getElementById('rules-body').innerHTML=legendHTML()+RULES_HTML;document.getElementById('rules-modal').classList.remove('hidden');}
 function closeRules(){document.getElementById('rules-modal').classList.add('hidden');}
 
@@ -1407,10 +1436,10 @@ function finalizeMorseLetter(){
   S.morseBuffer='';renderGame();
 }
 // Дотик по вільному місцю поля (не по фігурі/кубику/цілі) — Морзе
-function morseStart(x,y){
+function morseStart(x,y,silent){
   if(!canControl())return;
   clearTimeout(morseLetterTimer); // палець на склі — літера ще не закінчена (інакше довге тире «рвалося» навпіл)
-  touchT=Date.now();touchX=x;touchY=y;playBeep('dot');resetEntropy();
+  touchT=Date.now();touchX=x;touchY=y;if(!silent)playBeep('dot');resetEntropy();
 }
 function morseCancel(){
   if(touchT){touchT=0;stopTone();}
@@ -2972,7 +3001,7 @@ const V3=(function(){
       if(sel&&canControl()){const pc=S.pieces.find(p=>p.id===localSelected);if(pc&&pc.status==='BOARD')addLabel(sel.grp.position.x,sel.grp.position.y+1.05*sel.scl,sel.grp.position.z,TYPE_NAME[pc.type],'name s'+pc.owner);}
       // «хто це?» — тип і фракція фігури, по якій тапнули
       if(peek&&now()<peek.until){const o=P3.get(peek.id),pc=S.pieces.find(p=>p.id===peek.id);
-        if(o&&pc&&o.grp.visible){const pl=S.players[pc.owner];addLabel(o.grp.position.x,o.grp.position.y+1.05*o.scl,o.grp.position.z,`${TYPE_NAME[pc.type]} · ${FACTION_NAME[pc.owner]}${pl&&pl.name!==FACTION_NAME[pc.owner]?' ('+pl.name+')':''}`,'name s'+pc.owner);}}
+        if(o&&pc&&o.grp.visible){const pl=S.players[pc.owner];addLabel(o.grp.position.x,o.grp.position.y+1.05*o.scl,o.grp.position.z,`${TYPE_NAME[pc.type]}${peek.n>1?' ×'+peek.n:''} · ${FACTION_NAME[pc.owner]}${pl&&pl.name!==FACTION_NAME[pc.owner]?' ('+pl.name+')':''}`,'name s'+pc.owner);}}
       // кубики: значення, що не вміщається на грані (енергія) + дрібні кубики далеко від камери
       if(TH&&TH.phase==='done'){
         const ui=inset.on&&dcam&&dOwner===TH.owner;
@@ -3013,12 +3042,12 @@ const V3=(function(){
       const bottom=vpH-96;
       const ih=Math.round(Math.min(0.34*vpH,0.72*vpW,bottom-top-0.78*vpW));
       inset={x:8,y:bottom-ih,w:vpW-16,h:ih,on:ih>=120};
-      return{l:4,r:vpW-4,t:top,b:inset.on?inset.y-6:bottom};
+      return{l:4,r:vpW-4,t:top,b:inset.on?inset.y-6:bottom,portrait:true};
     }
     const bottom=vpH-88;
     const iw=Math.round(Math.min(0.32*vpW,(bottom-top)*1.4,430)),ih=Math.round(Math.min(iw*0.76,bottom-top));
     inset={x:vpW-iw-8,y:bottom-ih,w:iw,h:ih,on:iw>=170&&ih>=120};
-    return{l:4,r:inset.on?inset.x-6:vpW-4,t:top,b:bottom};
+    return{l:4,r:inset.on?inset.x-6:vpW-4,t:top,b:bottom,portrait:false};
   }
   function placeCam(az,el,d,tg){
     cam.position.set(tg.x+Math.sin(az)*Math.cos(el)*d,tg.y+Math.sin(el)*d,tg.z+Math.cos(az)*Math.cos(el)*d);
@@ -3031,12 +3060,27 @@ const V3=(function(){
     for(const p of BOX){v.copy(p).project(cam);const sx=(v.x+1)/2*vpW,sy=(1-v.y)/2*vpH;x0=Math.min(x0,sx);x1=Math.max(x1,sx);y0=Math.min(y0,sy);y1=Math.max(y1,sy);}
     return{x0,x1,y0,y1};
   }
+  let feed=null;
   function fitCamera(az,el){
     const sr=safeRect(),W=sr.r-sr.l,H=sr.b-sr.t;
     const tg=new T.Vector3(0,0,0);
     let lo=4,hi=90;
     for(let it=0;it<24;it++){const d=(lo+hi)/2;placeCam(az,el,d,tg);const b=projBounds();if(b.x1-b.x0<=W&&b.y1-b.y0<=H)hi=d;else lo=d;}
     const d=hi;
+    // Стрічка повідомлень — у вільному місці, щоб не закривати поле:
+    //  портрет: смуга між HUD і полем (поле опускається нижче); альбом: колонка над «камерою кубиків».
+    //  Якщо місця нема (малий екран) — напівпрозорий режим поверх краю поля, крізь нього все видно й тапається.
+    placeCam(az,el,d,tg);const b0=projBounds(),spare=H-(b0.y1-b0.y0);
+    if(sr.portrait){
+      const fh=Math.min(58,Math.floor(spare-6));
+      if(fh>=24){feed={x:8,y:sr.t,w:vpW-16,h:fh,mode:'band'};sr.t+=fh+2;}
+      // малий екран: місця над полем нема — стрічка лягає на верх «камери кубиків» (поле лишається чистим)
+      else if(inset.on)feed={x:inset.x+8,y:inset.y+14,w:inset.w-16,h:50,mode:'overlay'};
+      else feed={x:8,y:sr.t,w:vpW-16,h:50,mode:'overlay'};
+    }else{
+      const fh=inset.on?Math.floor(inset.y-10-sr.t):0;
+      feed=fh>=24?{x:inset.x,y:sr.t,w:inset.w,h:Math.min(fh,140),mode:'band'}:{x:8,y:sr.t,w:Math.min(vpW-16,420),h:50,mode:'overlay'};
+    }
     // зсув цілі, щоб поле стало по центру безпечної зони (між HUD зверху й кнопками знизу)
     for(let it=0;it<3;it++){
       placeCam(az,el,d,tg);const b=projBounds();
@@ -3110,7 +3154,17 @@ const V3=(function(){
     }
     dcam.position.copy(tg.localToWorld(tgt.clone().addScaledVector(dir,hi)));dcam.lookAt(wt);dcam.updateMatrixWorld();
   }
+  let feedKey='';
+  function placeFeed(){
+    const st=document.getElementById('notif-stack');if(!st)return;
+    if(!active||!feed){if(feedKey){st.removeAttribute('style');st.className='';delete st.dataset.max;feedKey='';}return;}
+    const key=[feed.x,feed.y,feed.w,feed.h,feed.mode].join('|');if(key===feedKey)return;feedKey=key;
+    st.style.left=feed.x+'px';st.style.top=feed.y+'px';st.style.width=feed.w+'px';st.style.height=feed.h+'px';
+    st.className=feed.mode;st.dataset.max=Math.max(1,Math.min(5,Math.floor((feed.h+3)/25)));
+    while(st.children.length>+st.dataset.max)st.removeChild(st.lastChild);
+  }
   function placeFrame3(){
+    placeFeed();
     if(!frameEl)frameEl=document.getElementById('dice-frame');
     if(!cpEl)cpEl=document.getElementById('center-panel');
     if(!frameEl)return;
@@ -3150,7 +3204,7 @@ const V3=(function(){
     // кубики
     if(TH&&dmeshes.length){const hits=rc.intersectObjects(dmeshes,false);if(hits.length)return TH.phase==='done'?{die:hits[0].object.userData.dieIdx}:{busyDie:true};}
     // фігури
-    const hs=[];P3.forEach(o=>{if(o.grp.visible)hs.push(o.hit);});
+    const hs=[];P3.forEach(o=>{if(o.grp.visible&&!o.queue.length)hs.push(o.hit);}); // фігура в польоті ще «не там» — її клітину визначаємо по полю
     const ph=rc.intersectObjects(hs,false);
     // площина поля → клітина
     const pt=new T.Vector3();const pl=new T.Plane(new T.Vector3(0,1,0),-0.1);
@@ -3160,6 +3214,49 @@ const V3=(function(){
     return{piece:ph.length?ph[0].object.userData.pcId:null,cell};
   }
   function perimIndex(r,c){for(let s=0;s<48;s++){const p=getXY(s);if(p.r===r&&p.c===c)return s;}return-1;}
+  // ── Клітина як ціль дотику: уся клітина, а не тонкий «циліндр» фігури ──
+  function cellOfPiece(p){
+    if(p.status==='ASCENDED')return{k:'A',owner:p.owner};
+    if(p.status!=='BOARD')return null;
+    if(!p.moved)return{k:'D',owner:p.owner,lvl:p.lvl};
+    return{k:'T',s:p.pos};
+  }
+  function cellAt(r,c){
+    const s=perimIndex(r,c);if(s>=0)return{k:'T',s};
+    for(let p=0;p<4;p++){
+      for(let l=1;l<=5;l++){const t=getTailXY(p,l);if(t.r===r&&t.c===c)return{k:'D',owner:p,lvl:l};}
+      const st=QUAD[p].strip;for(let i=3;i<5;i++)if(st[i][0]===r&&st[i][1]===c)return{k:'A',owner:p};
+    }
+    return null;
+  }
+  function cellPieces(cell){
+    if(!cell)return[];
+    if(cell.k==='T')return S.pieces.filter(p=>p.status==='BOARD'&&p.moved&&p.pos===cell.s);
+    if(cell.k==='D')return S.pieces.filter(p=>p.status==='BOARD'&&!p.moved&&p.owner===cell.owner&&p.lvl===cell.lvl);
+    return S.pieces.filter(p=>p.status==='ASCENDED'&&p.owner===cell.owner);
+  }
+  function cellWorld(cell){
+    if(cell.k==='T'){const[x,z]=posXZ(cell.s);return new T.Vector3(x,0.16,z);}
+    if(cell.k==='D'){const t=getTailXY(cell.owner,cell.lvl);const[x,z]=cellXZ(t.r,t.c);return new T.Vector3(x,0.12,z);}
+    const pd=pedestals.find(q=>q.p===cell.owner);return new T.Vector3(pd.x,0.16,pd.z);
+  }
+  function resolveCell(h){
+    // влучили у фігуру — її клітина (верхівка високої фігури «проектується» на сусідню), інакше — клітина під пальцем
+    if(h.piece){const p=S.pieces.find(q=>q.id===h.piece);const c=p&&cellOfPiece(p);if(c)return c;}
+    if(h.cell)return cellAt(h.cell.r,h.cell.c);
+    return null;
+  }
+  function isTapTarget(h){
+    if(h.die!=null||h.busyDie)return true;
+    if(h.inset)return false;
+    const c=resolveCell(h);if(!c)return false;
+    return cellPieces(c).length>0||(c.k==='T'&&destList.some(d=>d.pos===c.s));
+  }
+  function doDest(d){
+    const pc=S.pieces.find(p=>p.id===localSelected);
+    if(pc&&pc.type==='Q'&&S.queenDir!==d.dir)S.queenDir=d.dir;
+    useDice(d.die);
+  }
   function handleTap(x,y){
     const h=pick(x,y);
     if(h.die!=null){
@@ -3170,49 +3267,126 @@ const V3=(function(){
       return true;}
     if(h.busyDie)return true;      // кубик ще котиться — тап нічого не робить (і не стає крапкою Морзе)
     if(h.inset)return false;
-    const ctrl=canControl()&&!diceBusy();
-    if(h.piece){
-      const pc=S.pieces.find(p=>p.id===h.piece);
-      if(ctrl&&pc&&pc.owner===S.activePlayer&&S.gameState!=='ROLL'){selectPiece(pc.id);return true;}
+    const ctrl=canControl()&&!diceBusy(),me=S.activePlayer;
+    const cell=resolveCell(h);if(!cell)return false;
+    const list=cellPieces(cell);
+    // 1) клітина — ціль обраної фігури: якщо там стоять мої фігури, питаємо «походити чи обрати»
+    if(ctrl&&cell.k==='T'){
+      const d=destList.find(q=>q.pos===cell.s);
+      if(d){if(list.some(p=>p.owner===me)){openPicker(cell,d,false);return true;}doDest(d);return true;}
     }
-    if(h.cell&&ctrl){
-      // якщо влучили у фігуру на треку — беремо її клітину (верхівка високої фігури «проектується» на сусідню)
-      const hp=h.piece&&S.pieces.find(p=>p.id===h.piece);
-      const s=hp&&hp.moved&&hp.status==='BOARD'?hp.pos:perimIndex(h.cell.r,h.cell.c);
-      const d=destList.find(q=>q.pos===s);
-      if(d&&localSelected){
-        const pc=S.pieces.find(p=>p.id===localSelected);
-        if(pc&&pc.type==='Q'&&S.queenDir!==d.dir)S.queenDir=d.dir;
-        useDice(d.die);return true;
-      }
-      // клітина з власними фігурами (депо або тісна клітина) — вибираємо найближчу
-      if(S.gameState==='MOVE'){
-        let best=null,bd=1e9;
-        P3.forEach(o=>{const pc=S.pieces.find(p=>p.id===o.id);if(!pc||pc.owner!==S.activePlayer||pc.status!=='BOARD')return;
-          const dx=o.pos.x-h.cell.x,dz=o.pos.z-h.cell.z,dd=dx*dx+dz*dz;if(dd<0.36&&dd<bd&&getValidDests(pc.id).length){bd=dd;best=pc.id;}});
-        if(best){selectPiece(best);return true;}
+    if(!list.length)return false;
+    // 2) мій хід: свої фігури. Різні типи на клітині → «лупа»; однакові → беремо ту, що має хід
+    if(ctrl&&S.gameState!=='ROLL'){
+      const own=list.filter(p=>p.owner===me);
+      if(own.length){
+        if(new Set(own.map(p=>p.type)).size>=2){openPicker(cell,null,false);return true;}
+        const cur=own.find(p=>p.id===localSelected);
+        selectPiece((cur||own.find(p=>getValidDests(p.id).length)||own[0]).id);return true;
       }
     }
-    if(h.piece){peek={id:h.piece,until:now()+1700};return true;} // тап по чужій фігурі — підказка «хто це», не Морзе
-    return false;
+    // 3) чужі фігури / не мій хід: хто тут стоїть
+    if(new Set(list.map(p=>p.owner+p.type)).size>=2){openPicker(cell,null,true);return true;}
+    peek={id:list[0].id,until:now()+1900,n:list.length};return true;
   }
   let peek=null;
+
+  // ═══ «ЛУПА» — збільшена клітина з великими кнопками фігур ═══
+  let pk=null,pkHtml='',pkPos='',swallowId=null,focusM=null;
+  function pkEl(){return document.getElementById('cell-picker');}
+  function pickerKey(cell){return S.activePlayer+'|'+S.gameState+'|'+(S.moveSeq||0)+'|'+cellPieces(cell).map(p=>p.id).join(',');}
+  function openPicker(cell,d,view){
+    const el=pkEl();if(!el)return;
+    pk={cell,d,view,key:pickerKey(cell)};pkHtml='';pkPos='';
+    renderPicker();el.classList.remove('hidden');positionPicker();
+    tick(0.35);
+  }
+  function closePicker(){if(!pk)return;pk=null;const el=pkEl();if(el)el.classList.add('hidden');if(focusM)focusM.visible=false;}
+  function renderPicker(){
+    const el=pkEl();if(!el||!pk)return;
+    const list=cellPieces(pk.cell),me=S.activePlayer,ctrl=!pk.view&&canControl()&&!diceBusy();
+    const groups=[],gi={};
+    list.forEach(p=>{const k=p.owner+'_'+p.type;if(!gi[k]){gi[k]={owner:p.owner,type:p.type,ids:[]};groups.push(gi[k]);}gi[k].ids.push(p.id);});
+    groups.sort((a,b)=>((b.owner===me)-(a.owner===me))||a.owner-b.owner||TYPE_ORD[a.type]-TYPE_ORD[b.type]);
+    const ap=S.players[me];
+    let h=`<div class="cpk-h"><span>${pk.view?'Хто на клітині':'Яку фігуру взяти?'} · ${list.length}</span><button class="cpk-x" data-act="x" aria-label="Закрити">✕</button></div>`;
+    if(pk.d&&ctrl){
+      const sel=S.pieces.find(p=>p.id===localSelected);
+      h+=`<button class="cpk-move${pk.d.alt?' alt':''}" data-act="move">${pk.d.dir<0?'◀':'▶'} Походити сюди${sel?': <b>'+TYPE_NAME[sel.type]+'</b>':''} · ${pk.d.label}</button>`;
+    }
+    h+=`<div class="cpk-grid" style="grid-template-columns:repeat(${Math.min(4,Math.max(1,groups.length))},76px)">`;
+    groups.forEach(g=>{
+      const pl=S.players[g.owner],own=ctrl&&g.owner===me;
+      const mv=own?g.ids.filter(id=>getValidDests(id).length):[];
+      const isSel=g.ids.includes(localSelected);
+      const url=preview(pl.suit)||'';
+      const tag=own?(isSel?'обрана':mv.length?'є хід':'без ходу'):FACTION_NAME[g.owner];
+      h+=`<button class="cpk-tile${own?' own':''}${isSel?' sel':''}${own&&!mv.length?' nomove':''}" data-act="pick" data-id="${(isSel?localSelected:(mv[0]||g.ids[0]))}"${own?'':' disabled'} style="--c:${pl.color}">`+
+        `<span class="cpk-img" style="background-image:url('${url}');background-position:${TYPE_ORD[g.type]*25}% 50%"></span>`+
+        `<span class="cpk-n">${TYPE_NAME[g.type]}${g.ids.length>1?' ×'+g.ids.length:''}</span>`+
+        `<span class="cpk-f">${suitIcon(pl.suit,pl.color,9)} ${tag}</span></button>`;
+    });
+    h+='</div>';
+    if(h!==pkHtml){el.innerHTML=h;pkHtml=h;pkPos='';}
+    el.style.setProperty('--c',ap?ap.color:'#10b981');
+  }
+  function positionPicker(){
+    const el=pkEl();if(!el||!pk)return;
+    const v=cellWorld(pk.cell).project(cam);const ax=(v.x+1)/2*vpW,ay=(1-v.y)/2*vpH;
+    const w=el.offsetWidth,h=el.offsetHeight;
+    const hud=document.getElementById('hud-top');const top=(hud&&hud.offsetHeight?hud.getBoundingClientRect().bottom:46)+6;
+    let y=ay-h-24,below=false;
+    if(y<top){y=ay+28;below=true;}
+    if(y+h>vpH-8)y=Math.max(top,vpH-8-h);
+    const x=clamp(ax-w/2,8,Math.max(8,vpW-8-w));
+    const key=Math.round(x)+'|'+Math.round(y)+'|'+below;if(key===pkPos)return;pkPos=key;
+    el.style.left=x+'px';el.style.top=y+'px';el.classList.toggle('below',below);
+    el.style.setProperty('--ax',clamp(ax-x,18,w-18)+'px');
+    // підсвічуємо саму клітину, щоб було видно, до чого «лупа»
+    if(!focusM){const g=new T.PlaneGeometry(1.08,1.08);g.rotateX(-Math.PI/2);focusM=new T.Mesh(g,new T.MeshBasicMaterial({map:matHome[0].map,color:0xffffff,transparent:true,depthWrite:false,blending:T.AdditiveBlending}));focusM.renderOrder=7;boardG.add(focusM);}
+    const cw=cellWorld(pk.cell);focusM.position.set(cw.x,pk.cell.k==='T'?(HEADS.includes(pk.cell.s)?0.13:0.112):0.08,cw.z);focusM.visible=true;
+  }
+  function syncPicker(){
+    if(!pk)return;
+    if(pickerKey(pk.cell)!==pk.key||!cellPieces(pk.cell).length){closePicker();return;}
+    renderPicker();
+  }
+  function initPicker(){
+    const el=pkEl();if(!el)return;
+    el.addEventListener('click',e=>{
+      const b=e.target.closest('[data-act]');if(!b||!pk)return;
+      const act=b.dataset.act,d=pk.d;
+      if(act==='x'){closePicker();return;}
+      if(act==='move'){closePicker();if(d&&canControl()&&!diceBusy())doDest(d);return;}
+      if(act==='pick'){const id=b.dataset.id;closePicker();if(canControl()&&!diceBusy())selectPiece(id);}
+    });
+    // дотик поза «лупою» — лише закриває її (і не стає ходом чи Морзе)
+    document.addEventListener('pointerdown',e=>{
+      if(!pk)return;const el2=pkEl();if(el2&&el2.contains(e.target))return;
+      closePicker();if(e.target===canvas)swallowId=e.pointerId;
+    },true);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pk)closePicker();});
+  }
   function initInput(){
+    initPicker();
     canvas.addEventListener('contextmenu',e=>e.preventDefault());
     canvas.addEventListener('pointerdown',e=>{
+      if(e.pointerId===swallowId){swallowId=null;return;}
       try{canvas.setPointerCapture(e.pointerId);}catch(_){}
       ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t0:now(),btn:e.button,type:e.pointerType});
       if(ptrs.size>=2||e.button===2||e.button===1||(e.pointerType==='mouse'&&e.shiftKey)){
         if(tapCand){tapCand=null;}
         if(typeof morseCancel==='function')morseCancel();
+        closePicker();
         startGesture(e.button===1||e.shiftKey?'pan':e.button===2?'orbit':'multi');
         return;
       }
       // перший дотик: фігура/кубик/ціль → тап; інакше — Морзе
       const h=pick(e.clientX,e.clientY);
-      const isObj=h.die!=null||h.busyDie||h.piece||(h.cell&&destList.some(d=>d.pos===perimIndex(h.cell.r,h.cell.c)));
+      const isObj=isTapTarget(h);
       tapCand={id:e.pointerId,x:e.clientX,y:e.clientY,obj:isObj};
-      if(!isObj&&typeof morseStart==='function')morseStart(e.clientX,e.clientY);
+      // на фігурі — без «біпу» Морзе, але свайп звідси все одно читає закляття
+      if(typeof morseStart==='function')morseStart(e.clientX,e.clientY,isObj);
     });
     canvas.addEventListener('pointermove',e=>{
       const p=ptrs.get(e.pointerId);if(!p)return;p.x=e.clientX;p.y=e.clientY;
@@ -3224,7 +3398,12 @@ const V3=(function(){
       if(!p||!tapCand||tapCand.id!==e.pointerId)return;
       const moved=Math.hypot(e.clientX-p.x0,e.clientY-p.y0);
       const tc=tapCand;tapCand=null;
-      if(tc.obj){if(moved<18)handleTap(e.clientX,e.clientY);return;}
+      if(tc.obj){
+        if(moved>=40&&typeof morseEnd==='function'){morseEnd(e.clientX,e.clientY);return;} // свайп-каст, що почався на фігурі
+        if(typeof morseCancel==='function')morseCancel();
+        if(moved<18)handleTap(e.clientX,e.clientY);
+        return;
+      }
       if(typeof morseEnd==='function')morseEnd(e.clientX,e.clientY);
     };
     canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);if(ptrs.size===0)gesture=null;tapCand=null;if(typeof morseCancel==='function')morseCancel();});
@@ -3266,6 +3445,7 @@ const V3=(function(){
     const camMoving=updCamera(dt);
     if(inset.on){fitDiceCam();}
     placeFrame3();placeSpellHud();
+    if(pk){pkPos=pkPos&&!camMoving&&!gesture?pkPos:'';positionPicker();if(focusM)focusM.material.opacity=0.55+0.4*Math.sin(t*0.009);}
     let busy=camMoving||diceBusy()||fxList.length>0||fxQ.length>0||ptrs.size>0||fading.length>0;
     const dtl=Math.min(0.25,rawDt/1000);
     P3.forEach(o=>{updPiece(o,dtl,t);if(o.queue.length||o.pos.distanceToSquared(o.tPos)>1e-5)busy=true;});
@@ -3333,6 +3513,7 @@ const V3=(function(){
     try{
       ringsAndStates();
       syncPieces();
+      syncPicker();
       syncCells();
       syncDice();
       playFx3();
@@ -3355,9 +3536,12 @@ const V3=(function(){
   function busy(){return diceBusy()||piecesBusy();}
   function piecesBusy(){const t=now();let b=false;P3.forEach(o=>{if(o.queue.length&&o.animEnd>t)b=true;});return b;}
   return{init,enter,sync,busy,diceBusy,piecesBusy,physThrow,dieH,swipeTarget,swipeMap,cycleCam,preview,disposePreviews,
-    get ready(){return ready;},setActive(v){active=v;},TYPE_NAME,
+    get ready(){return ready;},setActive(v){active=v;if(!v){closePicker();placeFeed();}},TYPE_NAME,closePicker,
     _debug:()=>({TH,P3,cam,scene,R,destList,fxList}),
     _freeze(sec){dbgFreeze=sec;},
+    _boardRect(){const b=projBounds();return[b.x0,b.y0,b.x1,b.y1];},
+    _feed(){return feed;},
+    _pick(x,y){const h=pick(x,y);return{h,cell:resolveCell(h),target:isTapTarget(h),pk:!!pk};},
     _diceTop(){if(!TH)return null;const up=new T.Vector3(0,1,0),q=new T.Quaternion();return TH.dice.map(d=>{d.mesh.getWorldQuaternion(q);let best=-2,val=0;for(const v of[1,2,3,4,5,6]){const n=new T.Vector3(...FACE_N[v]).applyQuaternion(q);if(n.y>best){best=n.y;val=v;}}return val;});},
     _diceInfo(){if(!TH)return null;return{phase:TH.phase,n:TH.dice.length,pos:TH.dice.map(d=>[d.mesh.position.x,d.mesh.position.y,d.mesh.position.z])};},
     _scr(x,y,z){const v=new T.Vector3(x,y,z).project(cam);return[(v.x+1)/2*vpW,(1-v.y)/2*vpH];},
