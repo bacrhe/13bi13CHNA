@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
-<title>МИР 13×13 — The Vessel v19b · 3D</title>
+<title>МИР 13×13 — The Vessel v20 · 3D</title>
 
 <!-- Firebase (compat SDK — работает без сборщика) -->
 <style>
@@ -89,7 +89,57 @@ body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:monospace;ov
 .g-name{color:var(--em);font-weight:900;font-size:10px;min-width:44px}
 .g-cost{color:var(--gold);min-width:24px;text-align:center;font-size:9px}
 .g-morse{color:var(--cyan);font-size:8px;min-width:90px;text-align:center;opacity:.65}
-.g-desc{opacity:.55;flex:1;text-align:right;font-size:8px}
+.g-desc{opacity:.6;flex:1;text-align:right;font-size:8.5px;line-height:1.3}
+.g-name i{font-style:normal;font-size:6.5px;letter-spacing:.5px;color:#020617;background:var(--cyan);border-radius:5px;padding:0 3px;margin-left:3px;vertical-align:2px;font-weight:900}
+.g-k{font-size:10px;min-width:14px;text-align:center}
+.g-row.g-poor{opacity:.42}
+.g-how{font-size:10px;line-height:1.45;color:#cbd5e1;background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);border-radius:10px;padding:8px 10px;margin-bottom:8px;text-align:left}
+.g-legend{font-size:8.5px;color:#94a3b8;margin-bottom:6px;text-align:left}
+.g-tier{display:flex;align-items:center;gap:8px;margin:10px 0 2px;font-size:8px;letter-spacing:1.5px;color:#94a3b8;text-transform:uppercase}
+.g-tier span{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:0}
+.r-short{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.28);border-radius:12px;padding:10px 12px;margin:8px 0 10px}
+.r-h,.r-more{font-size:9px;letter-spacing:2px;color:var(--em);font-weight:900;margin-bottom:6px}
+.r-more{margin:12px 0 6px;color:#94a3b8}
+.r-li{font-size:11.5px;line-height:1.45;margin:5px 0;color:#e2e8f0}
+.r-tut{font-size:10.5px;line-height:1.45;margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);color:#cbd5e1}
+.r-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.r-btns .btn{margin:0}
+#rules-body details{border:1px solid rgba(148,163,184,.18);border-radius:10px;margin:6px 0;background:rgba(2,6,23,.35)}
+#rules-body summary{cursor:pointer;padding:9px 12px;font-size:11px;font-weight:900;letter-spacing:.5px;color:var(--cyan);list-style:none;display:flex;justify-content:space-between}
+#rules-body summary::-webkit-details-marker{display:none}
+#rules-body summary::after{content:'＋';color:#64748b}
+#rules-body details[open] summary::after{content:'−'}
+#rules-body details p{margin:0 12px 9px;font-size:11px;line-height:1.55}
+#coach-btn{position:fixed;top:calc(9px + env(safe-area-inset-top));right:calc(74px + env(safe-area-inset-right));z-index:400;background:rgba(2,6,23,.8);border:1px solid var(--em-d);color:#fff;width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;padding:0;touch-action:manipulation;display:none}
+body.ingame #coach-btn{display:block}
+#coach-btn.lv-main{border-color:var(--gold)}#coach-btn.lv-off{opacity:.45;filter:grayscale(1)}
+#coach{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100vw - 16px),540px);box-sizing:border-box;z-index:190;background:rgba(2,6,23,.94);border:1px solid rgba(34,211,238,.45);border-left:3px solid var(--cyan);border-radius:12px;padding:6px 8px 7px 10px;box-shadow:0 6px 20px rgba(0,0,0,.5);transition:opacity .18s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#coach.hidden{display:none}
+#coach .co-t{display:flex;align-items:center;gap:6px;min-height:22px}
+#coach .co-ic{font-size:12px}
+#coach .co-h{font-size:11px;letter-spacing:.6px;color:var(--cyan);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#coach .co-step{font-size:9px;color:#64748b}
+#coach .co-sp{flex:1}
+#coach .co-l{background:none;border:none;color:#64748b;font-size:9.5px;padding:4px 5px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;font-family:inherit}
+#coach .co-go{background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.3);color:#e2e8f0;border-radius:9px;font-size:11px;font-weight:900;min-width:30px;height:26px;padding:0 9px;cursor:pointer;font-family:inherit}
+#coach .co-go.co-pri{background:var(--em);border-color:var(--em);color:#022c22}
+#coach .co-x{font-size:12px;line-height:1.38;color:#e2e8f0;margin-top:2px}
+#coach .co-h{flex:0 1 auto;min-width:0}
+#coach .co-ft{display:none;justify-content:flex-end;gap:2px;margin-top:3px}
+#coach.narrow .co-ft{display:flex}#coach.narrow .co-t .co-l{display:none}
+#coach.narrow .co-x{font-size:11.5px}
+#coach-ptr{position:fixed;z-index:185;pointer-events:none;border-radius:50%;border:3px solid var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.25),0 0 18px rgba(34,211,238,.7);animation:coPulse 1.1s ease-in-out infinite}
+#coach-ptr.soft{border-width:2px;border-style:dashed;border-radius:18px;box-shadow:none;animation:coPulse2 1.6s ease-in-out infinite}
+#coach-ptr.hidden{display:none}
+#coach-ptr.box{border-radius:16px;animation:coPulse3 1.1s ease-in-out infinite}
+@keyframes coPulse3{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes coPulse{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.18);opacity:.55}}
+@keyframes coPulse2{0%,100%{opacity:.75}50%{opacity:.3}}
+#coach-pop{position:fixed;top:calc(46px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:600;background:#0f172a;border:1px solid var(--em);border-radius:14px;padding:10px;width:230px;box-shadow:0 12px 34px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:6px}
+#coach-pop .cp-h{font-size:9px;letter-spacing:2px;color:var(--em);font-weight:900;margin:0 2px 2px}
+#coach-pop button{text-align:left;background:rgba(2,6,23,.6);border:1px solid rgba(148,163,184,.25);border-radius:10px;color:#e2e8f0;padding:8px 10px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:2px}
+#coach-pop button b{font-size:11px;letter-spacing:.5px}#coach-pop button span{font-size:9.5px;color:#94a3b8}
+#coach-pop button.on{border-color:var(--em);background:rgba(16,185,129,.12)}
+#coach-pop .cp-r{font-size:10px;color:var(--cyan);align-items:center}
 #notif-stack{position:fixed;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:5000;display:flex;flex-direction:column;gap:6px;pointer-events:none;align-items:center}
 .notif{background:var(--em);color:#fff;padding:9px 18px;border-radius:8px;font-weight:900;font-size:10px;white-space:nowrap;letter-spacing:.5px;animation:fadeIn .2s ease;transition:opacity 1s ease}
 .notif.sigma{background:var(--sigma);color:#000;box-shadow:0 0 15px var(--sigma)}
@@ -189,10 +239,11 @@ body.ingame #hint{width:min(calc(100vw - 16px),540px)}
 .lg-msg{color:#e2e8f0}
 #dice-frame{position:absolute;z-index:25;border:1px solid #334155;border-radius:14px;pointer-events:none;box-shadow:inset 0 0 18px rgba(0,0,0,.55),0 0 14px -6px currentColor}
 #dice-frame .df-t{position:absolute;top:-1px;left:12px;transform:translateY(-55%);background:#020617;padding:1px 8px;border-radius:8px;font-size:9px;letter-spacing:1px;white-space:nowrap;border:1px solid rgba(148,163,184,.25)}
-#cam-btn{position:fixed;top:calc(9px + env(safe-area-inset-top));right:calc(6px + env(safe-area-inset-right));z-index:400;background:rgba(2,6,23,.8);border:1px solid var(--em-d);color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;padding:0;touch-action:manipulation}
-body.ingame #sound-btn{top:calc(9px + env(safe-area-inset-top))!important;right:calc(42px + env(safe-area-inset-right))!important;width:32px!important;height:32px!important;font-size:14px!important}
+#cam-btn{position:fixed;top:calc(9px + env(safe-area-inset-top));right:calc(6px + env(safe-area-inset-right));z-index:400;background:rgba(2,6,23,.8);border:1px solid var(--em-d);color:#fff;width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;padding:0;touch-action:manipulation}
+body.ingame #sound-btn{top:calc(9px + env(safe-area-inset-top))!important;right:calc(40px + env(safe-area-inset-right))!important;width:30px!important;height:30px!important;font-size:13px!important}
 body.ingame #conn-status{top:calc(2px + env(safe-area-inset-top));right:calc(2px + env(safe-area-inset-right))}
-body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
+body.ingame #hud-top{padding-right:calc(108px + env(safe-area-inset-right))}
+body.ingame .pc{padding:3px 5px 4px}body.ingame .pc-h{letter-spacing:.4px;gap:3px}
 #morse-buf:empty{display:none}
 #spell-hud:empty{display:none}
 #spell-hud,#morse-buf,#vec-hud{transform:translate(-50%,-50%)!important}
@@ -217,13 +268,15 @@ body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
 <div id="menu" class="overlay" style="justify-content:center">
   <div style="font-size:10px;letter-spacing:5px;opacity:.3;margin-bottom:6px">МИР 13×13</div>
   <div style="font-size:30px;letter-spacing:8px;color:var(--em);font-weight:900;margin-bottom:4px">THE VESSEL</div>
-  <div style="font-size:7px;opacity:.25;letter-spacing:3px;margin-bottom:40px">v19b · 3D · ДОШКИ · FIREBASE ONLINE · <span id="build-tag"></span></div>
+  <div style="font-size:7px;opacity:.25;letter-spacing:3px;margin-bottom:40px">v20 · 3D · НАВЧАННЯ · 36 ЗАКЛЯТЬ · FIREBASE ONLINE · <span id="build-tag"></span></div>
   <button id="reconnect-btn" class="btn btn-w hidden" style="background:var(--gold);box-shadow:0 4px 0 #b45309;color:#000;margin-bottom:14px" onclick="reconnect()">↻ ПРОДОВЖИТИ ГРУ</button>
   <button class="btn btn-w" onclick="initHotseat()">♟ HOTSEAT</button>
   <button class="btn btn-w btn-ghost" onclick="initHost()">📡 СОЗДАТЬ ЗАЛ</button>
   <button class="btn btn-w btn-ghost" onclick="initJoin()">🔍 ЗНАЙТИ КІМнату</button>
   <button class="btn btn-w btn-ghost" style="background:#1e3a5f;box-shadow:0 4px 0 #0f1f33" onclick="initSpectatorHost()">📺 ЕКРАН-СПОСТЕРІГАЧ</button>
-  <button class="btn btn-w btn-ghost" style="margin-top:14px" onclick="openRules()">❓ ЯК ГРАТИ · ПРАВИЛА</button>
+  <button id="tut-btn" class="btn btn-w btn-ghost" style="margin-top:14px;background:#14532d;box-shadow:0 4px 0 #052e16" onclick="startTutorial()">🎓 НАВЧАЛЬНА ПАРТІЯ</button>
+  <button class="btn btn-w btn-ghost" onclick="openRules()">❓ ЯК ГРАТИ · ПРАВИЛА</button>
+  <button id="coach-menu-btn" class="btn btn-w btn-ghost btn-sm" style="margin-top:8px;opacity:.75" onclick="COACH.cycle()">💡 ПІДКАЗКИ: ПОВНІ</button>
   <button id="gfx-btn" class="btn btn-w btn-ghost btn-sm" style="margin-top:8px;opacity:.75" onclick="GFX.cycle()">⚙ ГРАФІКА: АВТО</button>
 </div>
 
@@ -302,6 +355,7 @@ body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
   </div>
   <button id="skip-btn" class="btn btn-ghost btn-sm hidden" onclick="doSkip()">ПРОПУСК</button>
   <button id="grimoire-btn" class="btn btn-ghost btn-sm hidden" onclick="openGrimoire()">📖 ГРИМУАР</button>
+  <button id="coach-btn" onclick="COACH.menu(event)" title="Підказки: повні / головні / вимкнені">💡</button>
   <button id="cam-btn" onclick="V3.cycleCam()" title="Камера: з твого боку / зверху (C). Два пальці — обертати й масштабувати">🎥</button>
 </div>
 <div id="hint" class="hidden" onclick="openLog()" title="Журнал подій"><span class="tick-clip"><span class="tick"></span></span><span class="msg-more">☰</span></div>
@@ -338,8 +392,8 @@ body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
       <div style="color:var(--em);font-weight:900;letter-spacing:2px;font-size:12px">📖 ГРИМУАР</div>
       <button class="btn btn-ghost btn-sm" style="margin:0" onclick="closeGrimoire()">✕</button>
     </div>
-    <div style="font-size:8px;opacity:.35;margin-bottom:10px;line-height:1.5">
-      Тапы: · &lt;150мс, – 150-400мс. Пауза 600мс = буква.<br>
+    <div style="font-size:8px;opacity:.45;margin-bottom:8px;line-height:1.5">
+      Тапи: · коротше 0,15 с, – 0,15–0,4 с. Пауза 0,6 с = літера.<br>
       <span id="g-swipe">Свайп у бік фракції = каст + ціль</span>
     </div>
     <div id="grimoire-content"></div>
@@ -347,7 +401,7 @@ body.ingame #hud-top{padding-right:calc(78px + env(safe-area-inset-right))}
 </div>
 
 <script>
-const BUILD_TAG='build 2026-10-09a';
+const BUILD_TAG='build 2026-11-09a';
 // ═══════════════════════════════════════════════════════════════
 // THREE.JS (r128) — вантажимо у фоні з резервними CDN
 // ═══════════════════════════════════════════════════════════════
@@ -463,7 +517,6 @@ function stopTone(){if(toneFx){try{toneFx.stop();toneFx.disconnect();}catch(e){}
 // ═══════════════════════════════════════════════════════════════
 const MORSE_TABLE={'.-':'A','-...':'B','-.-.':'C','-..':'D','.':'E','..-.':'F','--.':'G','....':'H','..':'I','.---':'J','-.-':'K','.-..':'L','--':'M','-.':'N','---':'O','.--.':'P','--.-':'Q','.-.':'R','...':'S','-':'T','..-':'U','...-':'V','.--':'W','-..-':'X','-.--':'Y','--..':'Z'};
 const L2M=Object.fromEntries(Object.entries(MORSE_TABLE).map(([k,v])=>[v,k]));
-const OFFENSIVE_SPELLS=new Set(['NO','AF','QQ','SUS','ZIP','PIG','YEET','OOPS','MUTE','VOID']);
 // ═══ ДОШКИ РІЗНОЇ ФОРМИ ═══
 // N — клітин у кільці; heads — «Кути» (плитки з гербом / зіркою); burn — Кути, перетин яких
 // великою фігурою спалює пішака (за замовчуванням усі heads; на малій — лише старти гравців,
@@ -475,7 +528,7 @@ const BOARDS={
   tri36:{id:'tri36',N:36,heads:[0,12,24],gap:12,seats:[0,12,24],minP:2,maxP:3,name:'ТРИКУТНА',short:'36 клітин · трикутник',players:'2–3 гравці'}
 };
 const BOARD_ORDER=['sq48','sq24','tri36'];
-const NET_PROTO=3; // 2 — дошки різної форми; 3 — нове правило спалювання пішаків. Гість зі старішою версією має оновити сторінку
+const NET_PROTO=4; // 2 — дошки різної форми; 3 — нове правило спалювання пішаків; 4 — 36 заклять. Гість зі старішою версією має оновити сторінку
 let BOARD_ID='sq48',PERIMETER=48,HEADS=[0,12,24,36],BURN=[0,12,24,36],GAP=12,HOME_LEN=12;
 function applyBoard(id){const b=BOARDS[id]||BOARDS.sq48;BOARD_ID=b.id;PERIMETER=b.N;HEADS=b.heads.slice();BURN=(b.burn||b.heads).slice();GAP=b.gap;HOME_LEN=b.gap;return b;}
 // Економіка: пішака спалює лише ВЕЛИКА фігура — Слон, Ладья, Конь. Пішак і Королева, проходячи Кут,
@@ -487,6 +540,8 @@ function burnCells(pc,steps,dir){
   const out=[];for(let i=1;i<=Math.abs(steps);i++){const c=(pc.pos+i*dir+PERIMETER*100)%PERIMETER;if(BURN.includes(c))out.push(c);}
   return out;
 }
+// Скільки клітин проходить фігура за кубик v: Пішак — 1 (під FAST — v), Слон — 2v, решта — v
+function pieceSteps(pc,v){return pc.type==='P'?(S.players[pc.owner]&&S.players[pc.owner].fastTurn?v:1):pc.type==='E'?v*2:v;}
 function assignSeats(){
   const b=applyBoard(S.board);
   if(b.fixedSeats){S.players.forEach((p,i)=>{p.offset=b.seats[i];});return;}
@@ -500,41 +555,132 @@ function _nm(id){return S.players[id]?.name||'?';}
 // ═══════════════════════════════════════════════════════════════
 // GRIMOIRE
 // ═══════════════════════════════════════════════════════════════
+// Ціна закляття = кількість літер у слові (✉2…✉5). kind: 'self' — діє на тебе (свайп будь-куди),
+// 'target' — на фракцію, в бік якої свайп, 'all' — на всіх суперників одразу.
+// off — «атака» (Дзеркало MIR відбиває її в автора). can(c,t) — чому зараз не можна (тоді ✉ не витрачаються),
+// worth(c,t) — чи варто ботові. Усі ефекти змінюють лише S — онлайн їх бачать усі однаково.
+const _me=c=>S.players[c];
+const _onBoard=(o,f)=>S.pieces.filter(p=>p.owner===o&&p.status==='BOARD'&&p.moved&&(!f||f(p)));
+const _leader=(o,f)=>_onBoard(o,f).sort((a,b)=>relPos(b)-relPos(a))[0];
+const _foes=c=>S.players.filter(p=>p.type!=='EMPTY'&&p.id!==c);
+const _back=(p,n)=>{const k=Math.min(n,relPos(p));p.pos=(p.pos-k+PERIMETER*10)%PERIMETER;}; // не далі за власний старт
+const _toStart=p=>{p.pos=S.players[p.owner].offset;p.moved=false;};
+function curses(p){return !!(p.nextRollPenalty||p.nextRollSleep||p.iced||p.iceNext);}
+// Пішак-одинак (без своєї фігури поруч на клітині) — у радіусі r від клітини
+function lonePawnsNear(c,pos,r){
+  const out=[];
+  for(let d=-r;d<=r;d++){const s=(pos+d+PERIMETER*10)%PERIMETER;
+    S.pieces.forEach(p=>{if(p.owner===c||p.type!=='P'||p.status!=='BOARD'||!p.moved||p.pos!==s)return;
+      if(S.players[p.owner].safe)return;
+      if(S.pieces.some(q=>q!==p&&q.owner===p.owner&&q.status==='BOARD'&&q.moved&&q.pos===s))return; // закрита точка
+      if(!out.includes(p))out.push(p);});
+  }
+  return out;
+}
+function hugPlan(c){
+  const phs=getPhantoms();
+  const pawns=S.pieces.filter(p=>p.owner===c&&p.type==='P'&&p.status==='BOARD').sort((a,b)=>(a.moved?1:0)-(b.moved?1:0)||relPos(a)-relPos(b));
+  for(const pw of pawns){
+    const r0=pw.moved?relPos(pw):-1;
+    const mates=_onBoard(c,p=>p.id!==pw.id&&relPos(p)>r0).sort((a,b)=>relPos(a)-relPos(b));
+    for(const m of mates){if(m.pos===pw.pos)continue;if(validateMove(pw,m.pos,phs))return{pw,to:m.pos};}
+  }
+  return null;
+}
+function runPlan(c){const phs=getPhantoms();return _onBoard(c,p=>p.type==='P').filter(p=>validateMove(p,(p.pos+1)%PERIMETER,phs));}
 const GR={
-  UP:{cost:2,desc:'+2 энергии цели',eff:(c,t)=>{S.players[t].energy=Math.min(8,S.players[t].energy+2);notify(`⚡ ${_nm(t)}: +2 энергии`);}},
-  NO:{cost:2,desc:'Цель теряет энергию',eff:(c,t)=>{S.players[t].energy=0;notify(`✗ ${_nm(t)}: энергия сброшена`);}},
-  AF:{cost:2,desc:'Бросок цели: все 1',eff:(c,t)=>{S.players[t].nextRollPenalty='ones';notify(`🎲 ${_nm(t)}: бросок = 1`);}},
-  QQ:{cost:2,get desc(){return 'Лидер-Ферзь цели −'+GAP/2;},eff:(c,t)=>{const q=S.pieces.filter(p=>p.owner===t&&p.type==='Q'&&p.moved&&p.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(q){q.pos=(q.pos-GAP/2+PERIMETER*10)%PERIMETER;notify(`♛ ${_nm(t)}: Ферзь откатился`);}}},
-  SUS:{cost:3,get desc(){return 'Лидер цели −'+GAP/2+' шагов';},eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.pos=(p.pos-GAP/2+PERIMETER*10)%PERIMETER;notify(`😳 ${_nm(t)}: лидер −${GAP/2}`);}}},
-  ZIP:{cost:3,desc:'Пешка цели → на старт',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.type==='P'&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(a)-relPos(b))[0];if(p){p.pos=S.players[t].offset;p.moved=false;notify(`🏁 ${_nm(t)}: пешка на старт`);}}},
-  PIG:{cost:3,get desc(){return 'Лидер цели −'+GAP+' шагов';},eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.pos=(p.pos-GAP+PERIMETER*10)%PERIMETER;notify(`🐷 ${_nm(t)}: лидер −${GAP}`);}}},
-  DEF:{cost:3,desc:'Щит от захвата (1×)',eff:(c,t)=>{S.players[c].activeShield='DEF';notify(`🛡 ${_nm(c)}: ЩИТ`);}},
-  MIR:{cost:3,desc:'Зеркало: отражает атаку',eff:(c,t)=>{S.players[c].activeShield='MIR';notify(`🪞 ${_nm(c)}: ЗЕРКАЛО`);}},
-  YEET:{cost:4,desc:'Лидер цели → на старт',eff:(c,t)=>{const p=S.pieces.filter(pc=>pc.owner===t&&pc.moved&&pc.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a))[0];if(p){p.pos=S.players[t].offset;p.moved=false;notify(`💥 ${_nm(t)}: лидер на старт`);}}},
-  LUCK:{cost:4,desc:'Твой бросок: все 6',eff:(c,t)=>{S.players[c].nextRollBonus='sixes';notify(`🍀 ${_nm(c)}: бросок = 6`);}},
-  SWAP:{cost:4,desc:'Поменять 2 своих фигуры',eff:(c,t)=>{const ps=S.pieces.filter(p=>p.owner===c&&p.moved&&p.status==='BOARD').sort((a,b)=>relPos(b)-relPos(a));if(ps.length>=2){const tmp=ps[0].pos;ps[0].pos=ps[1].pos;ps[1].pos=tmp;notify(`🔄 ${_nm(c)}: фигуры поменяны`);}}},
-  OOPS:{cost:4,desc:'Рерол кубиков цели',eff:(c,t)=>{if(S.activePlayer===t&&S.gameState==='MOVE'){const n=S.dice.length,th=V3.physThrow(n,null);S.dice=th.vals.slice();S.diceUsed=S.dice.map(()=>false);S.throwSeq=(S.throwSeq||0)+1;S.throwInfo={id:MY_ID.slice(-4)+'-'+S.throwSeq+'-'+th.seed,seed:th.seed,owner:t,n,h:th.h,vals:S.dice.slice(),rr:1};notify(`🎲 ${_nm(t)}: кубики перебросило`);}}},
-  MUTE:{cost:4,desc:'Цель не может колдовать',eff:(c,t)=>{S.players[t].mutedThisTurn=true;S.players[t].spellAttempts=0;notify(`🔇 ${_nm(t)}: НЕМОТА`);}},
-  VOID:{cost:4,desc:'Всі пішаки цілі → на старт',eff:(c,t)=>{const ps=S.pieces.filter(pc=>pc.owner===t&&pc.type==='P'&&pc.moved&&pc.status==='BOARD');if(ps.length){ps.forEach(p=>{p.pos=S.players[t].offset;p.moved=false;});notify(`❌ ${_nm(t)}: усі пішаки (${ps.length}) скинуто на старт`);logAction(`Магія: VOID повернула всі виведені пішаки ${_nm(t)} (${ps.length} шт) на старт`);}else{notify(`VOID: у ${_nm(t)} немає пішаків на полі`);}}},
-  CHAOS:{cost:5,desc:'Энергия всех → случайная',eff:(c,t)=>{S.players.forEach(p=>{if(p.type!=='EMPTY')p.energy=Math.floor(Math.random()*5);});notify('🌀 ХАОС ЭНЕРГИЙ');}},
-  DANCE:{cost:5,desc:'Все фигуры +1 шаг',eff:(c,t)=>{S.pieces.filter(p=>p.moved&&p.status==='BOARD').forEach(p=>p.pos=(p.pos+1)%PERIMETER);notify('💃 ТАНЕЦ ФИГУР');}},
-  IDIOT:{cost:5,desc:'Отдать буквы цели',eff:(c,t)=>{S.players[t].letters+=S.players[c].letters;S.players[c].letters=0;notify(`📨 ${_nm(c)}→${_nm(t)}: буквы переданы`);}},
+  // ── ✉2 ──
+  UP:{cost:2,kind:'target',desc:'+2 ⚡ цілі (зазвичай — собі)',eff:(c,t)=>{_me(t).energy=Math.min(8,_me(t).energy+2);notify(`⚡ ${_nm(t)}: +2 енергії`);}},
+  NO:{cost:2,kind:'target',off:true,desc:'Ціль утрачає всю ⚡',can:(c,t)=>_me(t).energy>0?null:'у цілі нема ⚡',worth:(c,t)=>_me(t).energy>=2,
+    eff:(c,t)=>{_me(t).energy=0;notify(`✗ ${_nm(t)}: енергію скинуто`);}},
+  AF:{cost:2,kind:'target',off:true,desc:'Наступний кидок цілі — самі одиниці',eff:(c,t)=>{_me(t).nextRollPenalty='ones';notify(`🎲 ${_nm(t)}: наступний кидок = 1`);}},
+  QQ:{cost:2,kind:'target',off:true,get desc(){return 'Королева-лідер цілі відкочується на '+GAP/2;},can:(c,t)=>_leader(t,p=>p.type==='Q')?null:'у цілі нема Королеви на полі',
+    eff:(c,t)=>{const q=_leader(t,p=>p.type==='Q');if(q){_back(q,GAP/2);notify(`♛ ${_nm(t)}: Королева −${GAP/2}`);}}},
+  GO:{cost:2,kind:'self',nw:true,desc:'Розгін: твій наступний кидок — на 1 кубик більше',can:c=>_me(c).nextRollExtra?'розгін уже є':null,
+    eff:c=>{_me(c).nextRollExtra=1;notify(`🚀 ${_nm(c)}: наступний кидок +1 кубик`);}},
+  ZZ:{cost:2,kind:'target',off:true,nw:true,desc:'Дрімота: наступний кидок цілі — на 2 кубики менше',can:(c,t)=>_me(t).nextRollSleep?'ціль уже дрімає':null,
+    eff:(c,t)=>{_me(t).nextRollSleep=2;notify(`💤 ${_nm(t)}: наступний кидок −2 кубики`);}},
+  MY:{cost:2,kind:'target',off:true,nw:true,desc:'«Моє!»: забери в цілі до 2 ✉',can:(c,t)=>_me(t).letters>0?null:'у цілі нема ✉',worth:(c,t)=>_me(t).letters>=2,
+    eff:(c,t)=>{const n=Math.min(2,_me(t).letters);_me(t).letters-=n;_me(c).letters+=n;notify(`✋ ${_nm(c)} забирає ✉${n} у ${_nm(t)}`);}},
+  OK:{cost:2,kind:'self',nw:true,desc:'Очищення: знімає з тебе AF (одиниці), ZZ (дрімоту) й ICE (лід)',can:c=>curses(_me(c))?null:'на тобі нема AF, ZZ чи ICE',
+    eff:c=>{const p=_me(c);p.nextRollPenalty=null;p.nextRollSleep=0;p.iced=false;p.iceNext=false;notify(`✨ ${_nm(c)}: прокляття знято`);}},
+  // ── ✉3 ──
+  SUS:{cost:3,kind:'target',off:true,get desc(){return 'Лідер цілі відкочується на '+GAP/2;},can:(c,t)=>_leader(t)?null:'у цілі нема фігур на полі',
+    eff:(c,t)=>{const p=_leader(t);if(p){_back(p,GAP/2);notify(`😳 ${_nm(t)}: лідер −${GAP/2}`);}}},
+  ZIP:{cost:3,kind:'target',off:true,desc:'Найвідсталіший виведений Пішак цілі → на старт',can:(c,t)=>_onBoard(t,p=>p.type==='P').length?null:'у цілі нема виведених пішаків',
+    eff:(c,t)=>{const p=_onBoard(t,pc=>pc.type==='P').sort((a,b)=>relPos(a)-relPos(b))[0];if(p){_toStart(p);notify(`🏁 ${_nm(t)}: пішак на старт`);}}},
+  PIG:{cost:3,kind:'target',off:true,get desc(){return 'Лідер цілі відкочується на '+GAP;},can:(c,t)=>_leader(t)?null:'у цілі нема фігур на полі',
+    eff:(c,t)=>{const p=_leader(t);if(p){_back(p,GAP);notify(`🐷 ${_nm(t)}: лідер −${GAP}`);}}},
+  DEF:{cost:3,kind:'self',desc:'Щит: перша спроба збити твою фігуру не вдасться',can:c=>_me(c).activeShield==='DEF'?'щит уже стоїть':null,
+    eff:c=>{_me(c).activeShield='DEF';notify(`🛡 ${_nm(c)}: ЩИТ`);}},
+  MIR:{cost:3,kind:'self',desc:'Дзеркало: перша прицільна атака (🎯) на тебе відіб\'ється в автора',can:c=>_me(c).activeShield==='MIR'?'дзеркало вже стоїть':null,
+    eff:c=>{_me(c).activeShield='MIR';notify(`🪞 ${_nm(c)}: ДЗЕРКАЛО`);}},
+  RUN:{cost:3,kind:'self',nw:true,desc:'Біг: кожен твій виведений Пішак робить крок уперед',can:c=>runPlan(c).length?null:'нема пішаків, яким є куди ступити',worth:c=>runPlan(c).length>=2,
+    eff:c=>{const ps=runPlan(c).sort((a,b)=>relPos(b)-relPos(a));ps.forEach(p=>{p.pos=(p.pos+1)%PERIMETER;});notify(`🏃 ${_nm(c)}: пішаки +1 (${ps.length})`);}},
+  ICE:{cost:3,kind:'target',off:true,nw:true,desc:'Лід: Королеви цілі не ходять увесь її наступний хід',can:(c,t)=>_leader(t,p=>p.type==='Q')?(_me(t).iceNext?'ціль уже замерзає':null):'у цілі нема Королеви на полі',
+    eff:(c,t)=>{_me(t).iceNext=true;notify(`🧊 ${_nm(t)}: Королеви замерзнуть на наступний хід`);}},
+  HUG:{cost:3,kind:'self',nw:true,desc:'Обійми: найвідсталіший твій Пішак стрибає до найближчої твоєї фігури попереду — закрита точка',can:c=>hugPlan(c)?null:'нема пішака, якому є до кого стрибнути',
+    eff:c=>{const h=hugPlan(c);if(h){h.pw.pos=h.to;h.pw.moved=true;notify(`🤝 ${_nm(c)}: пішак прикрився (закрита точка)`);if(typeof COACH!=='undefined')COACH.event('point',{owner:c,pos:h.to});}}},
+  BOO:{cost:3,kind:'target',off:true,nw:true,desc:'Переляк: усі виведені фігури цілі відступають на 1',can:(c,t)=>_onBoard(t).length?null:'у цілі нема фігур на полі',
+    eff:(c,t)=>{const ps=_onBoard(t);ps.forEach(p=>_back(p,1));notify(`👻 ${_nm(t)}: усі фігури −1 (${ps.length})`);}},
+  TAX:{cost:3,kind:'all',nw:true,desc:'Податок: кожен суперник віддає тобі 1 ✉ (у кого є)',can:c=>_foes(c).some(p=>p.letters>0)?null:'у суперників нема ✉',worth:c=>_foes(c).filter(p=>p.letters>0).length>=2,
+    eff:c=>{let n=0;_foes(c).forEach(p=>{if(p.letters>0){p.letters--;n++;}});_me(c).letters+=n;notify(`💰 ${_nm(c)}: податок ✉${n}`);}},
+  // ── ✉4 ──
+  YEET:{cost:4,kind:'target',off:true,desc:'Лідер цілі → на старт',can:(c,t)=>_leader(t)?null:'у цілі нема фігур на полі',
+    eff:(c,t)=>{const p=_leader(t);if(p){_toStart(p);notify(`💥 ${_nm(t)}: лідер на старт`);}}},
+  LUCK:{cost:4,kind:'self',desc:'Твій наступний кидок — самі шістки',can:c=>_me(c).nextRollBonus?'удача вже чекає':null,
+    eff:c=>{_me(c).nextRollBonus='sixes';notify(`🍀 ${_nm(c)}: наступний кидок = 6`);}},
+  SWAP:{cost:4,kind:'self',desc:'Поміняй місцями дві свої передні фігури',can:c=>_onBoard(c).length>=2?null:'потрібні 2 фігури на полі',
+    eff:c=>{const ps=_onBoard(c).sort((a,b)=>relPos(b)-relPos(a));if(ps.length>=2){const tmp=ps[0].pos;ps[0].pos=ps[1].pos;ps[1].pos=tmp;notify(`🔄 ${_nm(c)}: фігури помінялись`);}}},
+  OOPS:{cost:4,kind:'self',desc:'Перекинь свої невитрачені кубики',can:c=>(S.activePlayer===c&&S.gameState==='MOVE'&&(S.diceUsed||[]).some(u=>!u))?null:'працює після кидка, поки є невитрачені кубики',
+    eff:c=>{const n=S.dice.filter((_,i)=>!S.diceUsed[i]).length;if(!n)return;const th=V3.physThrow(n,null);S.dice=th.vals.slice();S.diceUsed=S.dice.map(()=>false);S.throwSeq=(S.throwSeq||0)+1;S.throwInfo={id:MY_ID.slice(-4)+'-'+S.throwSeq+'-'+th.seed,seed:th.seed,owner:c,n,h:th.h,vals:S.dice.slice(),rr:1};notify(`🎲 ${_nm(c)}: кубики перекинуто`);}},
+  MUTE:{cost:4,kind:'target',off:true,desc:'Немота: ціль не зможе читати закляття весь свій наступний хід',can:(c,t)=>_me(t).muteNext?'ціль уже німіє':null,
+    eff:(c,t)=>{_me(t).muteNext=true;notify(`🔇 ${_nm(t)}: НЕМОТА на наступний хід`);}},
+  VOID:{cost:4,kind:'target',off:true,desc:'Усі виведені Пішаки цілі → на старт',can:(c,t)=>_onBoard(t,p=>p.type==='P').length?null:'у цілі нема виведених пішаків',worth:(c,t)=>_onBoard(t,p=>p.type==='P').length>=2,
+    eff:(c,t)=>{const ps=_onBoard(t,p=>p.type==='P');ps.forEach(_toStart);notify(`❌ ${_nm(t)}: усі пішаки (${ps.length}) на старт`);logAction(`Магія: VOID повернула всі виведені пішаки ${_nm(t)}`);}},
+  WALL:{cost:4,kind:'self',nw:true,desc:'Стіна: 3 клітини перед твоїм лідером — твоя ефірна стіна до твого наступного ходу',can:c=>_leader(c)?((S.tempWalls||[]).some(w=>w.owner===c)?'стіна вже стоїть':null):'нема фігур на полі',
+    eff:c=>{const l=_leader(c);if(!l)return;const cells=[1,2,3].map(d=>(l.pos+d)%PERIMETER);S.tempWalls=(S.tempWalls||[]).filter(w=>w.owner!==c);S.tempWalls.push({owner:c,cells});notify(`🧱 ${_nm(c)}: стіна перед лідером`);}},
+  BOOM:{cost:4,kind:'all',nw:true,desc:'Вибух: ворожі Пішаки-одинаки в 2 клітинах від твоїх Королев → на старт',
+    can:c=>{const qs=_onBoard(c,p=>p.type==='Q');if(!qs.length)return 'нема твоєї Королеви на полі';return qs.some(q=>lonePawnsNear(c,q.pos,2).length)?null:'поруч нема пішаків-одинаків';},
+    eff:c=>{const hit=new Set();_onBoard(c,p=>p.type==='Q').forEach(q=>lonePawnsNear(c,q.pos,2).forEach(p=>hit.add(p)));hit.forEach(_toStart);notify(`💣 ${_nm(c)}: вибух — пішаків на старт: ${hit.size}`);}},
+  FAST:{cost:4,kind:'self',nw:true,desc:'Спринт: до кінця ходу твої Пішаки ходять на значення кубика, а не на 1',can:c=>_me(c).fastTurn?'спринт уже діє':(S.pieces.some(p=>p.owner===c&&p.type==='P'&&p.status==='BOARD')?null:'нема пішаків'),
+    worth:c=>_onBoard(c,p=>p.type==='P').length>=2,eff:c=>{_me(c).fastTurn=true;notify(`⚡ ${_nm(c)}: спринт пішаків`);}},
+  SAFE:{cost:4,kind:'self',nw:true,desc:'Сховок: до твого наступного ходу жодну твою фігуру не можна збити',can:c=>_me(c).safe?'сховок уже діє':null,
+    eff:c=>{_me(c).safe=true;notify(`⛺ ${_nm(c)}: СХОВОК до наступного ходу`);}},
+  GRAB:{cost:4,kind:'target',off:true,nw:true,desc:'Хапок: уся ⚡ цілі переходить тобі',can:(c,t)=>_me(t).energy>0?null:'у цілі нема ⚡',worth:(c,t)=>_me(t).energy>=3,
+    eff:(c,t)=>{const n=_me(t).energy;_me(c).energy=Math.min(8,_me(c).energy+n);_me(t).energy=0;notify(`🫳 ${_nm(c)} хапає ⚡${n} у ${_nm(t)}`);}},
+  TWIN:{cost:4,kind:'self',nw:true,desc:'Близнюк: твій найменший невитрачений кубик подвоюється',can:c=>(S.activePlayer===c&&S.gameState==='MOVE'&&(S.diceUsed||[]).some(u=>!u))?null:'працює після кидка, поки є невитрачені кубики',
+    eff:c=>{let bi=-1;S.dice.forEach((v,i)=>{if(!S.diceUsed[i]&&(bi<0||v<S.dice[bi]))bi=i;});if(bi>=0){S.dice[bi]*=2;notify(`👯 ${_nm(c)}: кубик ×2 = ${S.dice[bi]}`);}}},
+  // ── ✉5 ──
+  CHAOS:{cost:5,kind:'all',desc:'Хаос: ⚡ усіх гравців (і твоя) стає випадковою (0–4)',eff:()=>{S.players.forEach(p=>{if(p.type!=='EMPTY')p.energy=Math.floor(Math.random()*5);});notify('🌀 ХАОС ЕНЕРГІЙ');}},
+  DANCE:{cost:5,kind:'all',desc:'Танець: усі виведені фігури на полі (і твої) роблять крок +1',eff:()=>{S.pieces.filter(p=>p.moved&&p.status==='BOARD').forEach(p=>p.pos=(p.pos+1)%PERIMETER);notify('💃 ТАНЕЦЬ ФІГУР');}},
+  IDIOT:{cost:5,kind:'target',desc:'Віддай цілі всі свої ✉ (дипломатія або жарт)',worth:()=>Math.random()<0.15,
+    eff:(c,t)=>{_me(t).letters+=_me(c).letters;_me(c).letters=0;notify(`📨 ${_nm(c)}→${_nm(t)}: листи передано`);}},
+  SLEEP:{cost:5,kind:'target',off:true,nw:true,desc:'Сон: ціль пропускає свій наступний хід',can:(c,t)=>t===c?'на себе — не можна':(_me(t).sleepNext?'ціль уже спить':null),
+    eff:(c,t)=>{_me(t).sleepNext=true;notify(`😴 ${_nm(t)}: пропустить наступний хід`);}},
+  STORM:{cost:5,kind:'all',nw:true,desc:'Буря: усі виведені фігури всіх суперників відступають на 2',can:c=>_foes(c).some(p=>_onBoard(p.id).length)?null:'у суперників нема фігур на полі',
+    eff:c=>{let n=0;_foes(c).forEach(p=>_onBoard(p.id).forEach(pc=>{_back(pc,2);n++;}));notify(`🌪 ${_nm(c)}: БУРЯ — фігур відкинуто: ${n}`);}},
+  HEIST:{cost:5,kind:'target',off:true,nw:true,desc:'Пограбування: поміняйся з ціллю запасами ⚡ і ✉',can:(c,t)=>t===c?'на себе — не можна':null,
+    worth:(c,t)=>(_me(t).letters+_me(t).energy)>=(_me(c).letters-5+_me(c).energy)+3,
+    eff:(c,t)=>{const a=_me(c),b=_me(t);[a.letters,b.letters]=[b.letters,a.letters];[a.energy,b.energy]=[b.energy,a.energy];notify(`🦹 ${_nm(c)} ⇄ ${_nm(t)}: запаси помінялись`);}},
 };
+const OFFENSIVE_SPELLS=new Set(Object.keys(GR).filter(k=>GR[k].off));
+const SPELL_TIERS=[2,3,4,5];
 
 // ═══════════════════════════════════════════════════════════════
 // BOT ARCHETYPES
 // ═══════════════════════════════════════════════════════════════
 const AI_ERR=0.08;
 const ARCH={
-  SPADE:{spells:['VOID','YEET','PIG','MUTE','NO'],
+  SPADE:{spells:['SLEEP','STORM','VOID','YEET','ICE','PIG','BOO','MUTE','ZZ','NO'],
     target:(ap)=>S.players.filter(p=>p.type!=='EMPTY'&&p.id!==ap.id).sort((a,b)=>{
       const qa=S.pieces.filter(p=>p.owner===a.id&&p.moved&&p.status==='BOARD').reduce((m,p)=>Math.max(m,relPos(p)),0);
       const qb=S.pieces.filter(p=>p.owner===b.id&&p.moved&&p.status==='BOARD').reduce((m,p)=>Math.max(m,relPos(p)),0);
       return qb-qa;})[0]?.id??ap.id},
-  HEART:{spells:['DEF','MIR','UP','LUCK'],target:(ap)=>ap.id},
-  CLUB:{spells:['MUTE','VOID','ZIP','NO'],
+  HEART:{spells:['SAFE','DEF','MIR','OK','WALL','LUCK','HUG','GO','UP'],target:(ap)=>ap.id},
+  CLUB:{spells:['HEIST','GRAB','TAX','MY','MUTE','VOID','ZIP','RUN','NO'],
     target:(ap)=>S.players.filter(p=>p.type!=='EMPTY'&&p.id!==ap.id).sort((a,b)=>b.letters-a.letters)[0]?.id??ap.id},
-  DIAMOND:{spells:['CHAOS','DANCE','AF','SUS','IDIOT'],
+  DIAMOND:{spells:['CHAOS','DANCE','BOOM','FAST','TWIN','SWAP','AF','SUS','ZZ','IDIOT'],
     target:(ap)=>{const a=S.players.filter(p=>p.type!=='EMPTY');return a[Math.floor(Math.random()*a.length)].id;}},
 };
 
@@ -574,7 +720,8 @@ function botProfile(p){ return p.name==='СИГМА'?SIGMA_PROFILE:(PERSONALITY[
 const mkPlayer=(id,name,color,offset,cx,cy,suit)=>({
   id,name,color,offset,cx,cy,suit,type:'EMPTY',energy:0,
   letters:0,spellAttempts:3,spellCastThisTurn:false,
-  activeShield:null,nextRollPenalty:null,nextRollBonus:null,mutedThisTurn:false
+  activeShield:null,nextRollPenalty:null,nextRollBonus:null,mutedThisTurn:false,
+  nextRollExtra:0,nextRollSleep:0,muteNext:false,iceNext:false,iced:false,sleepNext:false,safe:false,fastTurn:false
 });
 const makeState=()=>({
   players:[
@@ -586,7 +733,7 @@ const makeState=()=>({
   pieces:[],activePlayer:0,gameState:'ROLL',
   dice:[],diceUsed:[],queenDir:1,
   morseBuffer:'',morseWord:'',lastVec:'СИНГУЛЯРНОСТЬ',
-  entropyTargetIdx:null,board:'sq48'
+  entropyTargetIdx:null,board:'sq48',tempWalls:[]
 });
 
 let S=makeState();
@@ -669,38 +816,84 @@ function showMenu(){document.querySelectorAll('.overlay').forEach(o=>o.classList
 // GRIMOIRE UI
 // ═══════════════════════════════════════════════════════════════
 function openGrimoire(){
-  document.getElementById('grimoire-content').innerHTML=Object.entries(GR).map(([name,sp])=>
-    `<div class="g-row"><span class="g-name">${name}</span><span class="g-cost">✉${sp.cost}</span><span class="g-morse">${name.split('').map(c=>L2M[c]||'?').join(' ')}</span><span class="g-desc">${sp.desc}</span></div>`
-  ).join('');
+  const meId=canControl()?S.activePlayer:(!isSpectator&&localPlayerId!=null?localPlayerId:null);
+  const me=meId!=null?S.players[meId]:null,L=me?me.letters:0;
+  const KI={self:'🙋',target:'🎯',all:'🌐'};
+  const wordN=n=>n+' '+(n<5?'літери':'літер');
+  let h=`<div class="g-how"><b>Як чаклувати.</b> Вистукай слово по <b>вільному місцю поля</b>: короткий тап — <b>·</b>, довгий — <b>–</b>, пауза 0,6 с — кінець літери. Потім <b>свайп</b> у бік суперника — це ціль і каст. Ціна = кількість літер (✉). 1 закляття на хід, 3 спроби.</div>`;
+  h+=`<div class="g-legend">🙋 на тебе · 🎯 на ціль свайпом (її захищає MIR) · 🌐 на всіх одразу${me?` · у тебе <b>✉${L}</b>`:''}</div>`;
+  SPELL_TIERS.forEach(tier=>{
+    const list=Object.entries(GR).filter(([,sp])=>sp.cost===tier);
+    h+=`<div class="g-tier"><span>✉${tier}</span>${wordN(tier)} · ${list.length} заклять</div>`;
+    h+=list.map(([name,sp])=>`<div class="g-row${me&&L<sp.cost?' g-poor':''}"><span class="g-name">${name}${sp.nw?'<i>нове</i>':''}</span><span class="g-k" title="${sp.kind==='self'?'на тебе':sp.kind==='all'?'на всіх одразу':'на ціль'}">${KI[sp.kind]||''}</span><span class="g-morse">${name.split('').map(c=>L2M[c]||'?').join(' ')}</span><span class="g-desc">${sp.desc}</span></div>`).join('');
+  });
+  document.getElementById('grimoire-content').innerHTML=h;
   const sw=document.getElementById('g-swipe');
-  if(sw)sw.innerHTML='Свайп = каст + ціль: '+V3.swipeMap().map(([a,t])=>`${a}<span style="color:${S.players[t].color}">${FACTION_NAME[t]}</span>`).join(' · ');
+  if(sw)sw.innerHTML='Свайп = ціль: '+V3.swipeMap().filter(([a,t])=>S.players[t]&&S.players[t].type!=='EMPTY').map(([a,t])=>`${a}<span style="color:${S.players[t].color}">${FACTION_NAME[t]}</span>`).join(' · ');
   document.getElementById('grimoire-modal').classList.remove('hidden');
+  if(typeof COACH!=='undefined')COACH.event('grimoire',{});
 }
 function closeGrimoire(){document.getElementById('grimoire-modal').classList.add('hidden');}
 
 const RULES_HTML=`
-<p><b style="color:var(--em)">Мета.</b> Провести дві свої Королеви повне коло по кільцю дошки й повернути на старт — це Вознесіння. Хто вознесе двох Королев — переміг.</p>
-<p><b style="color:var(--em)">Дошки</b> (обираються в лобі, окремо від того, хто грає — люди чи боти):<br>
-<b>Велика</b> — квадрат 13×13, кільце з 48 клітин, 2–4 гравці. Фракції стартують із середин сторін, невиведені фігури стоять на хресті-депо, кубики летять у лоток своєї чверті.<br>
-<b>Мала</b> — 24 клітини, як дошка для нард, 2 гравці один навпроти одного. Усе пропорційно менше: дім — 6 клітин перед стартом, закляття SUS і QQ відкидають на 3 клітини, PIG — на 6. Пішаків тут спалює лише перетин <b>стартів гравців</b> (плиток із гербом — свого чи суперника). Зірки посередині бічних сторін (хрестовини з містком через центр) нічого не спалюють — вони лише позначають, звідки починається дім гравця.<br>
-<b>Трикутна</b> — 36 клітин, 2–3 гравці, по стороні на гравця; Кути — це старти, дім — 12 клітин.<br>
-Старт гравця — плитка з його гербом («Кут»). Вільне місце гравця на великій і трикутній дошках позначено зіркою — для економіки воно теж Кут. На малій і трикутній дошках депо невиведених фігур — стійка вздовж твого краю, а лотки кубиків окремі: кидок видно у крупному виді лотка.</p>
-<p><b style="color:var(--em)">Хід.</b> 1) Кинь кубики (їх тим більше, чим більше пішаків на унікальних клітинах). 2) Якщо є ⚡ — влий усю енергію в один кубик. 3) Признач кубики фігурам. 4) Будь-коли можна прочитати одне заклинання.</p>
-<p><b style="color:var(--em)">Кубики фізичні.</b> Вони летять у твій лоток, б'ються об борти й одне об одного — зараховується грань, що опинилась угорі. Кубик, що ліг на ребро чи на інший кубик, автоматично перекидається, як у справжній грі. Однакові значення = «дубль»: кидається ще стільки ж кубиків із тим самим значенням. Усі гравці бачать той самий кидок. Під полем (на широкому екрані — праворуч) завжди є крупний вид лотка того, хто ходить: там кубики добре видно, їх можна тапати, а коли твій хід — там же кнопка кидка.</p>
-<p><b style="color:var(--em)">Фігури</b> (по-різному витрачають кубик):<br>
-<b>Пішак</b> — рівно 1 клітина будь-яким кубиком. Генерує кубики й паливо.<br>
-<b>Слон</b> — значення кубика ×2.<br>
-<b>Ладья</b> — на значення кубика. Дві Ладьї за 4 клітини одна від одної ставлять <b>ефірну стіну</b>: 3 клітини між ними недосяжні ворогу — там безпечні пішаки й Королеви.<br>
-<b>Конь</b> — стрибок на суму всіх невитрачених кубиків.<br>
-<b>Королева</b> — на значення кубика, вперед і назад. Єдина, хто захоплює.</p>
-<p><b style="color:var(--em)">Захоплення.</b> Лише Королева збиває ворога на старт — і тільки ворожого <b>пішака</b>, що стоїть сам (без прикриття великою фігурою), або ворожу Королеву (тоді обидві йдуть на старт). Слони/Ладьї/Коні невразливі. Свій старт варто тримати зайнятим.</p>
-<p><b style="color:var(--em)">Економіка.</b> Коли велика фігура — Слон, Ладья чи Конь — перетинає Кут, один твій найвідсталіший пішак згорає в +1⚡ та +1✉ (лист). Пішак і Королева, проходячи Кут, нічого не спалюють. На малій дошці рахуються лише старти гравців (плитки з гербом), а не зірки-хрестовини. ⚡ підсилює кубик, ✉ — валюта заклинань.</p>
-<p><b style="color:var(--em)">Дві фази.</b> <b>Фаза 1</b> — поки лишився хоч один пішак: дім зачинений, Королева ходить вільно в обидва боки й проходить власний старт як звичайну клітину. <b>Фаза 2</b> — коли всі 8 пішаків згоріли: дім (12 клітин перед стартом, на малій дошці — 6) підсвічується рамкою твого кольору (🏠), Королева в ньому вже не задкує, і коли всі твої фігури вдома, Королева Возноситься точним кубиком на старт. Чужа фігура чи чужа стіна на твоєму старті Вознесінню <b>не заважає</b> — Королева йде в дім, нікого не збиваючи.</p>
-<p><b style="color:var(--em)">Магія (Морзе).</b> Вистукуй назву закляття азбукою Морзе по вільному місцю поля: короткий тап — крапка (·), довгий — тире (–), пауза 0.6с — кінець літери. Потім свайп у бік фракції (до її краю поля, як ти його бачиш) = ціль і каст. 3 спроби на хід, 1 успішне закляття. Повний список — у 📖 ГРИМУАР.</p>
-<p><b style="color:var(--em)">Шум (не зволікай).</b> Якщо маєш ≥2 кубики й довго думаєш — найбільший кубик починає «танути» (перевертається на меншу грань). СИГМА (бос) живиться цим. Зволікав надто довго — система походить за тебе.</p>
-<p><b style="color:var(--em)">Керування.</b> Тап по клітині з твоєю фігурою — вибір (влучати точно у фігуру не треба, ціль — уся клітина). Якщо на клітині кілька твоїх <b>різних</b> фігур — спливає «лупа» з великими кнопками. Далі — тап по підсвіченій клітинці (на ній число кубика) або по кубику в лотку. Якщо там уже стоять твої фігури, «лупа» спитає: походити сюди чи взяти іншу. У Королеви бурштинові клітинки — хід назад. Тап по клітині з чужими фігурами показує, хто там стоїть. Морзе — по вільному місцю поля; свайп-каст можна починати будь-де. Два пальці (або права кнопка миші/коліщатко) — обертати й масштабувати поле, 🎥 — вид з твого боку / зверху. Повідомлення про ходи — у рядку внизу (над «Гримуаром»), вони не закривають ні поле, ні кубики; тап по цьому рядку — журнал усіх подій партії.</p>
-<p><b style="color:var(--em)">Графіка.</b> Кнопка ⚙ у головному меню. «Авто» сам розпізнає слабкі пристрої (ТВ-приставки, старі телефони, програмний рендер) і сильно спрощує картинку: без тіней і відблисків, прості матеріали, менша роздільність, до 30 кадрів/с. Якщо під час гри кадри все одно просідають — якість знижується ще, крок за кроком. Рівень можна вибрати й вручну.</p>`;
-function openRules(){document.getElementById('rules-body').innerHTML=legendHTML()+RULES_HTML;document.getElementById('rules-modal').classList.remove('hidden');}
+<div class="r-short">
+<div class="r-h">КОРОТКО — ЦЬОГО ДОСИТЬ, ЩОБ ПОЧАТИ</div>
+<div class="r-li"><b>🎯 Мета.</b> Проведи дві свої Королеви повне коло й поверни на старт — це Вознесіння. Хто першим вознесе обох — переміг.</div>
+<div class="r-li"><b>🎲 Хід.</b> Кинь кубики → якщо є ⚡, влий її в один кубик → обери фігуру (вона світиться кільцем) і тапни підсвічену клітину. Кожен кубик — окремий крок.</div>
+<div class="r-li"><b>♟ Фігури.</b> Пішак — 1 клітина · Слон — кубик ×2 · Ладья — кубик · Конь — сума всіх кубиків одразу · Королева — кубик уперед або назад.</div>
+<div class="r-li"><b>⚔ Бій.</b> Б'є лише Королева і лише <b>одинака</b> — пішака чи Королеву, що стоїть сам. Дві й більше фігур на клітині — <b>закрита точка</b> (як у нардах): туди не стати.</div>
+<div class="r-li"><b>🔥 Пішаки — паливо.</b> Слон, Ладья чи Конь, перетнувши Кут, спалюють твого найвідсталішого пішака: +1⚡ і +1✉.</div>
+<div class="r-li"><b>🏠 Фінал.</b> Згоріли всі пішаки — заведи всі фігури в дім (рамка твого кольору) і вознеси Королев точним кубиком на старт.</div>
+<div class="r-li"><b>✨ Магія.</b> Вистукай слово азбукою Морзе по вільному місцю поля й свайпни в бік цілі. Ціна = кількість літер (✉). 36 заклять — у 📖 Гримуарі.</div>
+<div class="r-li"><b>⏳ Шум.</b> Довго думаєш — найбільший кубик «тане». Ходи сміливо.</div>
+<div class="r-tut">💡 Навчання вбудоване в гру: у першій партії підказки з'являються по ходу, крок за кроком, і не закривають ні поле, ні кубики. Кнопка 💡 у грі (вгорі праворуч) — <b>повні</b>, <b>головні</b> або <b>вимкнені</b>.
+<div class="r-btns"><button class="btn btn-sm" onclick="closeRules();startTutorial()">🎓 НАВЧАЛЬНА ПАРТІЯ</button><button class="btn btn-ghost btn-sm" onclick="COACH.reset(true)">↺ ПІДКАЗКИ З ПОЧАТКУ</button></div></div>
+</div>
+<div class="r-more">ДОКЛАДНО — ТАП ПО РОЗДІЛУ</div>
+<details><summary>Дошки</summary>
+<p><b>Велика</b> — квадрат 13×13, кільце з 48 клітин, 2–4 гравці. Фракції стартують із середин сторін, невиведені фігури стоять на хресті-депо, кубики летять у лоток своєї чверті.</p>
+<p><b>Мала</b> — 24 клітини, як дошка для нард, 2 гравці один навпроти одного. Усе пропорційно менше: дім — 6 клітин перед стартом, закляття SUS і QQ відкидають на 3 клітини, PIG — на 6. Пішаків тут спалює лише перетин стартів гравців (плиток із гербом — свого чи суперника). Зірки посередині бічних сторін (хрестовини з містком через центр) нічого не спалюють — вони лише позначають, звідки починається дім гравця.</p>
+<p><b>Трикутна</b> — 36 клітин, 2–3 гравці, по стороні на гравця; Кути — це старти, дім — 12 клітин.</p>
+<p>Старт гравця — плитка з його гербом («Кут»). Вільне місце гравця на великій і трикутній дошках позначено зіркою — для економіки воно теж Кут. На малій і трикутній дошках депо невиведених фігур — стійка вздовж твого краю, а лотки кубиків окремі: кидок видно у крупному виді лотка.</p>
+</details>
+<details><summary>Хід і кубики</summary>
+<p>1) Кинь кубики — їх тим більше, чим більше твоїх пішаків стоїть на <b>різних</b> клітинах (2 + кількість таких клітин, до 10). 2) Якщо є ⚡ — влий усю енергію в один кубик. 3) Признач кубики фігурам. 4) Будь-коли за свій хід можна прочитати одне закляття. Немає ходу — кнопка «ПРОПУСК».</p>
+<p>Кубики фізичні: летять у твій лоток, б'ються об борти й одне об одного — зараховується грань угорі. Кубик, що ліг на ребро чи на інший кубик, автоматично перекидається. Однакові значення = «дубль»: кидається ще стільки ж кубиків із тим самим значенням. Усі гравці бачать той самий кидок. Під полем (на широкому екрані — праворуч) — крупний вид лотка: там кубики добре видно, їх можна тапати, а коли твій хід — там кнопка кидка.</p>
+</details>
+<details><summary>Фігури</summary>
+<p><b>Пішак</b> — рівно 1 клітина будь-яким кубиком. Дає кубики (на різних клітинах) і паливо (згоряючи).</p>
+<p><b>Слон</b> — значення кубика ×2.</p>
+<p><b>Ладья</b> — на значення кубика. Дві твої Ладьї на відстані до 4 клітин ставлять ефірну стіну: клітини між ними (до трьох) ворогу недосяжні — там безпечні пішаки й Королеви.</p>
+<p><b>Конь</b> — стрибок на суму всіх невитрачених кубиків; витрачає їх усі.</p>
+<p><b>Королева</b> — на значення кубика, вперед і назад (◀ НАЗАД / ВПЕРЕД ▶, бурштинові клітини — хід назад). Єдина, хто б'є.</p>
+</details>
+<details><summary>Бій і закриті точки</summary>
+<p>Лише Королева збиває ворога на старт — і лише <b>одинака</b>: ворожого пішака або Королеву, що стоїть на клітині сам. Королева на Королеву — обидві йдуть на старт. Слони, Ладьї й Коні невразливі.</p>
+<p><b>Закрита точка</b> (принцип нард): дві й більше фігур на одній клітині — клітина зайнята. Ворожа Королева туди не стане й нікого звідти не зіб'є — ні пішака, ні іншу Королеву. Такі клітини позначено кутиками кольору власника. Свої фігури можуть ставати на клітину скільки завгодно.</p>
+<p>Також недоторканні: фігури в ефірній стіні свого власника, гравець під закляттям SAFE (до свого ходу), а щит DEF один раз скасовує удар.</p>
+</details>
+<details><summary>Економіка</summary>
+<p>Коли велика фігура — Слон, Ладья чи Конь — перетинає Кут, один твій найвідсталіший пішак згорає в +1⚡ та +1✉ (лист). Пішак і Королева, проходячи Кут, нічого не спалюють. На малій дошці рахуються лише старти гравців, а не зірки-хрестовини. ⚡ підсилює кубик, ✉ — валюта заклинань; ще +1✉ дає кожен удар Королеви.</p>
+</details>
+<details><summary>Дві фази</summary>
+<p>Фаза 1 — поки лишився хоч один пішак: дім зачинений, Королева ходить вільно в обидва боки й проходить власний старт як звичайну клітину. Фаза 2 — коли всі 8 пішаків згоріли: дім (12 клітин перед стартом, на малій дошці — 6) підсвічується рамкою твого кольору (🏠), фігури в ньому вже не задкують, і коли всі твої фігури вдома, Королева Возноситься точним кубиком на старт. Чужа фігура чи чужа стіна на твоєму старті Вознесінню не заважає.</p>
+</details>
+<details><summary>Магія (азбука Морзе)</summary>
+<p>Вистукуй назву закляття по вільному місцю поля: короткий тап — крапка (·), довгий — тире (–), пауза 0,6 с — кінець літери. Потім свайп у бік фракції (до її краю поля, як ти його бачиш) — це ціль і каст. Закляття «на себе» (🙋) і «на всіх» (🌐) діють незалежно від напрямку свайпу; свайп у бік, де нікого нема, — закляття не читається. Дзеркало MIR відбиває лише прицільні (🎯) атаки. Закляття-відкати (SUS, PIG, QQ, BOO, STORM) не заводять фігуру далі за її власний старт.</p>
+<p>3 спроби на хід, 1 успішне закляття. Ціна = кількість літер: ✉2, ✉3, ✉4, ✉5 — по 8, 10, 12 і 6 заклять. Якщо закляттю зараз нема на що діяти (у цілі нема ⚡, пішаків тощо) — воно не читається і ✉ не витрачаються. Прокляття «на наступний хід» (MUTE, ICE, SLEEP) спрацьовують, коли в цілі почнеться хід; WALL і SAFE діють до твого наступного ходу. Повний список — у 📖 ГРИМУАР.</p>
+</details>
+<details><summary>Шум</summary>
+<p>Якщо маєш ≥2 кубики й довго думаєш — найбільший кубик починає «танути» (перевертається на меншу грань). СИГМА (бос) живиться цим. Зволікав надто довго — система походить за тебе.</p>
+</details>
+<details><summary>Керування</summary>
+<p>Тап по клітині з твоєю фігурою — вибір (ціль — уся клітина). Якщо на клітині кілька твоїх різних фігур — спливає «лупа» з великими кнопками. Далі — тап по підсвіченій клітинці (на ній число кубика) або по кубику в лотку. Тап по клітині з чужими фігурами показує, хто там стоїть. Морзе — по вільному місцю поля; свайп-каст можна починати будь-де. Два пальці (або права кнопка миші/коліщатко) — обертати й масштабувати поле, 🎥 — вид з твого боку / зверху, 💡 — підказки. Повідомлення про ходи — у рядку внизу; тап по ньому — журнал подій.</p>
+<p>Клавіатура: 1–9, 0 — кубики; ←/→ — фігури; Пробіл — кинути / походити; Q/E — напрям Королеви; G — Гримуар; S — пропуск; C — камера.</p>
+</details>
+<details><summary>Графіка</summary>
+<p>Кнопка ⚙ у головному меню. «Авто» сам розпізнає слабкі пристрої (ТВ-приставки, старі телефони, програмний рендер) і сильно спрощує картинку: без тіней і відблисків, прості матеріали, менша роздільність, до 30 кадрів/с. Якщо під час гри кадри все одно просідають — якість знижується ще, крок за кроком. Рівень можна вибрати й вручну.</p>
+</details>
+`;
+function openRules(){const i=RULES_HTML.indexOf('<div class="r-more">');document.getElementById('rules-body').innerHTML=RULES_HTML.slice(0,i)+'<details><summary>Як виглядають фігури</summary>'+legendHTML()+'</details>'+RULES_HTML.slice(i);document.getElementById('rules-modal').classList.remove('hidden');}
 function closeRules(){document.getElementById('rules-modal').classList.add('hidden');}
 
 // Нижній рядок: свіже повідомлення (≈4.5 с) або контекстна підказка. Короткий текст стоїть на місці,
@@ -822,6 +1015,7 @@ function getPhantoms(){
     if(dist<1||dist>4)return;
     getCellsBetween(p1,p2).forEach(pos=>ph.push({pos,owner:p.id}));
   });
+  (S.tempWalls||[]).forEach(w=>(w.cells||[]).forEach(pos=>ph.push({pos,owner:w.owner,temp:true})));
   return ph;
 }
 
@@ -830,6 +1024,8 @@ function getPhantoms(){
 // ═══════════════════════════════════════════════════════════════
 function validateMove(pc,nPos,phs){
   const h=S.players[pc.owner].offset;
+  // Лід (ICE): Королеви цього гравця стоять увесь його хід — і Вознестися теж не можуть
+  if(pc.type==='Q'&&S.players[pc.owner].iced)return false;
   // Вознесіння: Королева точним кубиком повертається на свій старт, коли всі фігури вдома.
   // Чужа фігура (чи кілька) або чужа ефірна стіна на стартовій клітині цьому НЕ заважають —
   // Королева йде «в дім», а не займає клітину, тож нікого й не збиває.
@@ -846,7 +1042,10 @@ function validateMove(pc,nPos,phs){
   const enemies=S.pieces.filter(p=>p.pos===nPos&&p.owner!==pc.owner&&p.status==='BOARD'&&p.moved);
   if(enemies.length>0){
     if(pc.type!=='Q')return false;                       // захоплювати може лише Королева
-    if(enemies.length>=2)return false;                   // ціль не сама на клітині (пішак прикритий) → збити не можна
+    // Дві й більше фігур на клітині — «закрита точка», як у нардах: клітина зайнята,
+    // Королева туди не стане й нікого не зіб'є — ні пішака, ні Королеву. Бити можна лише одинака.
+    if(enemies.length>=2)return false;
+    if(S.players[enemies[0].owner].safe)return false;     // СХОВОК (SAFE): до свого ходу гравець недоторканний
     if(!['P','Q'].includes(enemies[0].type))return false;// збити можна лише ворожого Пішака або Королеву
     if(phs.some(w=>w.pos===nPos&&w.owner===enemies[0].owner))return false; // ціль у власній стіні — недосяжна
   }
@@ -856,7 +1055,7 @@ function getValidDests(pcId){
   const pc=S.pieces.find(p=>p.id===pcId);if(!pc||pc.status!=='BOARD'||S.gameState==='ROLL')return[];
   const phs=getPhantoms();const ds=new Set();
   if(pc.type==='K'){const sum=S.dice.reduce((s,v,i)=>!S.diceUsed[i]?s+v:s,0);if(sum>0){const n=(pc.pos+sum+PERIMETER*100)%PERIMETER;if(validateMove(pc,n,phs))ds.add(n);}}
-  else{S.dice.forEach((v,i)=>{if(S.diceUsed[i])return;const dir=pc.type==='Q'?S.queenDir:1;const n=(pc.pos+(pc.type==='P'?1:pc.type==='E'?v*2:v)*dir+PERIMETER*100)%PERIMETER;if(validateMove(pc,n,phs))ds.add(n);});}
+  else{S.dice.forEach((v,i)=>{if(S.diceUsed[i])return;const dir=pc.type==='Q'?S.queenDir:1;const n=(pc.pos+pieceSteps(pc,v)*dir+PERIMETER*100)%PERIMETER;if(validateMove(pc,n,phs))ds.add(n);});}
   return[...ds];
 }
 function anyValidMove(){return S.pieces.some(pc=>pc.owner===S.activePlayer&&pc.status==='BOARD'&&getValidDests(pc.id).length>0);}
@@ -876,6 +1075,7 @@ function hydrateState(st){
   if(st.morseBuffer===undefined)st.morseBuffer='';
   if(st.morseWord===undefined)st.morseWord='';
   if(st.queenDir===undefined)st.queenDir=1;
+  if(!st.tempWalls)st.tempWalls=[];
   if(st.throwInfo&&!st.throwInfo.vals)st.throwInfo.vals=[];
   if(!st.board)st.board='sq48';applyBoard(st.board);
   return st;
@@ -914,6 +1114,14 @@ function initHotseat(){
   document.getElementById('menu').classList.add('hidden');
   document.getElementById('hs-lobby').classList.remove('hidden');
   renderHsLobby();
+}
+// Навчальна партія: мала дошка, ти (ПИКИ) проти бота-«Захисника» (його закляття лише на себе),
+// підказки — повні й з початку. Звичайна партія, просто з наставником.
+function startTutorial(){
+  const prevBoard=lastBoard();
+  if(typeof COACH!=='undefined'){COACH.setLevel('full');COACH.reset(false);}
+  initHotseat();setBoard('sq24');hsSet(0,'HUMAN');hsSet(1,'AI');
+  startGame();rememberBoard(prevBoard);
 }
 function renderHsLobby(){
   renderBoardPick('hs-board',true);
@@ -1249,6 +1457,7 @@ function renderGuestLobby(){
 // GAME START
 // ═══════════════════════════════════════════════════════════════
 function startGame(){
+  try{localStorage.setItem('vessel_played','1');const tb=document.getElementById('tut-btn');if(tb)tb.classList.remove('attn');}catch(e){}
   const active=S.players.filter(p=>p.type!=='EMPTY');
   if(active.length<2){notify('Потрібно мінімум 2 гравці');return;}
   const bd=BOARDS[S.board]||BOARDS.sq48;
@@ -1347,6 +1556,7 @@ function renderGame(){
   document.getElementById('morse-buf').innerText=S.morseBuffer?`[${S.morseBuffer}]`:'';
   document.getElementById('vec-hud').innerText=S.lastVec;
   updateHint();
+  if(typeof COACH!=='undefined')COACH.update();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1361,7 +1571,7 @@ function resetEntropy(){
 }
 function triggerNoise(){
   findNextEntropyTarget();
-  if(S.entropyTargetIdx!==null){notify('⚠️ ШУМ ПОГЛОЩАЕТ РИТМ','entropy');degradeTimer=setInterval(tickDegrade,1500);}
+  if(S.entropyTargetIdx!==null){notify('⚠️ ШУМ: найбільший кубик тане — ходи!','entropy');degradeTimer=setInterval(tickDegrade,1500);if(typeof COACH!=='undefined')COACH.event('noise',{});}
   else forceRandomMove();
 }
 function findNextEntropyTarget(){
@@ -1392,7 +1602,7 @@ function forceRandomMove(){
         S.dice.forEach((v,dIdx)=>{
           if(S.diceUsed[dIdx])return;
           if(pc.type==='K'){const fi=S.dice.findIndex((_,i)=>!S.diceUsed[i]);if(dIdx!==fi)return;const steps=S.dice.reduce((s,v2,i2)=>!S.diceUsed[i2]?s+v2:s,0);const dest=(pc.pos+steps+PERIMETER*100)%PERIMETER;if(validateMove(pc,dest,phs))allMoves.push({pcId:pc.id,dIdx,dest,qDir:1});}
-          else{const steps=pc.type==='P'?1:pc.type==='E'?v*2:v;const dest=(pc.pos+steps*qDir+PERIMETER*100)%PERIMETER;if(validateMove(pc,dest,phs))allMoves.push({pcId:pc.id,dIdx,dest,qDir});}
+          else{const steps=pieceSteps(pc,v);const dest=(pc.pos+steps*qDir+PERIMETER*100)%PERIMETER;if(validateMove(pc,dest,phs))allMoves.push({pcId:pc.id,dIdx,dest,qDir});}
         });
       });
     });
@@ -1408,7 +1618,9 @@ function doRoll(){
   if(gameOver)return;if(!canControl()&&!canControlBot())return;if(S.gameState!=='ROLL')return;
   const p=S.players[S.activePlayer];
   const fps=S.pieces.filter(pc=>pc.owner===p.id&&pc.type==='P'&&pc.moved&&pc.status==='BOARD');
-  const cnt=Math.min(10,2+new Set(fps.map(x=>x.pos)).size);
+  // GO (+1 кубик) і ZZ (−2 кубики) — разові, діють на цей кидок
+  const cnt=Math.max(1,Math.min(10,2+new Set(fps.map(x=>x.pos)).size+(p.nextRollExtra||0)-(p.nextRollSleep||0)));
+  p.nextRollExtra=0;p.nextRollSleep=0;
   // Закляття на кидок діють як і раніше: LUCK → усі 6, AF → усі 1 (кубики все одно летять фізично)
   let forced=null;
   if(p.nextRollBonus==='sixes'){forced=6;p.nextRollBonus=null;}
@@ -1437,7 +1649,7 @@ function useDice(idx){
   const phs=getPhantoms();const dir=pc.type==='Q'?S.queenDir:1;
   let steps,consumedIdxs;
   if(pc.type==='K'){steps=S.dice.reduce((s,v,i)=>!S.diceUsed[i]?s+v:s,0);consumedIdxs=S.dice.map((_,i)=>i).filter(i=>!S.diceUsed[i]);}
-  else{const v=S.dice[idx];steps=pc.type==='P'?1:pc.type==='E'?v*2:v;consumedIdxs=[idx];}
+  else{const v=S.dice[idx];steps=pieceSteps(pc,v);consumedIdxs=[idx];}
   const nPos=(pc.pos+steps*dir+PERIMETER*100)%PERIMETER;
   if(!validateMove(pc,nPos,phs)){shakeApp();return;}
   // Пішака спалює лише велика фігура (Слон/Ладья/Конь), що перетинає Кут; Королева й Пішак — ні.
@@ -1449,9 +1661,10 @@ function useDice(idx){
     const crossedHeads=burnCells(pc,steps,dir);
     crossedHeads.forEach(hp=>{
       const lag=S.pieces.filter(p=>p.owner===player.id&&p.type==='P'&&p.status==='BOARD').sort((a,b)=>(a.moved?1:0)-(b.moved?1:0)||relPos(a)-relPos(b))[0];
-      if(lag){const pawnPos=lag.pos;lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;fxBurn(pawnPos,hp,player.id);}
+      if(lag){const pawnPos=lag.pos;lag.status='EXTRACTED';player.energy=Math.min(8,player.energy+1);player.letters++;fxBurn(pawnPos,hp,player.id);if(typeof COACH!=='undefined')COACH.event('burn',{owner:player.id,by:pc.type});}
     });
   }
+  let capturedAny=false;
   const isAscension=nPos===player.offset&&pc.moved&&canAscend(player.id)&&pc.type==='Q';
   if(isAscension){
     S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:nPos,status:'ASCENDED'}:p);
@@ -1459,30 +1672,38 @@ function useDice(idx){
   } else {
     const targets=S.pieces.filter(p=>p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD');
     if(targets.length>0&&pc.type==='Q'&&S.players[targets[0].owner].activeShield==='DEF'){
-      S.players[targets[0].owner].activeShield=null;notify(`🛡 ${_nm(targets[0].owner)}: ЩИТ!`);sync();return;
+      S.players[targets[0].owner].activeShield=null;notify(`🛡 ${_nm(targets[0].owner)}: ЩИТ!`);if(typeof COACH!=='undefined')COACH.event('shield',{owner:targets[0].owner,by:player.id});sync();return;
     }
     let bounced=false;
     S.pieces=S.pieces.map(p=>{
       if(p.id===pc.id)return{...p,pos:nPos,moved:true};
-      if(p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD'){player.letters++;if(p.type==='Q')bounced=true;fxCapture(nPos,p.owner,player.color);return{...p,pos:S.players[p.owner].offset,moved:false};}
+      if(p.pos===nPos&&p.owner!==pc.owner&&p.moved&&p.status==='BOARD'){player.letters++;capturedAny=true;if(p.type==='Q')bounced=true;fxCapture(nPos,p.owner,player.color);return{...p,pos:S.players[p.owner].offset,moved:false};}
       return p;
     });
-    if(bounced){S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:player.offset,moved:false}:p);notify('ОТРАЖЕНИЕ: Ферзь возвращён!');}
+    if(bounced){S.pieces=S.pieces.map(p=>p.id===pc.id?{...p,pos:player.offset,moved:false}:p);notify('ВІДДАЧА: Королева на Королеву — обидві на старт!');}
+    // утворилась закрита точка (2+ своїх фігури на клітині)
+    if(!bounced&&typeof COACH!=='undefined'&&S.pieces.filter(p=>p.owner===pc.owner&&p.status==='BOARD'&&p.moved&&p.pos===nPos).length>=2)COACH.event('point',{owner:pc.owner,pos:nPos});
   }
   // Опис ходу для анімації на всіх клієнтах (звідки, куди, напрям, кроки)
   S.moveSeq=(S.moveSeq||0)+1;
-  S.lastMove={seq:S.moveSeq,pcId:pc.id,from:pc.pos,to:nPos,dir,steps:Math.abs(steps),type:pc.type};
+  S.lastMove={seq:S.moveSeq,pcId:pc.id,from:pc.pos,to:nPos,dir,steps:Math.abs(steps),type:pc.type,capt:capturedAny};
   consumedIdxs.forEach(i=>S.diceUsed[i]=true);
   if(S.diceUsed.every(u=>u)||pc.type==='K')advanceTurn();
   sync();resetEntropy();
 }
 function doSkip(){if(!canControl())return;advanceTurn();sync();}
 function advanceTurn(){
+  const prev=S.players[S.activePlayer];if(prev){prev.fastTurn=false;prev.iced=false;prev.mutedThisTurn=false;}
   S.activePlayer=(S.activePlayer+1)%4;let guard=0;
   while(S.players[S.activePlayer].type==='EMPTY'){S.activePlayer=(S.activePlayer+1)%4;if(++guard>4)break;}
   S.gameState='ROLL';localSelected=null;S.queenDir=1;S.morseBuffer='';S.morseWord='';S.entropyTargetIdx=null;
   clearTimeout(morseLetterTimer);
-  const np=S.players[S.activePlayer];np.spellAttempts=3;np.spellCastThisTurn=false;np.mutedThisTurn=false;
+  const np=S.players[S.activePlayer];np.spellAttempts=3;np.spellCastThisTurn=false;
+  // «до твого наступного ходу» (WALL, SAFE) — закінчується; прокляття «на наступний хід» (MUTE, ICE, SLEEP) — починаються
+  S.tempWalls=(S.tempWalls||[]).filter(w=>w.owner!==np.id);np.safe=false;
+  np.mutedThisTurn=!!np.muteNext;np.muteNext=false;if(np.mutedThisTurn)np.spellAttempts=0;
+  np.iced=!!np.iceNext;np.iceNext=false;
+  if(np.sleepNext){np.sleepNext=false;notify(`😴 ${np.name}: СОН — пропускає хід`);advanceTurn();return;}
   resetEntropy();
 }
 function setQDir(d){S.queenDir=d;renderGame();}
@@ -1492,15 +1713,22 @@ function setQDir(d){S.queenDir=d;renderGame();}
 // ═══════════════════════════════════════════════════════════════
 function castSpell(word,casterId,targetId){
   const player=S.players[casterId];const spell=GR[word];
-  if(player.spellCastThisTurn){notify('✗ Магия уже применена');return;}
-  if(player.mutedThisTurn||player.spellAttempts<=0){notify('✗ НЕМОТА');return;}
-  if(!spell){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ "${word}" — нет в Гримуаре`);playBeep('error');setTimeout(stopTone,300);return;}
-  if(player.letters<spell.cost){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ Нужно ✉${spell.cost}`);return;}
-  let tid=targetId;
-  if(OFFENSIVE_SPELLS.has(word)&&casterId!==targetId&&S.players[targetId].activeShield==='MIR'){S.players[targetId].activeShield=null;tid=casterId;notify(`🪞 ${_nm(targetId)}: ЗЕРКАЛО!`);}
+  if(player.spellCastThisTurn){notify('✗ Закляття вже прочитано цього ходу');return;}
+  if(player.mutedThisTurn||player.spellAttempts<=0){notify(player.mutedThisTurn?'✗ НЕМОТА: цього ходу чаклувати не можна':'✗ Спроби закінчились (3 на хід)');return;}
+  if(!spell){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ «${word}» — нема в Гримуарі (спроб лишилось: ${player.spellAttempts})`);playBeep('error');setTimeout(stopTone,300);if(typeof COACH!=='undefined')COACH.event('badword',{word,by:casterId});return;}
+  if(player.letters<spell.cost){player.spellAttempts=Math.max(0,player.spellAttempts-1);notify(`✗ ${word}: потрібно ✉${spell.cost}, у тебе ✉${player.letters}`);return;}
+  let tid=spell.kind==='target'?targetId:casterId;
+  if(spell.kind==='target'&&(!S.players[tid]||S.players[tid].type==='EMPTY')){notify(`✗ ${word}: у той бік нікого нема — свайпни до суперника (✉ не витрачено)`);return;}
+  // марне закляття (нема цілі для ефекту) не читається — ✉ і спроба не витрачаються
+  const why=spell.can?spell.can(casterId,tid):null;
+  if(why){notify(`✗ ${word}: ${why} — ✉ не витрачено`);return;}
+  if(spell.off&&tid!==casterId&&S.players[tid].activeShield==='MIR'){S.players[tid].activeShield=null;tid=casterId;notify(`🪞 ${_nm(targetId)}: ДЗЕРКАЛО відбило ${word}!`);}
   player.letters-=spell.cost;player.spellCastThisTurn=true;
-  fxCast(tid,player.color,OFFENSIVE_SPELLS.has(word)?'💥':'✦');
+  if(spell.kind==='all')S.players.forEach(pl=>{if(pl.type!=='EMPTY'&&pl.id!==casterId)fxCast(pl.id,player.color,'💥');});
+  else fxCast(tid,player.color,spell.off?'💥':'✦');
   try{spell.eff(casterId,tid);}catch(e){console.error('spell',word,e);}
+  // останнє закляття — у стані (бачать усі клієнти; наставник пояснює, що сталося)
+  S.lastSpell={seq:((S.lastSpell&&S.lastSpell.seq)||0)+1,word,caster:casterId,target:tid};
   playBeep('spell');setTimeout(stopTone,400);sync();resetEntropy();
 }
 
@@ -1536,7 +1764,18 @@ function checkWinner(){
 function botDecideSpell(ap){
   if(ap.spellCastThisTurn||ap.spellAttempts<=0||ap.mutedThisTurn)return null;
   const arch=ARCH[ap.suit];if(!arch)return null;
-  for(const sn of arch.spells){const sp=GR[sn];if(!sp||ap.letters<sp.cost)continue;const tid=arch.target(ap);if(sn==='SWAP'&&S.pieces.filter(p=>p.owner===ap.id&&p.moved&&p.status==='BOARD').length<2)continue;return{sn,tid};}
+  for(const sn of arch.spells){const sp=GR[sn];if(!sp)continue;
+    let tid=ap.id;
+    if(sp.kind==='target'){
+      tid=arch.target(ap);
+      if(sp.off||sn==='IDIOT'){if(tid===ap.id){const f=_foes(ap.id);if(!f.length)continue;tid=f[Math.floor(Math.random()*f.length)].id;}}
+      else tid=ap.id;                                   // UP та подібні — собі
+    }
+    if(sp.can&&sp.can(ap.id,tid))continue;
+    if(sp.worth&&!sp.worth(ap.id,tid))continue;
+    // не вистачає ✉ на сильніше закляття зі свого списку — інколи «відкладає», а не розмінюється на дрібне
+    if(ap.letters<sp.cost){if(sp.cost-ap.letters<=2&&Math.random()<0.6)return null;continue;}
+    return{sn,tid};}
   return null;
 }
 function executeBotSpell(ap,dec){
@@ -1575,7 +1814,7 @@ function botMove(ap){
     const dirs=pc.type==='Q'?[1,-1]:[1];dirs.forEach(qDir=>{
       S.dice.forEach((v,dIdx)=>{
         if(S.diceUsed[dIdx])return;const dir=pc.type==='Q'?qDir:1;
-        let steps;if(pc.type==='K'){steps=S.dice.reduce((s,v2,i2)=>!S.diceUsed[i2]?s+v2:s,0);}else{steps=pc.type==='P'?1:pc.type==='E'?v*2:v;}
+        let steps;if(pc.type==='K'){steps=S.dice.reduce((s,v2,i2)=>!S.diceUsed[i2]?s+v2:s,0);}else{steps=pieceSteps(pc,v);}
         const dest=(pc.pos+steps*dir+PERIMETER*100)%PERIMETER;if(!validateMove(pc,dest,phs))return;
         let score=Math.random()*P.rand*40;            // хаос за характером
         const hasOurPawn=S.pieces.some(e=>e.owner===ap.id&&e.type==='P'&&e.status==='BOARD'&&e.pos===dest&&e.id!==pc.id);
@@ -1647,6 +1886,7 @@ function morseEnd(x,y){
     sync();return;
   }
   clearTimeout(morseLetterTimer);
+  if(typeof COACH!=='undefined')COACH.event('morse');
   if(dur<=150){S.morseBuffer+='.';playBeep('dot');setTimeout(stopTone,150);}
   else if(dur<=400){S.morseBuffer+='-';playBeep('dash');setTimeout(stopTone,300);}
   else{S.morseBuffer='';S.morseWord='';playBeep('error');setTimeout(stopTone,400);shakeApp();sync();return;}
@@ -1771,6 +2011,8 @@ function reconnect(){
   if(loadSession()){const b=document.getElementById('reconnect-btn');if(b)b.classList.remove('hidden');}
   const sb=document.getElementById('sound-btn');if(sb)sb.innerText=soundMuted?'🔇':'🔊';
   const bt=document.getElementById('build-tag');if(bt)bt.innerText=BUILD_TAG;
+  // ще жодної партії на цьому пристрої — підсвічуємо навчальну
+  try{if(!localStorage.getItem('vessel_played')){const tb=document.getElementById('tut-btn');if(tb)tb.classList.add('attn');}}catch(e){}
 })();
 
 // ═══════════════════════════════════════════════════════════════
@@ -2781,7 +3023,7 @@ const V3=(function(){
 
   // ═══ ПОЛЕ ═══
   let cellOv=[];        // по клітині кільця: {home,dest,wall}
-  let matDest,matDestAlt,matHome=[],matWall=[],matGhost=[],trayRim=[],trayFelt=[],stripTex=[],stripState=[],headMeshes=[],pedestals=[],trayG=[],trayPose=[],builtKey='';
+  let matDest,matDestAlt,matHome=[],matWall=[],matGhost=[],matLock=[],trayRim=[],trayFelt=[],stripTex=[],stripState=[],headMeshes=[],pedestals=[],trayG=[],trayPose=[],builtKey='';
   function setLayer(o,l){o.traverse(c=>c.layers.set(l));}
   function disposeBoard(){
     if(!boardG)return;
@@ -2886,12 +3128,17 @@ const V3=(function(){
     const ovG=new T.PlaneGeometry(0.98,0.98);ovG.rotateX(-Math.PI/2);
     const dG=new T.PlaneGeometry(0.9,0.9);dG.rotateX(-Math.PI/2);
     const wG=new T.BoxGeometry(0.86,0.62,0.86,1,1,1);wG.translate(0,0.31,0);
+    const lockTex=ctex(128,128,(g,w,h)=>{g.clearRect(0,0,w,h);g.strokeStyle='#fff';g.lineWidth=15;g.lineCap='round';g.lineJoin='round';g.shadowColor='#fff';g.shadowBlur=10;
+      const a=11,L2=40;[[a,a,1,1],[w-a,a,-1,1],[a,h-a,1,-1],[w-a,h-a,-1,-1]].forEach(([x,y,sx,sy])=>{g.beginPath();g.moveTo(x,y+sy*L2);g.lineTo(x,y);g.lineTo(x+sx*L2,y);g.stroke();});});
+    const lockG=new T.PlaneGeometry(1.1,1.1);lockG.rotateX(-Math.PI/2);
+    matLock=[];for(let p=0;p<4;p++)matLock.push(add(lockTex,lin(PieceKit.PAL[PieceKit.SUITS[p]].main)));
     L.ring.forEach(c=>{
       const y=c.head?0.125:0.105;
       const home=new T.Mesh(ovG,matHome[0]);home.position.set(c.x,y+0.002,c.z);home.rotation.y=c.yaw;home.visible=false;home.renderOrder=2;
       const dest=new T.Mesh(dG,matDest);dest.position.set(c.x,y+0.004,c.z);dest.rotation.y=c.yaw;dest.visible=false;dest.renderOrder=3;
       const wall=new T.Mesh(wG,matWall[0]);wall.position.set(c.x,y,c.z);wall.rotation.y=c.yaw;wall.visible=false;wall.renderOrder=4;
-      boardG.add(home,dest,wall);cellOv.push({home,dest,wall});
+      const lock=new T.Mesh(lockG,matLock[0]);lock.position.set(c.x,y+0.003,c.z);lock.rotation.y=c.yaw;lock.visible=false;lock.renderOrder=2;
+      boardG.add(home,dest,wall,lock);cellOv.push({home,dest,wall,lock});
     });
     // ── депо невиведених фігур (хрест на великій, стійки на інших) + місток між нейтральними Кутами ──
     const padG=roundedBox(L.kind==='tri'?0.86:0.9,0.07,L.kind==='tri'?0.86:0.9,0.025,Q.lambert?2:3);padG.translate(0,0.035,0);
@@ -2967,7 +3214,8 @@ const V3=(function(){
   // Іконки смуги статусу (векторні — однакові на всіх пристроях)
   function drawStrip(p){
     const pl=S.players[p];if(!pl||!stripTex[p])return;
-    const key=[pl.type,pl.letters,pl.energy,pl.activeShield,pl.mutedThisTurn,pl.nextRollPenalty,pl.nextRollBonus,S.activePlayer===p].join('|');
+    const hasWall=(S.tempWalls||[]).some(w=>w.owner===p);
+    const key=[pl.type,pl.letters,pl.energy,pl.activeShield,pl.mutedThisTurn,pl.muteNext,pl.nextRollPenalty,pl.nextRollBonus,pl.safe,pl.iced,pl.iceNext,pl.sleepNext,pl.nextRollSleep,pl.nextRollExtra,pl.fastTurn,hasWall,S.activePlayer===p].join('|');
     if(stripState[p]===key)return;stripState[p]=key;
     const tex=stripTex[p],g=tex.userData.ctx,col=pl.color||'#fff';
     g.clearRect(0,0,384,128);
@@ -2977,7 +3225,9 @@ const V3=(function(){
     cell(0,()=>{g.strokeStyle='#22d3ee';g.lineWidth=5;g.strokeRect(36,20,56,36);g.beginPath();g.moveTo(36,20);g.lineTo(64,42);g.lineTo(92,20);g.stroke();num(pl.letters,'#22d3ee');});
     cell(1,()=>{g.fillStyle='#fbbf24';g.beginPath();g.moveTo(70,14);g.lineTo(46,44);g.lineTo(62,44);g.lineTo(54,62);g.lineTo(82,30);g.lineTo(66,30);g.closePath();g.fill();num(pl.energy,'#fbbf24');});
     cell(2,()=>{
-      const st=[];if(pl.activeShield==='DEF')st.push('shield');if(pl.activeShield==='MIR')st.push('mirror');if(pl.mutedThisTurn)st.push('mute');if(pl.nextRollPenalty==='ones')st.push('d1');if(pl.nextRollBonus==='sixes')st.push('d6');
+      const st=[];if(pl.activeShield==='DEF')st.push('shield');if(pl.activeShield==='MIR')st.push('mirror');if(pl.safe)st.push('safe');if(pl.sleepNext)st.push('sleep');
+      if(pl.mutedThisTurn||pl.muteNext)st.push('mute');if(pl.iced||pl.iceNext)st.push('ice');if(pl.nextRollPenalty==='ones')st.push('d1');if(pl.nextRollBonus==='sixes')st.push('d6');
+      if(pl.nextRollSleep)st.push('zz');if(pl.nextRollExtra)st.push('go');if(pl.fastTurn)st.push('fast');if(hasWall)st.push('wall');
       if(!st.length){g.fillStyle='rgba(148,163,184,0.35)';g.font='700 22px monospace';g.textAlign='center';g.fillText('—',64,68);return;}
       st.slice(0,4).forEach((s,i)=>{const x=st.length===1?64:i%2?88:40,y=st.length<=2?64:i<2?40:88,sz=st.length===1?30:20;icon(g,s,x,y,sz);});
     });
@@ -2985,6 +3235,14 @@ const V3=(function(){
   }
   function icon(g,s,x,y,sz){
     g.save();g.translate(x,y);g.lineWidth=4;
+    // нові стани (закляття v20) — прості векторні значки, однакові на всіх пристроях
+    const txt=(t,c)=>{g.fillStyle=c;g.font=`900 ${Math.round(sz*0.95)}px monospace`;g.textAlign='center';g.textBaseline='middle';g.fillText(t,0,sz*0.05);};
+    if(s==='safe'){g.strokeStyle='#34d399';g.fillStyle='rgba(52,211,153,0.3)';g.beginPath();g.moveTo(0,-sz*0.85);g.lineTo(sz*0.9,sz*0.75);g.lineTo(-sz*0.9,sz*0.75);g.closePath();g.fill();g.stroke();g.beginPath();g.moveTo(0,-sz*0.2);g.lineTo(sz*0.3,sz*0.75);g.lineTo(-sz*0.3,sz*0.75);g.closePath();g.fillStyle='#34d399';g.fill();g.restore();return;}
+    if(s==='ice'){g.strokeStyle='#a5f3fc';for(let k=0;k<3;k++){g.save();g.rotate(k*Math.PI/3);g.beginPath();g.moveTo(0,-sz*0.9);g.lineTo(0,sz*0.9);g.moveTo(-sz*0.25,-sz*0.65);g.lineTo(0,-sz*0.42);g.lineTo(sz*0.25,-sz*0.65);g.stroke();g.restore();}g.restore();return;}
+    if(s==='sleep'){txt('Zz','#c4b5fd');g.restore();return;}
+    if(s==='zz'||s==='go'){g.strokeStyle=s==='go'?'#34d399':'#fb7185';rrect(g,-sz*0.85,-sz*0.85,sz*1.7,sz*1.7,sz*0.3);g.stroke();txt(s==='go'?'+1':'-2',s==='go'?'#34d399':'#fb7185');g.restore();return;}
+    if(s==='fast'){g.strokeStyle='#fbbf24';g.lineWidth=5;[-0.35,0.35].forEach(o=>{g.beginPath();g.moveTo(sz*(o-0.35),-sz*0.6);g.lineTo(sz*(o+0.25),0);g.lineTo(sz*(o-0.35),sz*0.6);g.stroke();});g.restore();return;}
+    if(s==='wall'){g.fillStyle='#f59e0b';for(let r=0;r<3;r++)for(let c=0;c<2;c++){const ox=(r%2?-sz*0.4:0);g.fillRect(-sz*0.85+ox+c*sz*0.9,-sz*0.8+r*sz*0.56,sz*0.8,sz*0.46);}g.restore();return;}
     if(s==='shield'){g.fillStyle='#fbbf24';g.beginPath();g.moveTo(0,-sz);g.lineTo(sz*0.85,-sz*0.6);g.lineTo(sz*0.7,sz*0.35);g.lineTo(0,sz);g.lineTo(-sz*0.7,sz*0.35);g.lineTo(-sz*0.85,-sz*0.6);g.closePath();g.fill();}
     else if(s==='mirror'){g.strokeStyle='#a5f3fc';g.fillStyle='rgba(165,243,252,0.35)';g.beginPath();g.ellipse(0,0,sz*0.6,sz*0.9,0,0,Math.PI*2);g.fill();g.stroke();}
     else if(s==='mute'){g.fillStyle='#f43f5e';g.strokeStyle='#f43f5e';g.beginPath();g.moveTo(-sz*0.8,-sz*0.3);g.lineTo(-sz*0.35,-sz*0.3);g.lineTo(sz*0.1,-sz*0.75);g.lineTo(sz*0.1,sz*0.75);g.lineTo(-sz*0.35,sz*0.3);g.lineTo(-sz*0.8,sz*0.3);g.closePath();g.fill();g.beginPath();g.moveTo(sz*0.35,-sz*0.4);g.lineTo(sz*0.9,sz*0.4);g.moveTo(sz*0.9,-sz*0.4);g.lineTo(sz*0.35,sz*0.4);g.stroke();}
@@ -3179,7 +3437,7 @@ const V3=(function(){
       for(const dest of ds){
         if(seen.has(dest))continue;seen.add(dest);
         let best=-1;
-        free.forEach(i=>{const v=S.dice[i];const st=pc.type==='P'?1:pc.type==='E'?v*2:v;if(mod(pc.pos+st*dir)!==dest)return;if(best<0||(pc.type==='P'&&v<S.dice[best]))best=i;});
+        free.forEach(i=>{const v=S.dice[i];const st=pieceSteps(pc,v);if(mod(pc.pos+st*dir)!==dest)return;if(best<0||(pc.type==='P'&&v<S.dice[best]))best=i;});
         if(best<0)continue;
         destList.push({pos:dest,die:best,dir,label:(dir<0?'◀':'')+'🎲'+S.dice[best]+(pc.type==='E'?'×2':''),alt:dir!==S.queenDir});
       }
@@ -3191,8 +3449,12 @@ const V3=(function(){
     S.players.forEach(p=>{if(p.type==='EMPTY'||!inPhase2(p.id))return;for(let k=LY.N-HOME_LEN;k<LY.N;k++)homeOf[mod(p.offset+k)]=p.id;});
     computeDests();
     const dmap={};destList.forEach(d=>{dmap[d.pos]=d;});
+    // закриті точки: клітина → власник, якщо там 2+ його виведених фігур
+    const cnt={},lockOf={};
+    S.pieces.forEach(p=>{if(p.status!=='BOARD'||!p.moved)return;const k=p.pos+'|'+p.owner;cnt[k]=(cnt[k]||0)+1;if(cnt[k]===2)lockOf[p.pos]=p.owner;});
     for(let s=0;s<LY.N;s++){
       const ov=cellOv[s];if(!ov)continue;
+      const lo=lockOf[s];if(ov.lock){ov.lock.visible=lo!==undefined;if(lo!==undefined)ov.lock.material=matLock[lo];}
       const h=homeOf[s];ov.home.visible=h!==undefined;if(h!==undefined)ov.home.material=matHome[h];
       const d=dmap[s];ov.dest.visible=!!d;if(d)ov.dest.material=d.alt?matDestAlt:matDest;
       const w=phs.find(x=>x.pos===s);ov.wall.visible=!!w;if(w)ov.wall.material=matWall[w.owner];
@@ -3577,22 +3839,56 @@ const V3=(function(){
   }
   // Розкладка екрана: поле + «камера кубиків» (крупний вид активного лотка)
   let inset={x:0,y:0,w:0,h:0,on:false};
+  // Картка наставника (підказки) має СВОЄ місце: у портреті — між лотком і рядком повідомлень
+  // (лоток стає нижчим, поле не міняється), в альбомі — над лотком у правій колонці.
+  // coachH — плавна висота (px), coachBox — куди її ставити.
+  let coachH=0,coachBox=null,coachW=0;
+  const COACH_EST=112; // оцінка висоти картки у вузькій колонці — режим розкладки від неї не «гойдається»
   function safeRect(){
     const hud=document.getElementById('hud-top');
     const top=(hud&&hud.offsetHeight?hud.getBoundingClientRect().bottom:46)+4;
     const portrait=vpH>=vpW*1.05,need=LY&&LY.offTrays; // окремі лотки видно лише у крупному виді — він потрібен завжди
+    const cg=coachH>0.5?Math.round(coachH)+8:0;
     if(portrait){
       const bottom=vpH-96;
       let ih=Math.round(Math.min(0.34*vpH,0.72*vpW,bottom-top-0.78*vpW));
       if(need)ih=Math.max(ih,Math.round(Math.min(0.27*vpH,0.6*vpW,160)));
-      inset={x:8,y:bottom-ih,w:vpW-16,h:ih,on:ih>=(need?80:120)};
-      return{l:4,r:vpW-4,t:top,b:inset.on?inset.y-6:bottom,portrait:true};
+      const minH=need?80:120;
+      if(cg)ih=Math.max(Math.min(ih,minH),ih-cg);
+      inset={x:8,y:bottom-cg-ih,w:vpW-16,h:ih,on:ih>=minH};
+      const cw=Math.min(vpW-16,540);coachW=cw;
+      coachBox=cg?{x:(vpW-cw)/2,y:bottom-cg+4,w:cw}:null;
+      return{l:4,r:vpW-4,t:top,b:inset.on?inset.y-6:bottom-cg,portrait:true};
     }
     const bottom=vpH-88;
     let iw=Math.round(Math.min(0.32*vpW,(bottom-top)*1.4,430)),ih=Math.round(Math.min(iw*0.76,bottom-top));
     if(need&&(iw<170||ih<120)){iw=Math.round(Math.max(iw,Math.min(0.34*vpW,240)));ih=Math.round(Math.min(iw*0.76,Math.max(90,bottom-top)));}
-    inset={x:vpW-iw-8,y:bottom-ih,w:iw,h:ih,on:need?(iw>=110&&ih>=80):(iw>=170&&ih>=120)};
-    return{l:4,r:inset.on?inset.x-6:vpW-4,t:top,b:bottom,portrait:false};
+    const minW=need?110:170,minH=need?80:120;
+    // чи є лоток і де картка — вирішуємо за геометрією екрана, а НЕ за висотою картки (інакше розкладка «гойдається»)
+    const on0=iw>=minW&&ih>=minH,colMode=on0&&ih-COACH_EST>=Math.round(minH*0.75);
+    if(on0){
+      if(cg&&colMode)ih=Math.max(Math.round(minH*0.75),ih-cg);
+      inset={x:vpW-iw-8,y:bottom-ih,w:iw,h:ih,on:true};
+      if(colMode){coachW=iw;coachBox=cg?{x:inset.x,y:inset.y-cg+2,w:iw}:null;return{l:4,r:inset.x-6,t:top,b:bottom,portrait:false};}
+      // низький альбомний екран (телефон боком): поле впирається у висоту, тож збоку від нього є місце —
+      // картка стає вузькою колонкою ліворуч від поля, і поле не зменшується
+      const cw=Math.round(Math.max(170,Math.min(240,(inset.x-12)*0.36)));coachW=cw;
+      coachBox=cg?{x:6,y:Math.max(top+2,bottom-cg+4),w:cw}:null;
+      return{l:cg?cw+14:4,r:inset.x-6,t:top,b:bottom,portrait:false};
+    }
+    inset={x:vpW-iw-8,y:bottom-ih,w:iw,h:ih,on:false};
+    const cw=Math.min(vpW-16,540);coachW=cw;
+    coachBox=cg?{x:(vpW-cw)/2,y:bottom-cg+4,w:cw}:null;
+    return{l:4,r:vpW-4,t:top,b:bottom-cg,portrait:false};
+  }
+  // ширина картки при поточній розкладці (для виміру висоти тексту) — з останнього розрахунку
+  function coachWidth(){return coachW||Math.min(vpW-16,540);}
+  function updCoach(dt){
+    if(typeof COACH==='undefined')return false;
+    const want=COACH.reserve(coachWidth());
+    const d=want-coachH;
+    if(Math.abs(d)>0.5){coachH+=d*Math.min(1,dt*14+0.08);if(Math.abs(want-coachH)<0.5)coachH=want;return true;}
+    coachH=want;return false;
   }
   function placeCam(az,el,d,tg){
     cam.position.set(tg.x+Math.sin(az)*Math.cos(el)*d,tg.y+Math.sin(el)*d,tg.z+Math.cos(az)*Math.cos(el)*d);
@@ -3639,7 +3935,7 @@ const V3=(function(){
   let fitKey='';
   function updCamera(dt,force){
     const c=camTarget();
-    const key=vpW+'x'+vpH+'|'+c.az.toFixed(3)+'|'+c.el.toFixed(3)+'|'+(document.getElementById('hud-top')?.offsetHeight||0)+'|'+LY.id;
+    const key=vpW+'x'+vpH+'|'+c.az.toFixed(3)+'|'+c.el.toFixed(3)+'|'+(document.getElementById('hud-top')?.offsetHeight||0)+'|'+LY.id+'|'+Math.round(coachH);
     if(key!==fitKey||needFit){fitKey=key;needFit=false;const f=fitCamera(c.az,c.el);fitD=f.d;fitShift=f.tg;}
     if(!usrPan)usrPan=new T.Vector3();
     const want=fitShift.clone().add(usrPan);
@@ -3705,7 +4001,8 @@ const V3=(function(){
     if(!frameEl)frameEl=document.getElementById('dice-frame');
     if(!cpEl)cpEl=document.getElementById('center-panel');
     if(!frameEl)return;
-    if(!inset.on||!active){frameEl.style.display='none';if(cpEl){cpEl.style.top='';cpEl.style.left='';cpEl.style.bottom='';cpEl.style.transform='';}return;}
+    // без лотка кнопка кидка стоїть унизу по центру — піднімаємо її над смугою підказки
+    if(!inset.on||!active){frameEl.style.display='none';if(cpEl){cpEl.style.top='';cpEl.style.left='';cpEl.style.transform='';cpEl.style.bottom=coachH>0.5&&active?`calc(${Math.round(coachH)+110}px + env(safe-area-inset-bottom))`:'';}return;}
     frameEl.style.display='';
     frameEl.style.left=inset.x+'px';frameEl.style.top=inset.y+'px';frameEl.style.width=inset.w+'px';frameEl.style.height=inset.h+'px';
     const p=S.players[insetOwner()];
@@ -3984,7 +4281,9 @@ const V3=(function(){
     lastProcT=t;
     const rawDt=(t-(lastT||t));lastT=t;const dt=Math.min(0.05,rawDt/1000);
     resize();
-    const camMoving=updCamera(dt);
+    const coachMoving=updCoach(dt);
+    const camMoving=updCamera(dt)||coachMoving;
+    if(typeof COACH!=='undefined')COACH.place(coachBox,coachH);
     if(inset.on){fitDiceCam();}
     placeFrame3();placeSpellHud();
     if(pk){pkPos=pkPos&&!camMoving&&!gesture?pkPos:'';positionPicker();if(focusM)focusM.material.opacity=0.55+0.4*Math.sin(t*0.009);}
@@ -3997,7 +4296,7 @@ const V3=(function(){
     matDest.opacity=0.45+0.4*pulse;matDestAlt.opacity=0.3+0.3*pulse;
     if(haloGold){haloGold.opacity=0.45+0.5*pulse;haloRose.opacity=0.5+0.5*pulse;}
     ringMov.forEach(m=>m.opacity=0.3+0.45*pulse);if(ringSel)ringSel.opacity=0.75+0.25*pulse;
-    matWall.forEach(m=>m.opacity=0.42+0.22*Math.sin(t*0.004));matGhost.forEach(m=>m.opacity=0.2+0.15*Math.sin(t*0.004+1));
+    matWall.forEach(m=>m.opacity=0.42+0.22*Math.sin(t*0.004));matLock.forEach(m=>m.opacity=0.85+0.15*Math.sin(t*0.003));matGhost.forEach(m=>m.opacity=0.2+0.15*Math.sin(t*0.004+1));
     trayRim.forEach((m,p)=>{if(!m)return;const act=S.activePlayer===p&&S.players[p]?.type!=='EMPTY';m.opacity=act?0.45+0.4*pulse:0.18;});
     if(coreOrb){coreOrb.rotation.y+=dt*0.8;coreOrb.rotation.x+=dt*0.3;coreOrb.position.y=0.48+Math.sin(t*0.002)*0.06;coreRing.rotation.z+=dt*0.25;}
     if(dust)dust.rotation.y+=dt*0.015;
@@ -4103,7 +4402,7 @@ const V3=(function(){
   }
   function busy(){return diceBusy()||piecesBusy();}
   function piecesBusy(){const t=now();let b=false;P3.forEach(o=>{if(o.queue.length&&o.animEnd>t)b=true;});return b;}
-  return{init,enter,sync,busy,diceBusy,piecesBusy,physThrow,dieH,swipeTarget,swipeMap,cycleCam,preview,disposePreviews,applyGfx,
+  const API={init,enter,sync,busy,diceBusy,piecesBusy,physThrow,dieH,swipeTarget,swipeMap,cycleCam,preview,disposePreviews,applyGfx,
     get ready(){return ready;},setActive(v){active=v;if(!v)closePicker();},TYPE_NAME,closePicker,
     _debug:()=>({TH,P3,cam,scene,R,destList,fxList,LY,Q,qLog,curDpr,trayG,rafBase}),
     _freeze(sec){dbgFreeze=sec;},
@@ -4114,12 +4413,16 @@ const V3=(function(){
     _pick(x,y){const h=pick(x,y);return{h,cell:resolveCell(h),target:isTapTarget(h),pk:!!pk};},
     _diceTop(){if(!TH)return null;const q=new T.Quaternion();return TH.dice.map(d=>{d.mesh.getWorldQuaternion(q);let best=-2,val=0;for(const v of[1,2,3,4,5,6]){const n=new T.Vector3(...FACE_N[v]).applyQuaternion(q);if(n.y>best){best=n.y;val=v;}}return val;});},
     _diceInfo(){if(!TH)return null;return{phase:TH.phase,n:TH.dice.length,pos:TH.dice.map(d=>[d.mesh.position.x,d.mesh.position.y,d.mesh.position.z])};},
+    scrPiece(id){return API._scrPiece(id);},scrCell(s){return LY?API._scrCell(s):null;},scrDie(i){return API._scrDie(i);},
+    insetRect(){return inset.on?{x:inset.x,y:inset.y,w:inset.w,h:inset.h}:null;},
+    boardRect(){if(!LY)return null;const b=projBounds();return{x:b.x0,y:b.y0,w:b.x1-b.x0,h:b.y1-b.y0};},
     _scr(x,y,z){const v=new T.Vector3(x,y,z).project(cam);return[(v.x+1)/2*vpW,(1-v.y)/2*vpH];},
     _scrPiece(id){const o=P3.get(id);if(!o)return null;const v=o.grp.position.clone();v.y+=0.25*o.scl;v.project(cam);return[(v.x+1)/2*vpW,(1-v.y)/2*vpH];},
     _scrCell(s){const c=LY.ring[mod(s)];const v=new T.Vector3(c.x,0.12,c.z).project(cam);return[(v.x+1)/2*vpW,(1-v.y)/2*vpH];},
     _scrTail(owner,lvl){const st=seatOfPlayer(owner),t=st&&st.tails[lvl];if(!t)return null;const v=new T.Vector3(t.x,0.12,t.z).project(cam);return[(v.x+1)/2*vpW,(1-v.y)/2*vpH];},
     _scrDie(i){if(!TH)return null;const d=TH.dice.find(q=>q.idx===i);if(!d)return null;const v=d.mesh.getWorldPosition(new T.Vector3());if(inset.on&&dcam){v.project(dcam);return[inset.x+(v.x+1)/2*inset.w,inset.y+(1-v.y)/2*inset.h];}v.project(cam);return[(v.x+1)/2*vpW,(1-v.y)/2*vpH];},
     _cam(o){if(o.zoom!=null)usrZoom=o.zoom;if(o.az!=null)usrAz=o.az;if(o.el!=null)usrEl=o.el;if(o.pan){if(!usrPan)usrPan=new T.Vector3();usrPan.set(o.pan[0],0,o.pan[1]);}if(o.mode)camMode=o.mode;curAz=null;}};
+  return API;
 })();
 
 // ═══════════════════════════════════════════════════════════════
@@ -4145,9 +4448,16 @@ function renderHUD(){
     const me=!isHotseat&&!isSpectator&&p.id===localPlayerId;
     let st='';
     if(p.activeShield)st+=p.activeShield==='DEF'?'🛡':'🪞';
-    if(p.mutedThisTurn)st+='🔇';
+    if(p.safe)st+='⛺';
+    if(p.sleepNext)st+='😴';
+    if(p.mutedThisTurn||p.muteNext)st+='🔇';
+    if(p.iced||p.iceNext)st+='🧊';
     if(p.nextRollPenalty==='ones')st+='🎲1';
     if(p.nextRollBonus==='sixes')st+='🎲6';
+    if(p.nextRollSleep)st+='💤';
+    if(p.nextRollExtra)st+='🚀';
+    if(p.fastTurn)st+='🏃';
+    if((S.tempWalls||[]).some(w=>w.owner===p.id))st+='🧱';
     const sig=p.name==='СИГМА';
     const tag=p.type==='AI'?('🤖 '+(botProfile(p).label||'')):(me?'👤 ВИ':'👤');
     return `<div class="pc${active?' act':''}${sig?' sig':''}" style="--c:${sig?'#a78bfa':p.color}">
@@ -4216,6 +4526,319 @@ function lobbyCountHTML(cnt,bd){
   return `<span style="color:${ok?'var(--em)':'#fbbf24'}">У грі: ${cnt} · на цій дошці ${bd.players}</span>`;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// НАСТАВНИК — навчання, вбудоване в гру: з першого ходу підказує, що робити, крок за кроком.
+// Рівні: «повні» (вступ + усі поради), «головні» (лише найважливіше), «вимкнені».
+// Перемикач — 💡 у грі (вгорі праворуч) і в головному меню; у самій картці — «менше» / «вимкнути».
+// Кожна підказка показується один раз (пам'ять пристрою); «↺ з початку» — скидає.
+// Картка має власну смугу на екрані (V3 зменшує лоток під неї) — поле й кубики не закриває,
+// а кільце-вказівник лише підсвічує, куди тапати (дотики проходять крізь нього).
+// Події, які відбулись на інших пристроях (онлайн), наставник бачить за зміною стану S.
+// ═══════════════════════════════════════════════════════════════
+const COACH=(function(){
+  const LV=['full','main','off'];
+  const LV_NAME={full:'ПОВНІ',main:'ГОЛОВНІ',off:'ВИМКНЕНІ'};
+  const LV_DESC={full:'навчання й усі поради',main:'лише найважливіше',off:'без підказок'};
+  const TYPE_NAME={P:'Пішак',E:'Слон',R:'Ладья',K:'Конь',Q:'Королева'};
+  let level='full',seen={},cur=null,curT=0,lastHideT=0,ev=[],snap=null,modalOpen=false,turnsSeen=0,lastTurnKey='',moveSeq0=null;
+  let el=null,ptr=null,pop=null,mH={},timer=null;
+  try{const v=localStorage.getItem('vessel_hints');if(LV.includes(v))level=v;seen=JSON.parse(localStorage.getItem('vessel_hints_seen')||'{}')||{};}catch(e){seen={};}
+  function save(){try{localStorage.setItem('vessel_hints',level);localStorage.setItem('vessel_hints_seen',JSON.stringify(seen));}catch(e){}}
+
+  // ── хто «я» для підказок ──
+  function meId(){
+    if(typeof isSpectator!=='undefined'&&isSpectator)return null;
+    if(typeof S==='undefined'||!S.players)return null;
+    if(!isHotseat&&localPlayerId!=null)return localPlayerId;
+    const ap=S.players[S.activePlayer];if(ap&&ap.type==='HUMAN')return ap.id;
+    const h=S.players.find(p=>p.type==='HUMAN');return h?h.id:null;
+  }
+  const inGame=()=>{const g=document.getElementById('game-screen');return !!(g&&g.style.display==='block')&&!gameOver;};
+  const myTurn=()=>{try{return canControl();}catch(e){return false;}};
+  const busy=()=>{try{return V3.diceBusy();}catch(e){return false;}};
+  const mine=(me,f)=>S.pieces.filter(p=>p.owner===me&&(!f||f(p)));
+  const movable=me=>mine(me,p=>p.status==='BOARD').filter(p=>{try{return getValidDests(p.id).length>0;}catch(e){return false;}});
+  const destsNow=()=>{try{return V3._debug().destList||[];}catch(e){return[];}};
+  const nm=id=>(S.players[id]&&S.players[id].name)||'?';
+  const kindWord={self:'на тебе',target:'на ціль',all:'на всіх одразу'};
+
+  // ── каталог підказок ──
+  // lv: 'main' — головна (є і в «повних»), 'full' — лише в «повних».
+  // when(me) — коли доречна; done(me) — дія виконана (підказка зникає й більше не з'являється);
+  // info — лише пояснення (кнопка ✓, сама ховається через ~11 с); at(me) — куди вказати кільцем.
+  const H=[
+    {id:'intro1',lv:'main',seq:true,when:()=>true,title:'Мета гри',
+      text:()=>'Проведи дві свої Королеви повне коло по дошці й поверни на старт — це Вознесіння. Хто першим вознесе обох — переміг.'},
+    {id:'intro2',lv:'full',seq:true,when:()=>true,title:'Як ходити',
+      text:()=>'Кинь кубики → обери фігуру, що світиться кільцем → тапни підсвічену клітину. Кожен кубик — окремий крок.'},
+    {id:'intro3',lv:'full',seq:true,when:()=>true,title:'Підказки',
+      text:()=>'Я підказуватиму тут, по ходу гри — поле й кубики не закриваю. 💡 вгорі праворуч: повні, лише головні або вимкнені.'},
+    {id:'roll',lv:'main',when:me=>myTurn()&&S.gameState==='ROLL'&&!busy(),done:()=>S.gameState!=='ROLL',title:'Твій хід',
+      text:()=>'Тапни «🎲 КИНУТИ КУБИКИ» у лотку. Кубики фізичні — рахується грань, що впала догори.',at:()=>({el:'.roll-btn'})},
+    {id:'energy',lv:'main',when:me=>myTurn()&&S.gameState==='ENERGY'&&!busy(),done:()=>S.gameState!=='ENERGY',title:'Енергія ⚡',
+      text:me=>`У тебе ⚡${S.players[me].energy}. Тапни кубик у лотку — уся енергія додасться до нього (+${S.players[me].energy} до значення).`,at:()=>({inset:true})},
+    {id:'noise',lv:'main',when:()=>myTurn()&&S.entropyTargetIdx!=null&&S.gameState==='MOVE',done:()=>S.entropyTargetIdx==null,title:'Шум ⏳',
+      text:()=>'Ти довго думаєш — найбільший кубик «тане» (рожевий) і перевертається на меншу грань. Ходи, інакше система піде за тебе.',at:()=>({die:S.entropyTargetIdx})},
+    {id:'ascend',lv:'main',when:me=>myTurn()&&S.gameState==='MOVE'&&!busy()&&canAscend(me)&&mine(me,p=>p.type==='Q'&&p.status==='BOARD').some(q=>{try{return getValidDests(q.id).includes(S.players[me].offset);}catch(e){return false;}}),
+      done:()=>!myTurn(),title:'Вознесіння ♛',text:()=>'Королева може Вознестися! Обери її й тапни свій старт із числом 🎲 (потрібен точний кубик).',at:me=>({cell:S.players[me].offset})},
+    {id:'select',lv:'main',when:me=>myTurn()&&S.gameState==='MOVE'&&!busy()&&!localSelected&&movable(me).length>0,done:()=>!!localSelected,title:'Обери фігуру',
+      text:()=>'Фігури, які можуть ходити, світяться кільцем. Тапни клітину з такою фігурою (влучати точно у фігуру не треба).',
+      at:me=>{const m=movable(me);const p=m.find(x=>x.type==='P'&&x.moved)||m.find(x=>x.moved)||m[0];return p?{piece:p.id}:null;}},
+    {id:'move',lv:'main',when:me=>myTurn()&&S.gameState==='MOVE'&&!!localSelected&&destsNow().length>0,done:()=>moveSeq0!==null&&(S.moveSeq||0)>moveSeq0,title:'Куди йти',
+      text:()=>'Підсвічені клітини — куди фігура дійде; число 🎲 показує, яким кубиком. Тапни клітину або сам кубик у лотку.',
+      at:()=>{const d=destsNow()[0];return d?{cell:d.pos}:null;}},
+    {id:'more',lv:'full',when:me=>myTurn()&&S.gameState==='MOVE'&&!busy()&&(S.moveSeq||0)>0&&(S.diceUsed||[]).some(u=>u)&&(S.diceUsed||[]).some(u=>!u),done:()=>!myTurn()||S.gameState!=='MOVE',info:true,title:'Ще кубики',
+      text:()=>'Кожен кубик — окремий хід: обирай фігуру й ходи далі. Нема куди піти — з\'явиться «ПРОПУСК».'},
+    {id:'skip',lv:'full',when:()=>{const b=document.getElementById('skip-btn');return myTurn()&&!!b&&!b.classList.contains('hidden');},done:()=>!myTurn()||S.gameState!=='MOVE',title:'Нема ходу',
+      text:()=>'Жоден з кубиків, що лишились, не дає ходу. Тапни «ПРОПУСК» — хід перейде далі.',at:()=>({el:'#skip-btn'})},
+    {id:'dice',lv:'full',when:me=>myTurn()&&S.gameState==='MOVE'&&!busy()&&(S.moveSeq||0)>0,info:true,title:'Скільки кубиків',
+      text:()=>'Кубиків = 2 + стільки різних клітин, на яких стоять твої виведені пішаки (до 10). Однакові значення — дубль: летить ще стільки ж.',at:()=>({inset:true})},
+    {id:'pc_P',lv:'full',when:()=>selType()==='P',info:true,title:'Пішак',text:()=>'Ходить рівно на 1 клітину будь-яким кубиком. Пішаки на різних клітинах дають більше кубиків, а згоряючи — ⚡ і ✉.',at:()=>({piece:localSelected})},
+    {id:'pc_E',lv:'full',when:()=>selType()==='E',info:true,title:'Слон',text:()=>'Іде на значення кубика ×2. Перетинаючи Кут, спалює твого найвідсталішого пішака: +1⚡ +1✉.',at:()=>({piece:localSelected})},
+    {id:'pc_R',lv:'full',when:()=>selType()==='R',info:true,title:'Ладья',text:()=>'Іде на значення кубика. Дві твої Ладьї на відстані до 4 клітин ставлять ефірну стіну — між ними ворогу не стати.',at:()=>({piece:localSelected})},
+    {id:'pc_K',lv:'full',when:()=>selType()==='K',info:true,title:'Конь',text:()=>'Стрибає на суму ВСІХ невитрачених кубиків і витрачає їх усі за раз. Далеко, але цей хід — останній.',at:()=>({piece:localSelected})},
+    {id:'pc_Q',lv:'full',when:()=>selType()==='Q',info:true,title:'Королева',text:()=>'Ходить уперед і назад (◀ НАЗАД / ВПЕРЕД ▶, бурштинові клітини — назад). Єдина б\'є: одинака — на старт; Королева на Королеву — обидві на старт.',at:()=>({piece:localSelected})},
+    {id:'phase2',lv:'main',when:me=>inPhase2(me),info:true,title:'Фаза 2 · дім 🏠',
+      text:()=>'Пішаків більше нема. Заведи всі фігури в дім — клітини з рамкою твого кольору перед стартом. Там фігури вже не задкують.',
+      at:me=>({cell:(S.players[me].offset-1+PERIMETER)%PERIMETER})},
+    {id:'letters',lv:'main',when:me=>myTurn()&&!busy()&&S.players[me].letters>=2&&!S.players[me].spellCastThisTurn,info:true,title:'Можна чаклувати ✨',
+      text:me=>`У тебе ✉${S.players[me].letters} — вистачає на закляття (ціна = кількість літер). Відкрий 📖 Гримуар: там слова й азбука Морзе.`,at:()=>({el:'#grimoire-btn'})},
+    {id:'opp',lv:'full',when:me=>!myTurn()&&S.players[S.activePlayer]&&S.activePlayer!==me&&!busy(),info:true,ttl:8,title:'Хід суперника',
+      text:()=>`Зараз ходить ${nm(S.activePlayer)}. Його кидок видно в лотку, а події — у рядку внизу (тап по ньому — журнал).`},
+    {id:'walls',lv:'full',when:me=>{try{return getPhantoms().some(w=>w.owner===me&&!w.temp);}catch(e){return false;}},info:true,title:'Стіна Ладей 🧱',
+      text:()=>'Дві твої Ладьї поставили ефірну стіну: на клітини між ними ворог не стане — там безпечно.',at:me=>{const w=getPhantoms().find(x=>x.owner===me&&!x.temp);return w?{cell:w.pos}:null;}},
+    {id:'lupa',lv:'full',when:()=>{const p=document.getElementById('cell-picker');return !!p&&!p.classList.contains('hidden');},info:true,title:'Лупа 🔍',
+      text:()=>'На клітині кілька фігур — обери потрібну великою кнопкою.'},
+    {id:'camera',lv:'full',when:()=>turnsSeen>=3&&myTurn()&&!busy(),info:true,title:'Огляд 🎥',
+      text:()=>'Два пальці — обертати й масштабувати поле. 🎥 вгорі — вид зверху або з твого боку.',at:()=>({el:'#cam-btn'})},
+  ];
+  // підказки-події (за зміною стану): {id, lv, title, text}
+  const EV={
+    burn:{lv:'main',title:'Пішак згорів 🔥',text:d=>`${({E:'Твій Слон перетнув',R:'Твоя Ладья перетнула',K:'Твій Конь перетнув'})[d.by]||'Твоя велика фігура перетнула'} Кут — найвідсталіший пішак згорів: +1⚡ і +1✉. ✉ (листи) — валюта заклинань.`,at:d=>({hud:d.me})},
+    point:{lv:'main',title:'Закрита точка',text:()=>'Дві твої фігури на одній клітині — як у нардах: клітина зайнята, чужа Королева сюди не стане й нікого не зіб\'є. Позначка — кутики навколо клітини.',at:d=>({cell:d.pos})},
+    captured:{lv:'main',title:'Твою фігуру збили',text:d=>`${d.by!=null?nm(d.by)+': ':''}Королева збила твою фігуру, що стояла сама — вона повернулась на старт. Тримай фігури парами (закрита точка) або за стіною Ладей.`},
+    sentback:{lv:'full',title:'Відкат на старт',text:d=>`Закляття ${d.word||''} повернуло твою фігуру на старт. Від прицільних заклять (🎯) захищає MIR — дзеркало.`},
+    hit:{lv:'full',title:'Удар!',text:()=>'Твоя Королева збила одинака — він іде на старт, а тобі +1✉. Королева на Королеву — обидві йдуть на старт.'},
+    spellme:{lv:'full',title:'На тебе закляття',text:d=>{const sp=GR[d.word];return `${nm(d.caster)} прочитав на тебе ${d.word}${sp?' — '+sp.desc:''}. Захист: MIR відбиває прицільні атаки; OK знімає AF, ZZ та ICE.`;}},
+    myspell:{lv:'full',title:'Закляття спрацювало ✨',text:d=>{const sp=GR[d.word];return `${d.word} (${sp?kindWord[sp.kind]:''}) — ✉${sp?sp.cost:''} витрачено. Одне закляття на хід; наступне — у наступному ході.`;}},
+    morse:{lv:'full',title:'Азбука Морзе',text:()=>'Літера — це · і – (вгорі видно, що набрано). Пауза 0,6 с — літера готова. Слово готове — свайпни в бік цілі (закляття «на себе» — свайп будь-куди).'},
+    badword:{lv:'full',title:'Нема такого слова',text:d=>`«${d.word}» нема в Гримуарі. Спроб — 3 на хід, ✉ за помилку не знімаються. Порада: GO = --. ---`},
+    shield:{lv:'full',title:'Щит 🛡',text:d=>d.mine?'Твій щит DEF зупинив удар ворожої Королеви — і зник.':'Удар не вдався: у цілі був щит DEF.'},
+  };
+  const selType=()=>{const p=localSelected&&S.pieces.find(x=>x.id===localSelected);return p&&myTurn()?p.type:null;};
+  const allowed=lv=>level!=='off'&&(level==='full'||lv==='main');
+
+  // ── картка й вказівник ──
+  function ensureEls(){
+    if(el)return;
+    el=document.createElement('div');el.id='coach';el.className='hidden';
+    el.innerHTML='<div class="co-t"><span class="co-ic">💡</span><b class="co-h"></b><span class="co-step"></span><span class="co-sp"></span><button class="co-l co-less" title="Лише головні підказки">менше</button><button class="co-l co-off" title="Вимкнути підказки">вимк.</button><button class="co-go"></button></div><div class="co-x"></div>'+
+      '<div class="co-ft"><button class="co-l co-less">менше підказок</button><button class="co-l co-off">вимкнути</button></div>';
+    document.body.appendChild(el);
+    el.querySelector('.co-go').onclick=e=>{e.stopPropagation();next(true);};
+    el.querySelectorAll('.co-less').forEach(b=>b.onclick=e=>{e.stopPropagation();setLevel('main',true);});
+    el.querySelectorAll('.co-off').forEach(b=>b.onclick=e=>{e.stopPropagation();setLevel('off',true);});
+    ['pointerdown','touchstart','mousedown'].forEach(t=>el.addEventListener(t,e=>e.stopPropagation(),{passive:true}));
+    ptr=document.createElement('div');ptr.id='coach-ptr';ptr.className='hidden';document.body.appendChild(ptr);
+  }
+  function render(){
+    ensureEls();if(!cur)return;
+    el.querySelector('.co-h').textContent=cur.title;
+    const steps=cur.seq?H.filter(h=>h.seq&&allowed(h.lv)):null;
+    el.querySelector('.co-step').textContent=steps&&steps.length>1?`${steps.indexOf(cur.def)+1}/${steps.length}`:'';
+    el.querySelector('.co-x').textContent=cur.text;
+    const last=steps&&steps.indexOf(cur.def)===steps.length-1;
+    el.querySelector('.co-go').textContent=cur.seq?(last?'Почнімо ›':'Далі ›'):(cur.info?'✓':'✕');
+    el.querySelector('.co-go').className='co-go'+(cur.seq||cur.info?' co-pri':'');
+    el.querySelectorAll('.co-less').forEach(b=>b.style.display=level==='full'?'':'none');
+    el.classList.remove('hidden');mH={};
+  }
+  // V3 питає: чи потрібне місце під картку і якої висоти (для ширини w)
+  function visible(){return !!cur&&!modalOpen&&level!=='off'&&inGame();}
+  let lastH=0;
+  function measure(w){
+    ensureEls();if(!cur)return 0;
+    const k=w+'|'+cur.key;if(mH[k])return mH[k];
+    const mh=el.style.maxHeight;el.style.maxHeight='none';el.style.width=w+'px';el.classList.toggle('narrow',w<300);
+    const h=el.offsetHeight||60;el.style.maxHeight=mh;mH={};mH[k]=h;lastH=h;return h;
+  }
+  // скільки місця тримати: висота картки; між двома підказками (≤1,2 с) місце не згортаємо — без «стрибків» поля
+  function reserve(w){
+    if(level==='off'||!inGame()||modalOpen)return 0;
+    if(cur)return measure(w);
+    return Date.now()-lastHideT<1200?lastH:0;
+  }
+  // V3 ставить картку в її смугу; без 3D — запасне місце над рядком повідомлень
+  let placed=false;
+  function place(box,h){
+    if(!el)return;placed=true;
+    if(!box||!cur){if(!cur)el.classList.add('hidden');el.style.opacity='0';if(ptr)ptr.classList.add('hidden');return;}
+    const full=measure(box.w)||1;
+    el.style.left=box.x+'px';el.style.top=box.y+'px';el.style.width=box.w+'px';el.style.bottom='auto';el.style.transform='none';
+    // поки смуга розкривається — картка «висувається» в неї (не заходить на лоток)
+    el.style.maxHeight=Math.max(0,Math.round(h))+'px';el.style.overflow=h<full-0.5?'hidden':'';
+    el.style.opacity=String(Math.max(0,Math.min(1,(h/full-0.35)/0.65)));
+    pointTo();
+  }
+  function screenOf(a){
+    if(!a)return null;
+    try{
+      if(a.el){const e=document.querySelector(a.el);if(!e||e.offsetParent===null&&getComputedStyle(e).position!=='fixed')return null;const r=e.getBoundingClientRect();if(!r.width)return null;return{x:r.left+r.width/2,y:r.top+r.height/2,w:r.width+12,h:r.height+12};}
+      if(a.hud!=null){const act=S.players.filter(p=>p.type!=='EMPTY');const i=act.findIndex(p=>p.id===a.hud);const c=document.getElementById('hud-top').children[i];if(!c)return null;const r=c.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2,w:r.width+10,h:r.height+10};}
+      if(a.inset){const r=V3.insetRect();return r?{x:r.x+r.w/2,y:r.y+r.h/2,r:Math.min(r.w,r.h)/2-6,soft:true}:null;}
+      if(a.piece){const p=V3.scrPiece(a.piece);return p?{x:p[0],y:p[1],r:26}:null;}
+      if(a.cell!=null){const p=V3.scrCell(a.cell);return p?{x:p[0],y:p[1],r:26}:null;}
+      if(a.die!=null){const p=V3.scrDie(a.die);return p?{x:p[0],y:p[1],r:22}:null;}
+    }catch(e){}
+    return null;
+  }
+  function pointTo(){
+    if(!ptr)return;
+    const tgt=cur&&cur.at&&!modalOpen?screenOf(cur.at):null;
+    if(!tgt||(el&&el.style.opacity==='0')){ptr.classList.add('hidden');return;}
+    // кнопки й картки — рамка за їхнім контуром; клітини, фігури, кубики — кільце
+    const w=Math.round(tgt.w||2*tgt.r),h=Math.round(tgt.h||2*tgt.r);
+    ptr.style.width=w+'px';ptr.style.height=h+'px';ptr.style.left=Math.round(tgt.x-w/2)+'px';ptr.style.top=Math.round(tgt.y-h/2)+'px';
+    ptr.className=tgt.soft?'soft':(tgt.w?'box':'');
+  }
+
+  // ── показ / приховування ──
+  function show(def,data){
+    const me=meId();
+    const arg=data!==undefined?Object.assign({me},data):me;   // підказка-подія отримує дані події, підказка-стан — «я»
+    const text=typeof def.text==='function'?def.text(arg):def.text;
+    cur={def,key:(def.id||def.evId)+'|'+text,title:def.title,text,info:!!def.info,seq:!!def.seq,
+      at:def.at?(()=>{try{return def.at(arg);}catch(e){return null;}})():null,
+      atFn:def.at?(()=>def.at(arg)):null};
+    curT=Date.now();cur.throw0=S.throwSeq||0;
+    if(def.id==='move')moveSeq0=S.moveSeq||0;
+    render();
+    // поки читаєш підказку у свій хід — «Шум» не починається (але підказку про сам Шум це не скасовує)
+    try{if(myTurn()&&def.id!=='noise'&&S.entropyTargetIdx==null)resetEntropy();}catch(e){}
+  }
+  function hide(markSeen){
+    if(!cur)return;
+    if(markSeen)seen[cur.def.id||cur.def.evId]=1;
+    save();cur=null;lastHideT=Date.now();moveSeq0=null;
+    if(!placed&&el)el.classList.add('hidden');
+    if(ptr)ptr.classList.add('hidden');
+  }
+  // кнопка картки: «Далі» / «✓» / «✕»
+  function next(user){
+    if(!cur)return;
+    const wasSeq=cur.seq;hide(true);
+    // вступ гортається одразу, без паузи
+    if(wasSeq){const nx=H.find(h=>h.seq&&!seen[h.id]&&allowed(h.lv));if(nx){show(nx);return;}}
+    if(user)setTimeout(update,30);
+  }
+
+  // ── стежимо за станом: події, що сталися будь-де (і онлайн) ──
+  function takeSnap(me){
+    const pts=new Set();const c={};
+    S.pieces.forEach(p=>{if(p.owner!==me||p.status!=='BOARD'||!p.moved)return;c[p.pos]=(c[p.pos]||0)+1;if(c[p.pos]===2)pts.add(p.pos);});
+    return{me,n:S.pieces.length,ext:mine(me,p=>p.status==='EXTRACTED').length,
+      moved:new Map(mine(me,p=>p.status==='BOARD'&&p.moved).map(p=>[p.id,p.pos])),pts,
+      lm:S.lastMove?S.lastMove.seq:0,ls:S.lastSpell?S.lastSpell.seq:0,ap:S.activePlayer};
+  }
+  function diffSnap(me){
+    const s=takeSnap(me),o=snap;snap=s;
+    if(!o||o.me!==me||o.n!==s.n||s.lm<o.lm)return; // нова гра / інший гравець
+    if(s.ext>o.ext)push('burn',{me,by:S.lastMove&&S.lastMove.type});
+    // фігура пішла на старт: удар Королеви (останній хід — на її клітину) або закляття
+    const spellNow=S.lastSpell&&s.ls>o.ls?S.lastSpell:null;
+    o.moved.forEach((pos,id)=>{
+      if(s.moved.has(id))return;const pc=S.pieces.find(p=>p.id===id);if(!pc||pc.status!=='BOARD'||pc.moved)return;
+      if(S.lastMove&&s.lm>o.lm&&S.lastMove.to===pos&&S.lastMove.type==='Q'){const mover=S.pieces.find(p=>p.id===S.lastMove.pcId);if(mover&&mover.owner!==me)push('captured',{me,by:mover.owner});}
+      else if(spellNow&&spellNow.caster!==me)push('sentback',{me,word:spellNow.word});
+    });
+    s.pts.forEach(pos=>{if(!o.pts.has(pos))push('point',{me,pos});});
+    if(spellNow){if(spellNow.target===me&&spellNow.caster!==me)push('spellme',{me,...spellNow});else if(spellNow.caster===me)push('myspell',{me,...spellNow});}
+    if(S.lastMove&&s.lm>o.lm&&S.lastMove.type==='Q'){const mover=S.pieces.find(p=>p.id===S.lastMove.pcId);if(mover&&mover.owner===me&&S.lastMove.capt)push('hit',{me});}
+  }
+  function push(id,data){const d=EV[id];if(!d||!allowed(d.lv)||seen['ev_'+id])return;if(ev.some(e=>e.id===id))return;ev.push({id,data});}
+
+  // ── головний цикл ──
+  function update(){
+    if(level==='off'){if(cur)hide(false);return;}
+    if(!inGame()){if(cur)hide(false);return;}
+    modalOpen=!!document.querySelector('#grimoire-modal:not(.hidden),#rules-modal:not(.hidden),#log-modal:not(.hidden),#win-screen:not(.hidden)');
+    const me=meId();if(me==null){if(cur)hide(false);return;}
+    const tk=S.activePlayer+'|'+(S.throwSeq||0);if(tk!==lastTurnKey){if(myTurn()&&S.gameState==='ROLL')turnsSeen++;lastTurnKey=tk;}
+    diffSnap(me);
+    const now=Date.now();
+    if(cur){
+      const d=cur.def;
+      if(d.done&&(()=>{try{return d.done(me);}catch(e){return false;}})()){hide(true);return;}
+      if(d.when&&!d.seq&&!d.info&&!(()=>{try{return d.when(me);}catch(e){return true;}})()){hide(now-curT>4000);return;}
+      const ttl=(d.ttl||(cur.info?11:0))*1000;
+      if(ttl&&now-curT>ttl){hide(true);return;}
+      // вступ: якщо гравець уже почав грати (кинув кубики) — вступ закінчено
+      if(cur.seq&&(S.throwSeq||0)!==cur.throw0&&S.throwInfo&&S.throwInfo.owner===me){H.forEach(h=>{if(h.seq)seen[h.id]=1;});hide(true);return;}
+      if(cur.atFn){try{cur.at=cur.atFn();}catch(e){}}
+      return;
+    }
+    if(modalOpen||now-lastHideT<450)return;
+    if(busy())return;
+    // спершу події, потім підказки за станом (у порядку каталогу)
+    while(ev.length){const e=ev.shift();if(seen['ev_'+e.id])continue;show({...EV[e.id],evId:'ev_'+e.id,info:true},e.data);return;}
+    for(const h of H){
+      if(seen[h.id]||!allowed(h.lv))continue;
+      if(h.seq&&h.id!=='intro1'&&!seen.intro1)continue;
+      let ok=false;try{ok=h.when(me);}catch(e){ok=false;}
+      if(!ok)continue;
+      if(h.done){let dn=false;try{dn=h.done(me);}catch(e){}if(dn&&h.id!=='move'){seen[h.id]=1;continue;}}
+      show(h);return;
+    }
+  }
+  function event(type,data){
+    // локальні події інтерфейсу; ігрові (удар, згоряння, закляття) наставник бачить за станом
+    const me=meId();if(me==null)return;
+    if(type==='grimoire'){seen.letters=1;save();if(cur&&cur.def.id==='letters')hide(true);}
+    else if(type==='badword'&&data&&data.by===me)push('badword',data);
+    else if(type==='shield'&&data&&(data.owner===me||data.by===me))push('shield',{mine:data.owner===me});
+    else if(type==='morse')push('morse',{});
+    setTimeout(update,0);
+  }
+
+  // ── рівні ──
+  function setLevel(v,toast){
+    if(!LV.includes(v))return;level=v;save();
+    if(v==='off'&&cur)hide(false);
+    if(v==='main'&&cur&&cur.def.lv!=='main')hide(false);
+    refresh();
+    if(toast&&typeof notify==='function')notify(v==='off'?'💡 Підказки вимкнено — увімкнути: 💡 вгорі праворуч':v==='main'?'💡 Лише головні підказки':'💡 Повні підказки');
+    setTimeout(update,50);
+  }
+  function cycle(){const i=LV.indexOf(level);setLevel(LV[(i+1)%LV.length],true);}
+  function reset(toast){seen={};ev=[];snap=null;turnsSeen=0;if(level==='off')level='full';save();refresh();if(cur)hide(false);if(toast&&typeof notify==='function')notify('💡 Підказки покажуться знову — з першого кроку');setTimeout(update,50);}
+  function refresh(){
+    const b=document.getElementById('coach-btn');if(b){b.className='lv-'+level;b.title='Підказки: '+LV_NAME[level].toLowerCase();}
+    const m=document.getElementById('coach-menu-btn');if(m)m.innerText='💡 ПІДКАЗКИ: '+LV_NAME[level];
+    if(pop)renderPop();
+  }
+  // меню 💡 у грі
+  function renderPop(){
+    pop.innerHTML=`<div class="cp-h">ПІДКАЗКИ</div>`+LV.map(v=>`<button class="cp-o${v===level?' on':''}" data-v="${v}"><b>${v===level?'●':'○'} ${LV_NAME[v]}</b><span>${LV_DESC[v]}</span></button>`).join('')+
+      `<button class="cp-r">↺ Навчання з початку</button>`;
+    pop.querySelectorAll('.cp-o').forEach(b=>b.onclick=e=>{e.stopPropagation();setLevel(b.dataset.v,true);closeMenu();});
+    pop.querySelector('.cp-r').onclick=e=>{e.stopPropagation();reset(true);closeMenu();};
+  }
+  function outside(e){if(pop&&!pop.contains(e.target)&&!(e.target.closest&&e.target.closest('#coach-btn')))closeMenu();}
+  function menu(e){
+    if(e)e.stopPropagation();
+    if(pop){closeMenu();return;}
+    pop=document.createElement('div');pop.id='coach-pop';renderPop();document.body.appendChild(pop);
+    document.addEventListener('pointerdown',outside,true);
+  }
+  function closeMenu(){if(pop){pop.remove();pop=null;}document.removeEventListener('pointerdown',outside,true);}
+  // запасний таймер: умови, що змінюються без перемальовування (кубики приземлились, лупа відкрилась)
+  timer=setInterval(()=>{try{update();
+    if(!placed){const cp=document.getElementById('center-panel');
+      if(cur&&el){el.style.opacity='1';pointTo();if(cp)cp.style.bottom=(el.offsetHeight+100)+'px';}else if(cp)cp.style.bottom='';}
+  }catch(e){}},450);
+  setTimeout(refresh,120);
+  return{update,event,visible,measure,reserve,place,setLevel,cycle,reset,menu,get level(){return level;},_seen:()=>seen,_cur:()=>cur&&{id:cur.def.id||cur.def.evId,title:cur.title,text:cur.text}};
+})();
 </script>
 </body>
 </html>
